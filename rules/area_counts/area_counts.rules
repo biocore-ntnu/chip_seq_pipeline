@@ -1,0 +1,54 @@
+from operator import itemgetter
+import re
+from itertools import dropwhile
+from gzip import GzipFile as gz_open
+
+rule make_tss_bed:
+    input:
+        config["local_annotation_gff3"] if config["local_annotation_gff3"] else "{prefix}/data/annotation/annotation.gff3"
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}.bed"
+    run:
+        """Create tss area bed file from gff3.
+
+        No duplicate start sites allowed."""
+
+        # TODO: depending on whether the wildcard is tss or tes, output starts or ends, respectively
+        # best way: use pandas dataframe?
+
+        if wildcards.tss_or_tes not in {"tss", "tes"}:
+            raise Exception("invalid wildcard " + wildcards.tss_or_tes + " ! Must be either tss or tes.")
+
+        bed_fields = itemgetter(0, 3, 4, 9, 6)
+        remove_delimiters = re.compile("\s+|\w+=|;")
+
+        tsses = set()
+        bed_lines = []
+
+        with gz_open(input[0]) as gff_handle:
+
+            for line in filter(lambda l: l.split()[2] == "gene", dropwhile(lambda l: l[0] == "#", # genes only, and drop comment lines
+                              (l.decode() for l in gff_handle))):
+                chromosome, start, end, gene_name, strand = bed_fields(re.split(remove_delimiters, line))
+
+                if strand == "-" and wildcards.tss_or_tes == "tss":
+                    start = end
+                elif strand == "+" and wildcards.tss_or_tes == "tes":
+                    start = end
+
+                # remove duplicate tsses
+                if (chromosome, start) in tsses:
+                    continue
+                else:
+                    tsses.add((chromosome, start))
+
+                start = int(start)
+                tss_start, tss_end = max(start, 0), start + 1
+                # remove trailing .\d+ from gene name
+                gene_name = gene_name.split(".")[0]
+
+                bed_line = "\t".join([str(v) for v in [chromosome, tss_start, tss_end, gene_name, ".", strand]]) + "\n"
+                bed_lines.append(bed_line)
+
+        with open(output[0], "w+") as bed_handle:
+            bed_handle.writelines(bed_lines)

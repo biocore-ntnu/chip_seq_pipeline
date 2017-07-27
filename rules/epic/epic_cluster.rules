@@ -1,0 +1,10 @@
+
+rule epic_cluster:
+    input:
+        "{prefix}/data/epic_merge/{caller}_matrix.gz"
+    output:
+        "{prefix}/data/epic_cluster/{caller}_cluster.csv"
+    threads:
+        25
+    shell:
+        "epic-cluster -cpu {threads} -o {output[0]} {input} > {output[0]}"

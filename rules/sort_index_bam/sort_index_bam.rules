@@ -1,0 +1,93 @@
+sort_cmd = "samtools sort {input[0]} > {output[0]}"
+index_cmd = "samtools index {input[0]}"
+if not config["bam"]:
+
+
+    rule sort_bam:
+        input:
+            "{path}.bam"
+        output:
+            "{path}.bam.sorted"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            sort_cmd
+
+
+    rule index_bam:
+        input:
+            "{path}.bam.sorted"
+        output:
+            "{path}.bam.sorted.bai"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            "samtools index {input[0]}"
+
+
+else:
+
+    def bams(w):
+        ss = sample_sheet
+        return ss.loc[ss.Name == w.sample].File.iloc[0]
+
+    rule sort_bam:
+        input:
+            bams
+        output:
+            "{prefix}/data/align/{sample}.bam.sorted"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            sort_cmd
+
+
+    rule index_bam:
+        input:
+            "{prefix}/data/align/{sample}.bam.sorted"
+        output:
+            "{prefix}/data/align/{sample}.bam.sorted.bai"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            "samtools index {input[0]}"
+
+
+    rule sort_group_bams:
+        input:
+            "{prefix}/data/bamcompare/{group}_{chip}.bam"
+        output:
+            "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted"
+        shell:
+            sort_cmd
+
+
+    rule index_group_bam:
+        input:
+            "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted"
+        output:
+            "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            index_cmd
+
+
+
+# rules/deeptools/bamcompare.rules:5:    return expand("{prefix}/data/align/{sample}.bam.sorted", sample=set(samples), prefix=w.prefix)
+# rules/deeptools/bamcoverage.rules:5:        bam = "{prefix}/data/align/{sample}.bam.sorted",
+# rules/deeptools/bamcoverage.rules:6:        index = "{prefix}/data/align/{sample}.bam.sorted.bai"
+# rules/deeptools/bamcoverage.rules:14:        bam = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
+# rules/deeptools/bamcoverage.rules:15:        index = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
+# rules/deeptools/bigwig.rules:5:        "{prefix}/data/align/{sample}.bam.sorted",
+# rules/deeptools/bigwig.rules:6:        "{prefix}/data/align/{sample}.bam.sorted.bai"
+# rules/deeptools/bigwig.rules:23:        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
+# rules/deeptools/bigwig.rules:24:        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
+# rules/sort_index_bam/sort_index_bam.rules:8:            "{path}.bam.sorted"
+# rules/sort_index_bam/sort_index_bam.rules:17:            "{path}.bam.sorted"
+# rules/sort_index_bam/sort_index_bam.rules:19:            "{path}.bam.sorted.bai"
+# rules/sort_index_bam/sort_index_bam.rules:36:            "{path}.bam.sorted"
+# rules/sort_index_bam/sort_index_bam.rules:45:                    "{path}.bam.sorted"
+# rules/sort_index_bam/sort_index_bam.rules:47:                    "{path}.bam.sorted.bai"
+# rules/bamtobed/bamtobed.rules:4:        "{path}.bam.sorted"
+# rules/bamtobed/bamtobed.rules:16:        "{path}.bam.sorted"

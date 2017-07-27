@@ -1,0 +1,7 @@
+File	Name	Group	ChIP	Mate
+tests/test_data/paired_end/chip1_1.fastq.gz	WT_ChIP_1	WT	ChIP	1
+tests/test_data/paired_end/chip1_2.fastq.gz	WT_ChIP_1	WT	ChIP	2
+tests/test_data/paired_end/chip2_1.fastq.gz	WT_ChIP_2	WT	ChIP	1
+tests/test_data/paired_end/chip2_2.fastq.gz	WT_ChIP_2	WT	ChIP	2
+tests/test_data/paired_end/input1_1.fastq.gz	WT_Input_1	WT	Input	1
+tests/test_data/paired_end/input1_2.fastq.gz	WT_Input_1	WT	Input	2

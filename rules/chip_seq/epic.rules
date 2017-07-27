@@ -1,0 +1,28 @@
+from utils.file_getters import correct_cs_files
+
+ss_to_use = loo_ss if "loo_ss" in vars() else ss
+
+rule run_epic:
+    input:
+        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bed", config),
+        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bed", config)
+    output:
+        outfile = "{prefix}/data/peaks/epic/{group}.csv",
+        bed = "{prefix}/data/peaks/epic/{group}.bed",
+        matrix = "{prefix}/data/epic/{group}.matrix.gz",
+        bigwig_folder = "{prefix}/data/epic/{group}_bigwigs/"
+    params:
+        paired_end = "--paired-end" if config["paired_end"] else ""
+    conda:
+        "../../envs/global.yaml"
+    threads:
+        25
+    resources:
+        instances = 1
+    shell:
+        "epic -cpu {threads} -g {config[epic][gap]} -w "
+        "{config[epic][window_size]} -gn {config[genome]} "
+        "{params.paired_end} "
+        "-b {output.bed} -t {input.chip} -c {input.input} "
+        "-sm {output.matrix} -bw {output.bigwig_folder} "
+        "> {output.outfile}"

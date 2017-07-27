@@ -1,0 +1,13 @@
+rule voom:
+    input:
+        counts = "{prefix}/data/epic_merge/matrix.gz",
+        design = config["design_matrix"]
+    output:
+        e_values = "{prefix}/data/voom/{group}.e_values",
+        weights = "{prefix}/data/voom/{group}.weights",
+        plot = "logs/voom/{group}.pdf"
+    params:
+        voom_normalization = config["voom_normalization"]
+        voom_normalization_dge = config["voom_normalization_dge"]
+    script:
+        "../../scripts/voom.R"

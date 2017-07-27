@@ -1,0 +1,51 @@
+rule gff_to_bed:
+    input:
+        "{prefix}/data/annotation/annotation.gff3"
+    output:
+        "{prefix}/data/annotation/{region_type}/annotation.bed"
+    conda:
+        "../../envs/global.yaml"
+    shell:
+        r"gff2bed < {input[0]} | grep -E '\b{wildcards.region_type}\b' "
+        "| cut -f 1-6 > {output[0]}"
+
+
+valid_region_types = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon", "stop_codon",
+ "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript"]
+
+rule remove_duplicate_tss:
+    input:
+        "{prefix}/data/annotation/{region_type}/annotation.bed"
+    output:
+        "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed"
+    wildcard_constraints:
+        region_type = "({})".format("|".join(valid_region_types))
+    run:
+        import pandas as pd
+
+        colnames = "Chromosome Start End Name Score Strand".split()
+
+        df = pd.read_table(input[0], header=None,
+                           names="Chromosome Start End Name Score Strand".split())
+
+        indexes_to_keep = []
+        for _, cdf in df.groupby("Chromosome"):
+            forward = cdf.loc[cdf.Strand == "+"]
+            reverse = cdf.loc[cdf.Strand == "-"]
+
+            new_cdf = pd.concat([forward.Start, reverse.End])
+            df_ix = new_cdf.drop_duplicates()
+            indexes_to_keep.append(df_ix)
+
+        ix = pd.concat(indexes_to_keep).index
+
+        df.ix[ix].to_csv(output[0], sep="\t", index=False, header=False)
+
+
+rule compute_internal_exons:
+    input:
+        exons = "{prefix}/data/annotation/exon/annotation.bed"
+    output:
+        "{prefix}/data/compute_tss/internal_exon/annotation_no_duplicate_tss.bed"
+    script:
+        "../../scripts/compute_internal_exons.py"

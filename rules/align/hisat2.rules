@@ -1,0 +1,45 @@
+def fetch_fastqs(sample, paired_end, prefix=prefix):
+    if paired_end:
+        fs = ["{prefix}/data/trim/{sample}_1.fastq", "{prefix}/data/trim/{sample}_2.fastq"]
+    else:
+        fs = ["{prefix}/data/trim/{sample}.fastq"]
+
+    return expand(fs, sample=sample, prefix=prefix)
+
+
+def correct_input_flags(reads):
+    if isinstance(reads, str):
+        input_flags = "-U {0}".format(reads)
+    elif len(reads) == 1:
+        input_flags = "-U {0}".format(reads[0])
+    elif len(reads) == 2:
+        input_flags = "-1 {0} -2 {1}".format(*reads)
+    else:
+        raise RuntimeError(
+            "Reads parameter must contain at least 1 and at most 2"
+            " input files.")
+
+    return input_flags
+
+if not config["bam"]:
+    rule hisat2:
+        "Run hisat2 to align fastqs"
+        input:
+            reads = lambda w: fetch_fastqs(w.sample, config["paired_end"], w.prefix),
+            index = config["index_prefix"] + ".1.ht2"
+        output:
+            "{prefix}/data/align/{sample}.bam"
+        log:
+            "logs/align/{sample}.log"
+        params:
+            idx = config["index_prefix"],
+            extra = config["hisat2_extra_flags"],
+            input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"])),
+        threads:
+            8
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            "(hisat2 {params.extra} --threads {threads}"
+            " -x {params.idx} {params.input_flags} | "
+            "samtools view -bh -o {output[0]}) > {log[0]} 2>&1"

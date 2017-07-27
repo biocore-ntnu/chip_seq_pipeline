@@ -1,0 +1,29 @@
+from leave_one_out.create_sample_sheets import create_sample_sheet
+
+rule create_bam_sample_sheet:
+    input:
+        expand("{prefix}/data/align/{sample}.bam", prefix=prefix,
+               sample=ss.Name.drop_duplicates())
+    output:
+        "{prefix}/bam_sample_sheet.txt"
+    run:
+        st = ss.drop_duplicates("Name")
+
+        rowdicts = []
+        for _, row in st.iterrows():
+            d = row.to_dict()
+            d["File"] = "{prefix}/data/align/{sample}.bam".format(prefix=prefix, sample=d["Name"])
+            rowdicts.append(d)
+
+        df = pd.DataFrame.from_dict(rowdicts)
+        df["File Name Group ChIP Mate".split()].to_csv(output[0], sep=" ", index=False)
+
+
+rule create_simulation_sample_sheet:
+    input:
+        "{prefix}/bam_sample_sheet.txt"
+    output:
+        "{prefix}/simulation_sample_sheet.txt"
+    run:
+        df = pd.read_table(input[0], sep=" ")
+        create_sample_sheet(df).to_csv(output[0], sep=" ", index=False)

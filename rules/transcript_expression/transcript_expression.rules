@@ -1,0 +1,72 @@
+"""Find the expression-quartile of each gene in Antonins RNA-Seq expression file.
+
+- Match gene names with expression level, where the expression level is divided into
+  five groups
+- Computes the number of genes in each quartile as normalization factors
+  0-25, 25-50, 50-75 and 75-100 should be the same size,
+  but the zero expression group is most likely a different size}}
+"""
+
+if config["expression_matrix"]:
+
+    rule gnxp_to_quartiles:
+        input:
+            config["expression_matrix"]
+        output:
+            "{prefix}/data/transcript_expression/quartiles.csv"
+        run:
+            expression_matrix = pd.read_table(input[0])
+
+            all_zeroes = expression_matrix[(expression_matrix == 0).all(1)]
+
+            normalized_expression_matrix = expression_matrix / expression_matrix.sum(
+                axis=0) * 1e6
+            gene_sum = normalized_expression_matrix.sum(axis=1)
+
+            # do not want to include zeroes in our quartile calculations
+            gene_sum_above_zero = gene_sum[gene_sum > 0]
+            q25, q50, q75 = gene_sum_above_zero.quantile([.25, .5, .75])
+
+            quartiles = pd.Series(name="Quartile", index=gene_sum.index)
+
+            b25_idx = gene_sum[((0 < gene_sum) & (gene_sum < q25))]
+            b50_idx = gene_sum[((gene_sum >= q25) & (gene_sum < q50))]
+            b75_idx = gene_sum[((gene_sum >= q50) & (gene_sum < q75))]
+            b100_idx = gene_sum[(gene_sum >= q75)]
+
+            quartiles[all_zeroes.index] = "0"
+            quartiles[b25_idx.index] = "25"
+            quartiles[b50_idx.index] = "50"
+            quartiles[b75_idx.index] = "75"
+            quartiles[b100_idx.index] = "100"
+
+            quartiles.name = "Quartile"
+            quartiles.index.name = "Gene"
+
+            quartiles.to_csv(output[0], sep=" ")
+
+    rule add_quartile_info_to_tss:
+        input:
+            quartiles = "{prefix}/data/transcript_expression/quartiles.csv",
+            tss = "{prefix}/data/area_counts/{tss_or_tes}.bed"
+        output:
+            "{prefix}/data/transcript_expression/{tss_or_tes}.bed"
+        run:
+            quartiles = pd.read_table(input.quartiles, sep=" ", squeeze=True, header=None, names="Gene Quartile".split(), dtype=str)
+            tss = pd.read_table(input.tss, header=None)
+
+            quartile_tss = tss.merge(quartiles, how="inner", left_on=3, right_on="Gene", copy=False).drop("Gene", axis=1)
+            quartile_tss = quartile_tss[[0, 1, 2, 3, "Quartile", 5]]
+
+            assert tss.isnull().sum().sum() == 0, "NA values in dataframe!"
+            quartile_tss.to_csv(output[0], sep="\t", index=False, header=False, na_rep="?")
+
+
+    rule quartile_normalization_factors:
+        """Count the number of genes in each quartile."""
+        input:
+            "{prefix}/data/transcript_expression/quartiles.csv",
+        output:
+            "{prefix}/data/transcript_expression/normalization_factors.csv"
+        shell:
+            "cut -f 2 -d ' ' {input[0]} | sort | uniq -c | sed -e 's/^[ ]*//' > {output[0]}"

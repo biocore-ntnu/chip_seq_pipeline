@@ -1,0 +1,29 @@
+from utils.file_getters import correct_cs_files
+
+ss_to_use = loo_ss if "loo_ss" in vars() else ss
+
+rule run_macs:
+    input:
+        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bam", config),
+        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bam", config)
+    output:
+        "{prefix}/data/peaks/macs2/{group}.csv"
+    params:
+        prefix="{prefix}/data/peaks/macs2/{group}",
+        outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak",
+        paired_end = "--format BAMPE" if config["paired_end"] else ""
+    conda:
+        "../../envs/macs2.yaml"
+    threads:
+        25
+    shell:
+        "macs2 callpeak {params.paired_end} --nomodel --extsize 150 -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+
+
+rule merge_macs_results:
+    input:
+        expand("{{prefix}}/data/peaks/macs2/{group}.csv", group=groups)
+    output:
+        "{prefix}/data/peaks/macs2/merged.bed"
+    shell:
+        "sort -k1,1 -k2,3n {input} | bedtools merge {output[0]}"

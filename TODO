@@ -1,0 +1,37 @@
+- put graph-easy in conda so we can visualize dags on the command line
+
+
+## TODO:
+
+- check sort order of heatmaps
+- find test data for paired end and test pipeline with it
+- recieve user feedback to update docs/make pipeline more general
+- test using plotprofile with several region files -R
+
+Hi Thomos,
+                   I will definitely share it once I have done that. If you like Linux then you can install and use graph easy to directly convert dot file to ASCII  e.g. graph-easy --input graph.dot --as_ascii
+:~$ graph-easy --input graph.dot --as_ascii
++---+     +---+     +---+
+| b | ---   | a | --- | d |
++---+     +---+     +---+
+            |
+            |
+            |
+          +---+
+          | c |
+          +---+
+            |
+            |
+            |
+          +---+
+          | e |
+          +---+
+:~$
+:~$ cat graph.dot
+graph te {
+a -- b;
+a -- c;
+a -- d;
+c-- e ;
+}
+:~$

@@ -1,0 +1,59 @@
+bigwig_compare_cmd = "bigwigCompare -b1 {input.top} -b2 {input.bottom} -p {threads} -o {output[0]}"
+
+
+rule bigwig_compare_merged_chip_vs_merged_input:
+    input:
+        top = "{prefix}/data/bamcoverage/merged_{group}_ChIP.bw",
+        bottom = "{prefix}/data/bamcoverage/merged_{group}_Input.bw",
+    output:
+        "{prefix}/data/bigwigcompare/group_{group}_chip_vs_input.bigwig"
+    threads:
+        24
+    shell:
+        bigwig_compare_cmd
+
+
+rule bigwig_compare_merged_chip_groups:
+    input:
+        # Add Input
+        top = "{prefix}/data/bigwigcompare/group_{group1}_chip_vs_input.bigwig",
+        bottom = "{prefix}/data/bigwigcompare/group_{group2}_chip_vs_input.bigwig",
+    output:
+        "{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig"
+    threads:
+        24
+    shell:
+        bigwig_compare_cmd
+
+
+rule bigwig_compare_sample_vs_group:
+    # Must fix!!!
+    input:
+        top = "{prefix}/data/bigwigcompare/sample_{sample}_vs_merged_input.bw",
+        bottom = "{prefix}/data/bigwigcompare/group_{group}_chip_vs_input.bigwig"
+    output:
+        "{prefix}/data/bigwigcompare/sample_{sample}_vs_group_{group}.bigwig"
+    threads: 24
+    shell:
+        "FIXME: " + bigwig_compare_cmd
+
+
+def correct_group_merged_input(w):
+    sample = w.sample
+
+    ss = sample_sheet
+    group = ss.loc[ss.Name == sample].Group.drop_duplicates().iloc[0]
+
+    return "{prefix}/data/bamcoverage/merged_{group}_Input.bw".format(group=group, prefix=w.prefix)
+
+
+rule bigwig_compare_sample_chip_vs_merged_input:
+    input:
+        top = "{prefix}/data/bamcoverage/{sample}.bw",
+        bottom = correct_group_merged_input
+    output:
+        "{prefix}/data/bigwigcompare/sample_{sample}_vs_merged_input.bw"
+    threads:
+        24
+    shell:
+        bigwig_compare_cmd

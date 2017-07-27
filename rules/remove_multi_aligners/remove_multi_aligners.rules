@@ -1,0 +1,11 @@
+
+if not config["keep_multi_aligning_reads"]:
+    rule remove_multi_aligners:
+        input:
+            "{prefix}/data/align/{sample}.bam"
+        output:
+            "{prefix}/data/no_multi_aligners/{sample}.bam"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            "samtools view -h {input[0]} | grep -E '@|NH:i:1$' | samtools view -b > {output[0]}"

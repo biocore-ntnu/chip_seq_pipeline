@@ -1,0 +1,34 @@
+cmd = "bamCoverage --binSize 1 -p {threads} --normalizeUsingRPKM -b {input[0]} -o {output[0]}"
+
+rule bam_to_bigwig:
+    input:
+        "{prefix}/data/align/{sample}.bam.sorted",
+        "{prefix}/data/align/{sample}.bam.sorted.bai"
+    output:
+        "{prefix}/data/bigwig/{sample}.bigwig"
+    resources:
+        instances = 1
+    threads:
+        25
+    conda:
+        "../../envs/global.yaml"
+    shell:
+        cmd
+
+
+# rule repeated to make dag less complicated
+
+rule merged_bam_to_bigwig:
+    input:
+        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
+        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
+    output:
+        "{prefix}/data/merged_bigwig/{group}_{chip}.bigwig"
+    resources:
+        instances = 1
+    threads:
+        25
+    conda:
+        "../../envs/global.yaml"
+    shell:
+        cmd

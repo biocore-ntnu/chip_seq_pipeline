@@ -1,0 +1,14 @@
+channels:
+  - bioconda
+  - r
+
+dependencies:
+ - atropos
+ - bedtools
+ - epic
+ - hisat2
+ - samtools
+ - deeptools
+ - r-stringr
+ - r-ggplot2
+ - bedops

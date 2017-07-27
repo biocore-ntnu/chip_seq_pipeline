@@ -1,0 +1,167 @@
+# Config for ChIP-Seq pipeline
+
+# ---------------------------------
+# sample sheet
+# ---------------------------------
+
+sample_sheet:
+  tests/test_data/dna_repair/sample_sheet.txt
+
+prefix:
+  tests/test_data/dna_repair
+
+limma:
+  contrasts:
+    WTvsGENE1:
+
+bam:
+  false
+
+# --------------------------------------
+# Region types
+# --------------------------------------
+
+# custom region types can be any of the following: "CDS", "exon",
+# "five_prime_UTR", "gene", "start_codon", "stop_codon",
+# "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript",
+# "internal_exon"
+region_types:
+  - exon
+  - gene
+  - internal_exon
+
+# custom region files cannot have any of the following names: "CDS", "exon",
+# "five_prime_UTR", "gene", "start_codon", "stop_codon",
+# "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript",
+# "internal_exon"
+# custom regions also used to group data in plots, see blah
+
+region_files:
+  quantiles_internal_exon: test_data/WT.internal_exon.bed
+  quantiles_exon: test_data/WT.exon.bed
+  quantiles_gene: test_data/WT.gene.bed
+
+
+
+
+# # --------------------------------------
+# # Affects heatmaps and profileplots
+# # --------------------------------------
+
+# chip:
+#   - chip
+#   - input
+#   - log2ratio
+
+# --------------------------------------
+# Bin size for heatmaps and profileplots
+# --------------------------------------
+
+graph_bin_size: 10
+
+# ---------------------------------
+# general settings
+# ---------------------------------
+
+merge_lanes:
+  true
+
+# callers to use:
+# available: macs2, epic
+cs_callers:
+  - epic
+  - macs2
+
+genome: hg38
+
+# paired end not implemented yet
+paired_end: False
+
+
+# ---------------------------------
+# region file
+# ---------------------------------
+
+# if have one locally (must be gzipped)
+local_annotation_gff3:
+  test_data/gencode.v26.annotation.gff3.gz
+
+# if local_annotation_file is blank, this file will be downloaded and used
+remote_annotation_gff3:
+  ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gff3.gz
+
+region_file:
+  pass
+
+# ---------------------------------
+# HISAT2 index
+# ---------------------------------
+
+index_prefix:
+  tests/test_data/genomes/hisat2/hg38/genome
+
+# ---------------------
+# fastq minimum quality
+# ---------------------
+
+fastq_quality:
+  - 20
+
+# --------------------------------------
+# Remove adapters
+# --------------------------------------
+
+adapters:
+
+# minimum read length after trimming
+min_read_length:
+  - 14
+
+# ---------------------------------
+# HISAT2 align
+# ---------------------------------
+
+hisat2_extra_flags: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
+
+# --------------------------------------
+# Remove reads with duplicate alignments
+# --------------------------------------
+
+keep_multi_aligning_reads: yes
+
+# --------------------------------------
+# fragment length
+# --------------------------------------
+
+fragment_length: 150
+
+# --------------------------------------
+# tss/tes graph settings
+# --------------------------------------
+
+# how many nucleotides in each direction around the TSS/TES to graph
+tss_distance_gene: 3000
+tss_distance_exon: 500
+
+# --------------------------------------
+# epic settings
+# --------------------------------------
+
+epic:
+  gap: 3
+  window_size: 200
+
+
+# --------------------------------------
+# differential analysis
+# --------------------------------------
+
+# a custom script to perform the differential analysis
+# if none specified, will use the one in scripts/differential_analysis.R
+# take a look at if for inspiration!
+
+differential_analysis:
+  "oo"
+
+design_matrix:
+  #"design_matrix.csv"

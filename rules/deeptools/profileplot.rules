@@ -1,0 +1,19 @@
+rule scaled_regions_profileplot:
+    input:
+        "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz"
+    output:
+        "{prefix}/data/profileplot/{region_type}_{chip}_scale_regions_{group}_profile_plot.png"
+    shell:
+        "plotProfile -T '{wildcards.group} (scaled-regions)' -m {input[0]} -out {output[0]} "
+
+
+rule reference_point_profileplot:
+    input:
+        "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz"
+    output:
+        "{prefix}/data/profileplot/{region_type}_{chip}_{scaled}_{group}_reference_plot.png"
+    wildcard_constraints:
+        scaled="(tss|tes)"
+    shell:
+        "plotProfile --refPointLabel {wildcards.scaled} -T '{wildcards.group} "
+        " (reference-point: {wildcards.scaled})' -m {input[0]} -out {output[0]} "

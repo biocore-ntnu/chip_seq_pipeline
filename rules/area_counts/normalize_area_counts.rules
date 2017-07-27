@@ -1,0 +1,135 @@
+"""Normalize the TSS area counts.
+
+- Take the average of the input from sample 1 and 2 and set each to the average
+- Divide the counts for the genes within each quartile by the number of genes
+  in that quartile.
+- Divide the counts for each modification by them count for each input file.
+"""
+
+import re
+from itertools import product
+
+__author__ = "Endre Bakken Stovner https://github.com/endrebak/"
+__license__ = "MIT"
+
+
+def get_correct_samples(samples, group, chip):
+
+    sample_rows = samples.Group == group
+    input_rows = samples.ChIP.str.match(chip, flags=re.IGNORECASE)
+
+    return list(samples.loc[sample_rows & input_rows].Name)
+
+
+def input_files(samples, group, tss_or_tes, chip, using_gnxp):
+
+    correct_samples = get_correct_samples(samples, group, chip)
+    folder = "transcript_expression" if using_gnxp else "area_counts"
+
+    template = "{prefix}/data/{folder}/{tss_or_tes}_{{sample}}.area_distance".format(
+        tss_or_tes=tss_or_tes, folder=folder)
+    files = expand(template, sample=correct_samples)
+    if not files:
+        print(correct_samples)
+        print(group, chip, tss_or_tes)
+        raise Exception("no matching input found!")
+
+    return files
+
+
+rule merge_chip:
+    input:
+        lambda w: input_files(sample_sheet, w.group, w.tss_or_tes, "chip", config["expression_matrix"])
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}_{group}.merged_chip"
+    shell:
+        "cat {input} > {output[0]}"
+
+
+rule average_input:
+    input:
+        lambda w: input_files(sample_sheet, w.group, w.tss_or_tes, "input", config["expression_matrix"])
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}_{group}.merged_input"
+    run:
+        samples = get_correct_samples(sample_sheet, wildcards.group, "input")
+
+        df = pd.read_table(input[0], sep=" ", index_col=None, header=0)
+        df.columns = "CustomVar Distance Count Sample".split()
+
+        df = df.drop("Sample", axis=1)
+
+        pd.options.mode.chained_assignment = None  # default='warn'
+        dfs = []
+        for (customvar, distance), cv_df in df.groupby("CustomVar Distance".split()):
+            row = cv_df.head(1)
+            row["Count"] = int(cv_df.Count.sum()/2) # make the two inputs equal
+
+            for sample in samples:
+                row["Sample"] = sample
+                dfs.append(row.copy())
+
+        outdf = pd.concat(dfs, axis=0)
+        outdf.to_csv(output[0], sep=" ", index=None)
+
+
+rule normalize_counts:
+    input:
+        normfacs = "{prefix}/data/transcript_expression/normalization_factors.csv",
+        data = "{prefix}/data/area_counts/{tss_or_tes}_{group}.merged_{chip}"
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}_{group}_{chip}.normalized_counts"
+    run:
+        normfacs = pd.read_table(input.normfacs, sep="\s+", header=None, index_col=1, squeeze=True).to_dict()
+        df = pd.read_table(input.data, sep=" ", header=0, index_col=None, names="Quartile Distance Count Sample".split())
+
+        for quartile, count in normfacs.items():
+            df.loc[df.Quartile == quartile, "Count"] = df.Count / int(count)
+
+        df.rename(columns={"Count": "NormCount"}, inplace=True)
+
+        df.to_csv(output[0], sep=" ", index=None)
+
+
+rule divide_chip_input:
+    input:
+        chip = "{prefix}/data/area_counts/{tss_or_tes}_{group}_chip.normalized_counts",
+        input = "{prefix}/data/area_counts/{tss_or_tes}_{group}_input.normalized_counts"
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}_{group}.divided_counts"
+    run:
+        chip_df = pd.read_table(input.chip, sep=" ", index_col="Distance Quartile".split())
+        input_df = pd.read_table(input.input, sep=" ", index_col="Distance Quartile".split()).drop("Sample", axis=1)
+
+        samples = chip_df.Sample.copy()
+        chip_df = chip_df.drop("Sample", axis=1)
+
+        df = (chip_df.div(input_df, axis=1))
+
+        df = df.join(samples)
+        df.insert(1, "Group", wildcards.group)
+
+        df = df.dropna()
+        df.reset_index()["Distance Sample Group Quartile NormCount".split()].to_csv(output[0], sep=" ", na_rep="NA", index=False)
+
+
+def merge_groups_of_divided_counts_files(w, samples):
+
+    correct_groups = list(samples.loc[w.graph_group == samples.GraphGroup].Group)
+
+    files = expand("{prefix}/data/area_counts/{tss_or_tes}_{group}.divided_counts",
+           tss_or_tes=w.tss_or_tes, group=correct_groups)
+
+    return files
+
+
+rule merge_divided_counts:
+    input:
+        lambda w: merge_groups_of_divided_counts_files(w, sample_sheet)
+    output:
+        "{prefix}/data/area_counts/{tss_or_tes}_{graph_group}.graph_group_divided_counts"
+    run:
+        dfs = [pd.read_table(f, sep=" ", header=0) for f in input]
+        df = pd.concat(dfs).drop_duplicates("Quartile Distance Sample".split())
+        df.columns = [s if s != "Group" else "GraphGroup" for s in df.columns]
+        df.to_csv(output[0], sep=" ", index=False, header=True)

@@ -1,0 +1,22 @@
+def epic_merge_bed(w):
+    if w.caller == "epic":
+        s = ""
+    elif w.caller == "macs2":
+        s = "-b {prefix}/data/peaks/macs2/merged.bed".format(prefix=w.prefix)
+    else:
+        raise Exception("Caller not macs2 or epic: " + w.caller)
+
+    return s
+
+
+rule epic_merge:
+    input:
+        expand("{{prefix}}/data/epic/{group}.matrix.gz", group=groups)
+    output:
+        "{prefix}/data/epic_merge/{caller}_matrix.gz"
+    threads:
+        25
+    params:
+        bed = epic_merge_bed
+    shell:
+        "epic-merge -cpu {threads} {params.bed} -o {output[0]} {input}"

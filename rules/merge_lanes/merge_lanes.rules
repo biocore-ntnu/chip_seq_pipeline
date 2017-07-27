@@ -1,0 +1,9 @@
+
+if config["merge_lanes"] and not config["bam"]:
+    rule merge_lanes:
+        input:
+            fastqs = lambda w: sample_sheet.loc[sample_sheet.Name==w.sample].File
+        output:
+            temp("{prefix}/data/merged_lanes/{sample}.fastq")
+        shell:
+            "zcat {input.fastqs} > {output[0]}"

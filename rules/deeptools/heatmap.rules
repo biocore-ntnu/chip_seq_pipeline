@@ -1,0 +1,56 @@
+ruleorder: find_heatmap_sort_order > create_heatmap
+
+rule find_heatmap_sort_order:
+    input:
+        matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/sort_order_matrix_{group}.mat.gz".format(group=first_group),
+    output:
+        graph = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_{{region_type}}.png".format(group=first_group),
+        sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
+    resources:
+        instances = 1
+    priority: 100
+    shell:
+        "plotHeatmap -m {input[0]} --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
+
+
+rule create_heatmap:
+    input:
+        matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz",
+    output:
+        graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png"
+    resources:
+        instances = 1
+    priority: 100
+    shell:
+        "plotHeatmap -T '{wildcards.group} (scale-regions)' -m {input.matrix} --sortRegions no -out {output.graph}"
+
+
+if second_group:
+
+    ruleorder: find_group_vs_group_heatmap_sort_order > create_group_vs_group_heatmap
+
+    rule find_group_vs_group_heatmap_sort_order:
+        input:
+            matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/group_vs_group/sort_order_matrix_{group1}_vs_{group2}.mat.gz".format(group1=first_group, group2=second_group)
+        output:
+            graph = temp("{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}.png".format(group1=first_group, group2=second_group)),
+            sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=second_group)
+        resources:
+            instances = 1
+        priority: 100
+        shell:
+            "plotHeatmap -m {input[0]} --sortRegions descend  -out {output.graph} --outFileSortedRegions {output.sort_order}"
+
+
+    rule create_group_vs_group_heatmap:
+        input:
+            matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}.mat.gz",
+        output:
+            graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png"
+        params:
+            title = lambda w: w.group1 + " vs " + w.group2
+        resources:
+            instances = 1
+        priority: 100
+        shell:
+            "plotHeatmap -T '{params.title}' -m {input.matrix} --sortRegions no -out {output.graph}"

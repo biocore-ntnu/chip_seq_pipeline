@@ -1,0 +1,7 @@
+
+
+rule download_gencode:
+    output:
+        "{prefix}/data/annotation/annotation.gff3"
+    shell:
+        "curl {config[remote_annotation_gff3]} | gunzip > {output[0]}"

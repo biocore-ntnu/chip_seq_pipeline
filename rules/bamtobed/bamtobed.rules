@@ -1,0 +1,23 @@
+
+rule bamtobed:
+    input:
+        "{path}.bam.sorted"
+    output:
+        "{path}.bed"
+    conda:
+        "../../envs/global.yaml"
+    # wildcard_constraints:
+        # file = "^[/]*"
+    shell: "bamToBed -i {input[0]} > {output[0]}"
+
+
+rule bamtobed_pe:
+    input:
+        "{path}.bam.sorted"
+    output:
+        "{path}.bedpe"
+    conda:
+        "../../envs/global.yaml"
+        # wildcard_constraints:
+        # file = "^[/]*"
+    shell: "bamToBed -i {input[0]} > {output[0]}"

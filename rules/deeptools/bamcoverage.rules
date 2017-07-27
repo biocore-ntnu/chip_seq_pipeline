@@ -1,0 +1,19 @@
+bamcoverage_cmd = "bamCoverage --normalizeUsingRPKM -b {input.bam} -o {output[0]}"
+
+rule bamcoverage:
+    input:
+        bam = "{prefix}/data/align/{sample}.bam.sorted",
+        index = "{prefix}/data/align/{sample}.bam.sorted.bai"
+    output:
+        "{prefix}/data/bamcoverage/{sample}.bw"
+    shell:
+        bamcoverage_cmd
+
+rule bamcoverage_merged_group:
+    input:
+        bam = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
+        index = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
+    output:
+        "{prefix}/data/bamcoverage/merged_{group}_{chip}.bw"
+    shell:
+        bamcoverage_cmd

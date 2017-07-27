@@ -1,0 +1,25 @@
+"""Graph signal around TSS/TES"""
+
+__author__ = "Endre Bakken Stovner https://github.com/endrebak/"
+__license__ = "MIT"
+
+if config["expression_matrix"]:
+    rule graph_tss_area:
+        input:
+            "{prefix}/data/area_counts/{tss_or_tes}_{graph_group}.graph_group_divided_counts"
+        output:
+            "graphs/{tss_or_tes}_{graph_group}.pdf",
+        conda:
+            "../../envs/global.yaml"
+        script:
+            "../../scripts/graph_tss_area.R"
+else:
+    rule graph_tss_area_no_expression_matrix:
+        input:
+            "{prefix}/data/area_counts/{tss_or_tes}_{graph_group}.graph_group_divided_counts"
+        output:
+            "graphs/{tss_or_tes}_{graph_group}.pdf",
+        conda:
+            "../../envs/global.yaml"
+        script:
+            "../../scripts/graph_tss_area_no_expression_matrix.R"
