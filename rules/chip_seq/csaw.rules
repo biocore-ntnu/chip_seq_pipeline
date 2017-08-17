@@ -1,0 +1,11 @@
+from utils.file_getters import correct_cs_files
+
+rule csaw_count:
+    input:
+        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bam", config),
+        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bam", config)
+    output:
+        table = "{prefix}/data/peaks/csaw/count/{group}_count_table.csv", # for logging purposes mostly
+        rdata = "{prefix}/data/peaks/csaw/count/{group}_count_table.rds"
+    script:
+        "scripts/csaw_count.R"

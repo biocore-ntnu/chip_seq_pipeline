@@ -44,8 +44,9 @@ to_include = ["download/annotation",
               "deeptools/bigwig", "merge_lanes/merge_lanes",
               "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
               "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
-              "chip_seq/epic", "chip_seq/macs2", "epic/epic_merge", "epic/epic_blacklist",
-              "epic/epic_cluster", "leave_one_out/bam_sample_sheet"]
+              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw",
+              "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
+              "leave_one_out/bam_sample_sheet"]
 
 
 path_prefix = config["prefix"]
