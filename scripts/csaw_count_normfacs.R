@@ -1,8 +1,12 @@
-
 library(csaw)
 
+files = snakemake@input[["chip_input"]]
+
 param <- readParam(minq=snakemake@config[["fastq_quality"]])
-binned <- windowCounts(snakemake@config[["filenames_as_string"]], bin=TRUE, width=10000, param=param)
+binned <- windowCounts(files, bin=TRUE, width=10000, param=param)
 normfacs <-  normOffsets(binned)
 
-saveRDS(snakemake@output[[1]])
+n = as.data.frame(normfacs)
+rownames(n) = files
+
+write.table(n, snakemake@output[[1]])

@@ -4,8 +4,8 @@ ss_to_use = loo_ss if "loo_ss" in vars() else ss
 
 rule run_macs:
     input:
-        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bam", config),
-        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bam", config)
+        chip = lambda w: correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config, w.group),
+        input = lambda w: correct_cs_files(ss_to_use, w.prefix, "input", "bam", config, w.group)
     output:
         "{prefix}/data/peaks/macs2/{group}.csv"
     params:

@@ -36,20 +36,26 @@ def read_rna_seq_sample_sheet(sample_sheet):
     if os.path.exists:
         return read_sample_sheet(sample_sheet)
 
-def _get_samples(sample_sheet, group, chip):
-    group_idx = sample_sheet.Group == group
+def _get_samples(sample_sheet, chip, group=None):
+
     chip_idx = sample_sheet.ChIP.str.contains(chip, flags=re.IGNORECASE)
-    samples = sample_sheet.loc[group_idx & chip_idx].Name.drop_duplicates()
+    if not group:
+        samples = sample_sheet.loc[chip_idx].Name.drop_duplicates()
+    else:
+        group_idx = sample_sheet.Group == group
+        samples = sample_sheet.loc[group_idx & chip_idx].Name.drop_duplicates()
 
     return list(samples)
 
 
-def correct_cs_files(sample_sheet, group, prefix, chip, extension, config):
 
-    samples = _get_samples(sample_sheet, group, chip)
+def correct_cs_files(sample_sheet, prefix, chip, extension, config, group=None):
+    "Gets the chip seq files. By default gets all group files."
+
+    samples = _get_samples(sample_sheet, chip, group)
 
     if extension == "bam" and not config["bam"]:
-        fs = "{prefix}/data/align/{sample}.bam"
+        fs = "{prefix}/data/align/{sample}.bam.sorted"
     elif extension == "bam" and config["bam"]:
         ss = sample_sheet
         files = list(ss.loc[ss.Name.isin(samples)].File)

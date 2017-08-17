@@ -1,5 +1,7 @@
 # Config for ChIP-Seq pipeline
 
+leave_one_out: False
+
 # ---------------------------------
 # sample sheet
 # ---------------------------------
@@ -157,6 +159,9 @@ epic:
 # --------------------------------------
 # csaw settings
 # --------------------------------------
+
+
+window_size: 200
 
 # "an integer scalar for the minimum count sum across libraries for each window"
 # i.e. rows with fewer reads than this are not analyzed by CSAW
