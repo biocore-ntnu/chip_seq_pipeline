@@ -1,6 +1,9 @@
 sample_sheet:
   tests/test_data/paired_end/sample_sheet.txt
 
+external_control_sample_sheet:
+  tests/test_data/external_controls/sample_sheet.txt
+
 # no trailing /, ie my_project/folder not my_project/folder/
 prefix:
   tests/test_data/paired_end

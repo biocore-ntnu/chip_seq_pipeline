@@ -1,4 +1,5 @@
 def fetch_fastqs(sample, paired_end, prefix=prefix):
+
     if paired_end:
         fs = ["{prefix}/data/trim/{sample}_1.fastq", "{prefix}/data/trim/{sample}_2.fastq"]
     else:
@@ -34,7 +35,7 @@ if not config["bam"]:
         params:
             idx = config["index_prefix"],
             extra = config["hisat2_extra_flags"],
-            input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"])),
+            input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"], w.prefix)),
         threads:
             8
         conda:
@@ -42,4 +43,4 @@ if not config["bam"]:
         shell:
             "(hisat2 {params.extra} --threads {threads}"
             " -x {params.idx} {params.input_flags} | "
-            "samtools view -bh -o {output[0]}) > {log[0]} 2>&1"
+            "samtools view -h -o {output[0]}) > {log[0]} 2>&1"

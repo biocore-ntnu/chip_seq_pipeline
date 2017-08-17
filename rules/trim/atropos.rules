@@ -5,8 +5,11 @@ def get_fastqs(paired_end):
         return "{prefix}/data/trim/{sample}.fastq"
 
 
-def correct_flag(sample, paired_end):
-    files = list(sample_sheet.loc[sample_sheet.Name==sample].File)
+def correct_flag(w, paired_end, sample_sheet, ec_ss):
+    if "__external_control" in w.prefix:
+        sample_sheet = ec_ss
+
+    files = list(sample_sheet.loc[sample_sheet.Name==w.sample].File)
     if paired_end:
         flag = "-pe1 {} -pe2 {}".format(files[0], files[1])
     else:
@@ -16,10 +19,14 @@ def correct_flag(sample, paired_end):
 
 
 def atropos_input_files(w):
+    if "__external_control" in w.prefix:
+        sample_sheet = ec_ss
+
     if config["merge_lanes"]:
         return "{prefix}/data/merged_lanes/{sample}.fastq".format(sample=w.sample, prefix=w.prefix)
     else:
         return sample_sheet.loc[sample_sheet.Name==w.sample].File
+
 
 if not config["bam"]:
     rule atropos:
@@ -28,11 +35,13 @@ if not config["bam"]:
         output:
             get_fastqs(config["paired_end"])
         params:
-            reads = lambda w: correct_flag(w.sample, config["paired_end"]),
+            reads = lambda w: correct_flag(w, config["paired_end"], sample_sheet, ec_ss),
             adapters = "-b " + config["adapters"] if config["adapters"] else ""
         log:
             "logs/trim/atropos_{sample}.log"
         conda:
             "../../envs/global.yaml"
+        threads:
+            48
         shell:
-            "atropos -q {config[fastq_quality]} -m {config[min_read_length]} {params.adapters} -o {output[0]} {params.reads} > {log}"
+            "atropos -T {threads} -q {config[fastq_quality]} -m {config[min_read_length]} {params.adapters} -o {output[0]} {params.reads} > {log}"

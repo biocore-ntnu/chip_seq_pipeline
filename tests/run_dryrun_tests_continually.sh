@@ -1,2 +1,2 @@
 export PYTHONPATH=.
-py.test -f -m dryrun
+py.test -n 48 -f -m dryrun

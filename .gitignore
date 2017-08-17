@@ -16,4 +16,4 @@ _build/
 *.pyc
 *.snakemake.*
 *.fastq
-
+*_deeptools*

@@ -1,0 +1,9 @@
+
+rule epic_blacklist:
+    input:
+        expand("{prefix}/data/align/{sample}.bed", sample=ec_samples, prefix=config["prefix"] + "/__external_control")
+    output:
+        "{prefix}/data/epic_blacklist/bad_bins.bed".format(prefix=config["prefix"])
+    threads: 48
+    shell:
+        "epic-blacklist -i {input} -o {output} -cpu {threads} -gn hg38"

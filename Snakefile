@@ -15,6 +15,7 @@ tss_or_tes = "(tss|tes)"
 if not config:
     configfile: "config.yaml"
 
+
 prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
@@ -27,20 +28,23 @@ if os.path.exists(leave_one_out_sample_sheet):
 else:
     loo_groups = []
 
-if config.get("external_control_sample_sheet", ""):
-    ec_ss = pd.read_table(config["external_control_sample_sheet"])
+
+if config.get("external_control_sample_sheet", "") and config["external_control_sample_sheet"]:
+    ec_ss = pd.read_table(config["external_control_sample_sheet"], sep="\s+", header=0)
     ec_groups = list(ec_ss.Group.drop_duplicates())
     ec_samples = list(ec_ss.Name.drop_duplicates())
 else:
-    ec_samples, ec_groups = [], []
+    ec_ss, ec_samples, ec_groups = pd.DataFrame(), [], []
 
-to_include = ["download/annotation", "deeptools/bamcompare","deeptools/bigwig_compare",
+
+to_include = ["download/annotation",
+              "deeptools/bamcompare","deeptools/bigwig_compare",
               "deeptools/heatmap", "deeptools/profileplot",
               "deeptools/computematrix", "deeptools/bamcoverage",
               "deeptools/bigwig", "merge_lanes/merge_lanes",
               "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
               "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
-              "chip_seq/epic", "chip_seq/macs2", "epic/epic_merge",
+              "chip_seq/epic", "chip_seq/macs2", "epic/epic_merge", "epic/epic_blacklist",
               "epic/epic_cluster", "leave_one_out/bam_sample_sheet"]
 
 
@@ -164,9 +168,9 @@ rule limma:
         expand("{prefix}/data/epic_cluster/{caller}_cluster.csv", caller=config["cs_callers"], prefix=prefix)
 
 
-rule loo_sample_sheet:
-    input:
-        leave_one_out_sample_sheet
+# rule loo_sample_sheet:
+#     input:
+#         leave_one_out_sample_sheet
 
 if os.path.exists(leave_one_out_sample_sheet):
 

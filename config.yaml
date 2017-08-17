@@ -5,20 +5,20 @@
 # ---------------------------------
 
 sample_sheet:
-  tests/test_data/dna_repair/sample_sheet.txt
+  sample_sheet_fixed.txt
 
 external_control_sample_sheet:
-  tests/test_data/external_controls/sample_sheet.txt
+  sample_sheet_controls.txt
 
 prefix:
-  tests/test_data/dna_repair
-
-limma:
-  contrasts:
-    WTvsGENE1:
+  "/mnt/scratch/projects/epipp"
 
 bam:
   false
+
+limma:
+  contrasts:
+    WTvsAAG:
 
 # --------------------------------------
 # Region types
@@ -40,11 +40,10 @@ region_types:
 # custom regions also used to group data in plots, see blah
 
 region_files:
-  quantiles_internal_exon: test_data/WT.internal_exon.bed
-  quantiles_exon: test_data/WT.exon.bed
-  quantiles_gene: test_data/WT.gene.bed
-
-
+  angle_genes: private/epipp/angle_genes.bed
+  # quantiles_internal_exon: private/barbara/WT.internal_exon.bed
+  # quantiles_exon: private/barbara/WT.exon.bed
+  # quantiles_gene: private/barbara/WT.gene.bed
 
 
 # # --------------------------------------
@@ -87,7 +86,7 @@ paired_end: False
 
 # if have one locally (must be gzipped)
 local_annotation_gff3:
-  test_data/gencode.v26.annotation.gff3.gz
+  private/epipp/gencode.v26.annotation.gff3.gz
 
 # if local_annotation_file is blank, this file will be downloaded and used
 remote_annotation_gff3:
@@ -100,8 +99,9 @@ region_file:
 # HISAT2 index
 # ---------------------------------
 
+# ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
 index_prefix:
-  tests/test_data/genomes/hisat2/hg38/genome
+  /mnt/cargo/genomes/hisat2/hg38/genome
 
 # ---------------------
 # fastq minimum quality
@@ -154,6 +154,13 @@ epic:
   gap: 3
   window_size: 200
 
+# --------------------------------------
+# csaw settings
+# --------------------------------------
+
+# "an integer scalar for the minimum count sum across libraries for each window"
+# i.e. rows with fewer reads than this are not analyzed by CSAW
+csaw_filter: 1
 
 # --------------------------------------
 # differential analysis

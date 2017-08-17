@@ -1,8 +1,16 @@
+def fastqs_to_merge(w, sample_sheet, ec_ss):
+
+    if "__external_control" in w.prefix:
+        sample_sheet = ec_ss
+
+    return sample_sheet.loc[sample_sheet.Name==w.sample].File
+
 
 if config["merge_lanes"] and not config["bam"]:
+
     rule merge_lanes:
         input:
-            fastqs = lambda w: sample_sheet.loc[sample_sheet.Name==w.sample].File
+            fastqs = lambda w: fastqs_to_merge(w, sample_sheet, ec_ss)
         output:
             temp("{prefix}/data/merged_lanes/{sample}.fastq")
         shell:
