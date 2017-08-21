@@ -14,8 +14,7 @@ rule epic_merge:
         expand("{{prefix}}/data/epic/{group}.matrix.gz", group=groups)
     output:
         "{prefix}/data/epic_merge/{caller}_matrix.gz"
-    threads:
-        25
+    threads: 48
     params:
         bed = epic_merge_bed
     shell:

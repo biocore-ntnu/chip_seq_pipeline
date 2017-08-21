@@ -8,8 +8,7 @@ rule bam_to_bigwig:
         "{prefix}/data/bigwig/{sample}.bigwig"
     resources:
         instances = 1
-    threads:
-        25
+    threads: 48
     conda:
         "../../envs/global.yaml"
     shell:
@@ -26,8 +25,7 @@ rule merged_bam_to_bigwig:
         "{prefix}/data/merged_bigwig/{group}_{chip}.bigwig"
     resources:
         instances = 1
-    threads:
-        25
+    threads: 48
     conda:
         "../../envs/global.yaml"
     shell:

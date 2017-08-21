@@ -14,8 +14,7 @@ rule run_macs:
         paired_end = "--format BAMPE" if config["paired_end"] else ""
     conda:
         "../../envs/macs2.yaml"
-    threads:
-        25
+    threads: 48
     shell:
         "macs2 callpeak {params.paired_end} --nomodel --extsize 150 -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 

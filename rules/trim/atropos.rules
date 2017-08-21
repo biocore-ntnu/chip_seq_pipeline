@@ -41,7 +41,6 @@ if not config["bam"]:
             "logs/trim/atropos_{sample}.log"
         conda:
             "../../envs/global.yaml"
-        threads:
-            48
+        threads: 48
         shell:
             "atropos -T {threads} -q {config[fastq_quality]} -m {config[min_read_length]} {params.adapters} -o {output[0]} {params.reads} > {log}"

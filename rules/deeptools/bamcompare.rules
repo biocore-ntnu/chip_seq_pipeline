@@ -10,7 +10,6 @@ rule merge_bam_group:
         lambda w: bam_group(w, w.chip)
     output:
         "{prefix}/data/bamcompare/{group}_{chip}.bam"
-    threads:
-        25
+    threads: 48
     shell:
         "samtools merge -@ {threads} {output[0]} {input}"

@@ -15,8 +15,7 @@ rule run_epic:
         paired_end = "--paired-end" if config["paired_end"] else ""
     conda:
         "../../envs/global.yaml"
-    threads:
-        25
+    threads: 48
     resources:
         instances = 1
     shell:

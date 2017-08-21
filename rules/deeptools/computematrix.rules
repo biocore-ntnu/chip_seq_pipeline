@@ -72,7 +72,7 @@ rule compute_sort_order_matrix:
         bed = get_bed_regions
     output:
         matrix = sort_order_matrix
-    threads: 25
+    threads: 48
     params:
         subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
         options = options
@@ -87,7 +87,7 @@ rule compute_matrix:
         bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
     output:
         matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz"
-    threads: 25
+    threads: 48
     params:
         subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
         options = options,
@@ -115,7 +115,7 @@ if second_group:
             bed = get_bed_regions
         output:
             matrix = sort_order_matrix_group_vs_group
-        threads: 25
+        threads: 48
         params:
             subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
             options = options
@@ -130,7 +130,7 @@ if second_group:
             bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=second_group)
         output:
             matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/{group1}_vs_{group2}.mat.gz"
-        threads: 25
+        threads: 48
         params:
             subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
             options = options,

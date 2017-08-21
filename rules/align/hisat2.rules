@@ -36,8 +36,7 @@ if not config["bam"]:
             idx = config["index_prefix"],
             extra = config["hisat2_extra_flags"],
             input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"], w.prefix)),
-        threads:
-            8
+        threads: 8
         conda:
             "../../envs/global.yaml"
         shell:
