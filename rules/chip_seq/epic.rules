@@ -4,8 +4,8 @@ ss_to_use = loo_ss if "loo_ss" in vars() else ss
 
 rule run_epic:
     input:
-        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bed", config),
-        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bed", config)
+        chip = lambda w: correct_cs_files(ss_to_use, w.prefix, "chip", "bed", config, w.group),
+        input = lambda w: correct_cs_files(ss_to_use, w.prefix, "input", "bed", config, w.group)
     output:
         outfile = "{prefix}/data/peaks/epic/{group}.csv",
         bed = "{prefix}/data/peaks/epic/{group}.bed",

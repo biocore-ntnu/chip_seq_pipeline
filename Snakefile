@@ -22,7 +22,10 @@ ss = sample_sheet
 
 
 leave_one_out_sample_sheet = "{prefix}/simulation_sample_sheet.txt".format(prefix=prefix)
-if os.path.exists(leave_one_out_sample_sheet):
+if config["leave_one_out"]:
+    if not os.path.exists(leave_one_out_sample_sheet):
+        raise Exception("Missing leave one out sample sheet!")
+
     loo_ss = pd.read_table(leave_one_out_sample_sheet, sep=" ")
     loo_groups = list(loo_ss.Group.drop_duplicates())
 else:
@@ -173,7 +176,7 @@ rule limma:
 #     input:
 #         leave_one_out_sample_sheet
 
-if os.path.exists(leave_one_out_sample_sheet):
+if config["leave_one_out"]:
 
     rule leave_one_out:
         input:

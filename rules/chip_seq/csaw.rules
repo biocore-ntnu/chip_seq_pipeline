@@ -1,11 +1,47 @@
 from utils.file_getters import correct_cs_files
 
+def filenames_to_string(chip, input):
+    fnames = chip
+    fnames.extend(input)
+    r = "c('" + "', '".join(fnames) + "')"
+    return r
+
+_get_cs_files = lambda w: correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config)
+_get_cs_index_files = lambda w: [f + ".bai" for f in correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config)]
+
 rule csaw_count:
     input:
-        chip = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "chip", "bam", config),
-        input = lambda w: correct_cs_files(ss_to_use, w.group, w.prefix, "input", "bam", config)
+        chip_input =  _get_cs_files,
+        indexes = _get_cs_index_files
     output:
-        table = "{prefix}/data/peaks/csaw/count/{group}_count_table.csv", # for logging purposes mostly
-        rdata = "{prefix}/data/peaks/csaw/count/{group}_count_table.rds"
+        rdata = "{prefix}/data/peaks/csaw/count/count_table.rds",
+        table = "{prefix}/data/peaks/csaw/count/count_table.csv", # for logging purposes mostly
     script:
-        "scripts/csaw_count.R"
+        "../../scripts/csaw_count.R"
+
+rule csaw_normalization_factors:
+    input:
+        chip_input =  _get_cs_files,
+        indexes = _get_cs_index_files
+    output:
+        "{prefix}/data/peaks/csaw/normfacs/normfacs.csv"
+    script:
+        "../../scripts/csaw_count_normfacs.R"
+
+rule csaw_design_matrix:
+    output:
+        "{prefix}/data/peaks/csaw/design.csv"
+    params:
+        groups = lambda _: list(ss.ix[ss.loc[ss.ChIP=="ChIP"].Name.drop_duplicates().index].Group)
+    script:
+        "../../scripts/csaw_design_matrix.R"
+
+rule csaw_analyze:
+    input:
+        data = "{prefix}/data/peaks/csaw/count/count_table.rds",
+        normfacs = "{prefix}/data/peaks/csaw/normfacs/normfacs.csv",
+        design = "{prefix}/data/peaks/csaw/design.csv"
+    output:
+        "{prefix}/data/peaks/csaw/output.raw"
+    script:
+        "../../scripts/csaw_analyze.R"
