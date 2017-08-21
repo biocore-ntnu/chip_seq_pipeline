@@ -1,6 +1,6 @@
 import os
-import yaml
 
+from leave_one_out.create_sample_sheets import create_sample_sheet
 from utils.file_getters import read_sample_sheet, sample_vs_group
 from snakemake.shell import shell
 
@@ -15,18 +15,16 @@ tss_or_tes = "(tss|tes)"
 if not config:
     configfile: "config.yaml"
 
+if config["tmux"]:
+    from utils.helpers import error_if_not_using_tmux
+    error_if_not_using_tmux
 
 prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
-
-leave_one_out_sample_sheet = "{prefix}/simulation_sample_sheet.txt".format(prefix=prefix)
 if config["leave_one_out"]:
-    if not os.path.exists(leave_one_out_sample_sheet):
-        raise Exception("Missing leave one out sample sheet!")
-
-    loo_ss = pd.read_table(leave_one_out_sample_sheet, sep=" ")
+    loo_ss = create_sample_sheet(ss)
     loo_groups = list(loo_ss.Group.drop_duplicates())
 else:
     loo_groups = []
@@ -49,7 +47,7 @@ to_include = ["download/annotation",
               "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
               "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw",
               "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
-              "leave_one_out/bam_sample_sheet"]
+              "epic/epic_count", "leave_one_out/bam_sample_sheet"]
 
 
 path_prefix = config["prefix"]
@@ -172,12 +170,7 @@ rule limma:
         expand("{prefix}/data/epic_cluster/{caller}_cluster.csv", caller=config["cs_callers"], prefix=prefix)
 
 
-# rule loo_sample_sheet:
-#     input:
-#         leave_one_out_sample_sheet
-
 if config["leave_one_out"]:
-
     rule leave_one_out:
         input:
             expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(loo_ss.Group)),

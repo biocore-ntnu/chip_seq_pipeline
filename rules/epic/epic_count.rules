@@ -1,0 +1,16 @@
+ss_to_use = loo_ss if "loo_ss" in vars() else ss
+
+rule epic_count:
+    input:
+        correct_cs_files(ss_to_use, config["prefix"], "chip", "bed", config) + correct_cs_files(ss_to_use, config["prefix"], "input", "bed", config)
+    output:
+        "{prefix}/data/epic_count/matrix.csv.gz"
+    params:
+        paired_end = "--paired-end" if config["paired_end"] else ""
+    threads: 24
+    shell:
+        "epic-count -cpu {threads} -w "
+        "{config[epic][window_size]} -gn {config[genome]} "
+        "{params.paired_end} "
+        "-i {input} "
+        "-o {output[0]}"

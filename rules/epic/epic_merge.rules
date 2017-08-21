@@ -1,4 +1,5 @@
 def epic_merge_bed(w):
+    raise("Error in code: macs bed files should not be merged.")
     if w.caller == "epic":
         s = ""
     elif w.caller == "macs2":

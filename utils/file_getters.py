@@ -50,7 +50,7 @@ def _get_samples(sample_sheet, chip, group=None):
 
 
 def correct_cs_files(sample_sheet, prefix, chip, extension, config, group=None):
-    "Gets the chip seq files. By default gets all group files."
+    "Gets the chip seq files. By default gets all files."
 
     samples = _get_samples(sample_sheet, chip, group)
 

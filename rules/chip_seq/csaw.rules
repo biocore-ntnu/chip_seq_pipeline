@@ -1,4 +1,6 @@
 from utils.file_getters import correct_cs_files
+from utils.helpers import get_if_not_empty
+
 
 def filenames_to_string(chip, input):
     fnames = chip
@@ -8,6 +10,7 @@ def filenames_to_string(chip, input):
 
 _get_cs_files = lambda w: correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config)
 _get_cs_index_files = lambda w: [f + ".bai" for f in correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config)]
+
 
 rule csaw_count:
     input:
@@ -19,6 +22,7 @@ rule csaw_count:
     script:
         "../../scripts/csaw_count.R"
 
+
 rule csaw_normalization_factors:
     input:
         chip_input =  _get_cs_files,
@@ -28,6 +32,7 @@ rule csaw_normalization_factors:
     script:
         "../../scripts/csaw_count_normfacs.R"
 
+
 rule csaw_design_matrix:
     output:
         "{prefix}/data/peaks/csaw/design.csv"
@@ -36,11 +41,12 @@ rule csaw_design_matrix:
     script:
         "../../scripts/csaw_design_matrix.R"
 
+
 rule csaw_analyze:
     input:
         data = "{prefix}/data/peaks/csaw/count/count_table.rds",
         normfacs = "{prefix}/data/peaks/csaw/normfacs/normfacs.csv",
-        design = "{prefix}/data/peaks/csaw/design.csv"
+        design = get_if_not_empty(config, "csaw_design_matrix", "{prefix}/data/peaks/csaw/design.csv")
     output:
         "{prefix}/data/peaks/csaw/output.raw"
     script:

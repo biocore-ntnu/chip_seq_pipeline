@@ -16,7 +16,8 @@ rule run_macs:
         "../../envs/macs2.yaml"
     threads: 48
     shell:
-        "macs2 callpeak {params.paired_end} --nomodel --extsize 150 -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+        # absolute path is just a temporary hack because a conda package was not working
+        "~/anaconda3/envs/python2/bin/macs2 callpeak {params.paired_end} --nomodel --extsize 150 -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
 
 rule merge_macs_results:

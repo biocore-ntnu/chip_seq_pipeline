@@ -1,11 +1,9 @@
-
 import pytest
 
 from io import StringIO
 import pandas as pd
 
 from leave_one_out.create_sample_sheets import create_sample_sheet
-
 
 @pytest.fixture
 def sample_sheet():
@@ -277,7 +275,5 @@ def expected_result():
 def test_create_sample_sheets(sample_sheet, expected_result):
 
     df = create_sample_sheet(sample_sheet)
-    # print(df.to_csv("result.csv", sep=" "))
-
 
     assert df.equals(expected_result)

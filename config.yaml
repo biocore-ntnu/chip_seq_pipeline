@@ -1,3 +1,7 @@
+# Ensure use of the tmux window manager
+# If you log off from remote server the pipeline will continue running
+tmux: true
+
 # Config for ChIP-Seq pipeline
 
 leave_one_out: False
