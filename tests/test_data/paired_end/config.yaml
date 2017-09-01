@@ -1,3 +1,7 @@
+tmux: false
+
+leave_one_out: false
+
 sample_sheet:
   tests/test_data/paired_end/sample_sheet.txt
 

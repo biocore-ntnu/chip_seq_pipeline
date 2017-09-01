@@ -1,4 +1,8 @@
+tmux: false
+
 # Config for ChIP-Seq pipeline
+
+leave_one_out: false
 
 # ---------------------------------
 # sample sheet

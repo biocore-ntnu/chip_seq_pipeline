@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import re
 
 
 def epic_merge_bed(w, input):
+=======
+def epic_merge_bed(w):
+    raise("Error in code: macs bed files should not be merged.")
+>>>>>>> 44c7dc048a02509c5723648716d564bec7e15243
     if w.caller == "epic":
         s = ""
     elif w.caller == "macs2":
