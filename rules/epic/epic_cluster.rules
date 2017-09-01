@@ -1,9 +1,18 @@
-
 rule epic_cluster:
     input:
         "{prefix}/data/epic_merge/{caller}_matrix.gz"
     output:
         "{prefix}/data/epic_cluster/{caller}_cluster.csv"
+    threads: 48
+    shell:
+        "epic-cluster -cpu {threads} -o {output[0]} {input} > {output[0]}"
+
+
+rule epic_cluster_loo:
+    input:
+        "{prefix}/data/epic_merge/loo/{group}_{caller}_matrix.gz"
+    output:
+        "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz"
     threads: 48
     shell:
         "epic-cluster -cpu {threads} -o {output[0]} {input} > {output[0]}"

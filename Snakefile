@@ -9,11 +9,12 @@ shell.executable("bash")
 from itertools import product
 import pandas as pd
 
+
 tss_or_tes = "(tss|tes)"
 
+
 # if the config dict is empty, no config file was given on the command line
-if not config:
-    configfile: "config.yaml"
+configfile: "config.yaml"
 
 
 prefix = config["prefix"]
@@ -21,12 +22,13 @@ sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
 
-leave_one_out_sample_sheet = "{prefix}/simulation_sample_sheet.txt".format(prefix=prefix)
+# leave_one_out_sample_sheet = "{prefix}/simulation_sample_sheet.txt".format(prefix=prefix)
 if config["leave_one_out"]:
-    if not os.path.exists(leave_one_out_sample_sheet):
-        raise Exception("Missing leave one out sample sheet!")
+    # if not os.path.exists(leave_one_out_sample_sheet):
+    #     raise Exception("Missing leave one out sample sheet!")
+    from leave_one_out.create_sample_sheets import create_sample_sheet
 
-    loo_ss = pd.read_table(leave_one_out_sample_sheet, sep=" ")
+    loo_ss = create_sample_sheet(sample_sheet)
     loo_groups = list(loo_ss.Group.drop_duplicates())
 else:
     loo_groups = []
@@ -77,7 +79,8 @@ wildcard_constraints:
     sample = "({})".format("|".join(chip_samples + input_samples + ec_samples)),
     group = "({})".format("|".join(groups + loo_groups + ec_groups)),
     chip = "(chip|input|log2ratio|ChIP|Input)",
-    region_type = "({})".format("|".join(regions + custom_regions))
+    region_type = "({})".format("|".join(regions + custom_regions)),
+    caller = "({})".format("|".join(config["cs_callers"]))
 
 
 for rule in to_include:
@@ -172,16 +175,15 @@ rule limma:
         expand("{prefix}/data/epic_cluster/{caller}_cluster.csv", caller=config["cs_callers"], prefix=prefix)
 
 
-# rule loo_sample_sheet:
-#     input:
-#         leave_one_out_sample_sheet
-
 if config["leave_one_out"]:
 
     rule leave_one_out:
         input:
-            expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(loo_ss.Group)),
-                cs_caller=config["cs_callers"], prefix=prefix)
+            expand("{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz",
+                   prefix=prefix, group=loo_ss.Group.drop_duplicates(),
+                   caller=config["cs_callers"]),
+            # expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(loo_ss.Group)),
+            #     cs_caller=config["cs_callers"], prefix=prefix)
 
 
 if not len(ss.Group.drop_duplicates()) == 1:

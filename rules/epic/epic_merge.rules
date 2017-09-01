@@ -1,8 +1,11 @@
-def epic_merge_bed(w):
+import re
+
+
+def epic_merge_bed(w, input):
     if w.caller == "epic":
         s = ""
     elif w.caller == "macs2":
-        s = "-b {prefix}/data/peaks/macs2/merged.bed".format(prefix=w.prefix)
+        s = "-b {}".format(" ".join(input.bed))
     else:
         raise Exception("Caller not macs2 or epic: " + w.caller)
 
@@ -11,11 +14,39 @@ def epic_merge_bed(w):
 
 rule epic_merge:
     input:
-        expand("{{prefix}}/data/epic/{group}.matrix.gz", group=groups)
+        matrix = expand("{{prefix}}/data/epic/{group}.matrix.gz", group=groups),
+        bed = expand("{{prefix}}/data/peaks/{{caller}}/{group}.csv", group=groups)
     output:
         "{prefix}/data/epic_merge/{caller}_matrix.gz"
     threads: 48
     params:
         bed = epic_merge_bed
     shell:
-        "epic-merge -cpu {threads} {params.bed} -o {output[0]} {input}"
+        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input}"
+
+
+def epic_merge_loo_files(w, path_template):
+
+    prefix, group, caller = w.prefix, w.group, w.caller
+
+    loo_file = path_template.format(**locals())
+
+    group_non_loo = re.sub("_lo$", "", group)
+    non_loo_groups = [g for g in groups if not g == group_non_loo]
+
+    non_loo_files = expand(path_template, group=non_loo_groups, prefix=prefix, caller=caller)
+
+    return [loo_file] + non_loo_files
+
+
+rule epic_merge_loo:
+    input:
+        matrix = lambda w: epic_merge_loo_files(w, "{prefix}/data/epic/{group}.matrix.gz"),
+        bed = lambda w: epic_merge_loo_files(w, "{prefix}/data/peaks/{caller}/{group}.csv"),
+    output:
+        "{prefix}/data/epic_merge/loo/{group}_{caller}_matrix.gz"
+    threads: 48
+    params:
+        bed = epic_merge_bed
+    shell:
+        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input}"

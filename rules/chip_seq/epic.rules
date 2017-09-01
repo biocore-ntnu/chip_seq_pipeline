@@ -1,6 +1,8 @@
 from utils.file_getters import correct_cs_files
 
+
 ss_to_use = loo_ss if "loo_ss" in vars() else ss
+
 
 rule run_epic:
     input:
