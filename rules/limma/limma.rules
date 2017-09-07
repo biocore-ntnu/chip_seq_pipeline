@@ -1,23 +1,50 @@
-rule design_matrix_and_contrasts:
+import re
+
+rule design_matrix:
     input:
         config["sample_sheet"]
     output:
         design = "{prefix}/data/limma/design_matrix.txt",
-        contrasts = "{prefix}/data/limma/contrasts.txt"
+        # contrasts = "{prefix}/data/limma/contrasts.txt"
     script:
-        "scripts/create_design_matrix.R"
+        "../../scripts/create_design_matrix.R"
+
+
+rule design_matrix_loo:
+    input:
+        "{prefix}/data/limma/design_matrix.txt"
+    output:
+        "{prefix}/data/limma/loo/{group}.txt"
+    run:
+        group = re.sub("_lo$", "", wildcards.group)
+
+        df = pd.read_table(input[0], index_col=0, sep=" ")
+        df = df.drop(group)
+        df.to_csv(output[0], sep=" ")
 
 
 rule limma:
     input:
-        e_values = "{prefix}/data/voom/{group}.e_values",
-        weights = "{prefix}/data/voom/{group}.weights",
+        e_values = "{prefix}/data/voom/{caller}.e_values",
+        weights = "{prefix}/data/voom/{caller}.weights",
         design = config["design_matrix"] if config["design_matrix"] else "{prefix}/data/limma/design_matrix.txt"
     output:
-        "{prefix}/data/limma/{group}_{contrast}.toptable"
+        all_regions = "{prefix}/data/limma/{caller}_{contrast}.toptable",
+        cutoff = "{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable"
     script:
         "scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
 
+
+rule limma_loo:
+    input:
+        e_values = "{prefix}/data/voom/loo/{group}_{caller}.e_values",
+        weights = "{prefix}/data/voom/loo/{group}_{caller}.weights",
+        design = "{prefix}/data/limma/loo/{group}.txt"
+    output:
+        all_regions = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
+        cutoff = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable"
+    script:
+        "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
 
 
 

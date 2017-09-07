@@ -11,6 +11,7 @@ def create_sample_sheet(sample_sheet):
         for sample in samples:
             ndf = gdf.loc[gdf.Name != sample].reset_index(drop=True)
             ndf.Group = sample + "_lo"
+            ndf.insert(len(ndf.columns), "OriginalGroup", group)
             dfs.append(ndf)
 
     return pd.concat(dfs).reset_index(drop=True)

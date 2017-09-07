@@ -1,0 +1,21 @@
+
+
+rule multi_bigwig_summary_chip_vs_merged_input:
+    input:
+        expand("{{prefix}}/data/bigwigcompare/sample_{sample}_vs_merged_input.bw", sample=chip_samples)
+    output:
+        "{prefix}/data/multi_bigwig/multibigwig_chip_vs_merged_input.npz"
+    threads: 48
+    shell:
+        "multiBigwigSummary bins -p {threads} -b {input} -out {output[0]}"
+
+
+
+rule multi_bigwig_individual:
+    input:
+        expand("{{prefix}}/data/bamcoverage/{sample}.bw", sample=chip_samples + input_samples)
+    output:
+        "{prefix}/data/multi_bigwig/multibigwig_individual.npz"
+    threads: 48
+    shell:
+        "multiBigwigSummary bins -p {threads} -b {input} -out {output[0]}"

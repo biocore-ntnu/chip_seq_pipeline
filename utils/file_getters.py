@@ -49,10 +49,12 @@ def _get_samples(sample_sheet, chip, group=None):
 
 
 
-def correct_cs_files(sample_sheet, prefix, chip, extension, config, group=None):
+def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
     "Gets the chip seq files. By default gets all files."
 
+    # print("group:", group)
     samples = _get_samples(sample_sheet, chip, group)
+    # print("samples:", samples)
 
     if extension == "bam" and not config["bam"]:
         fs = "{prefix}/data/align/{sample}.bam.sorted"
@@ -65,7 +67,13 @@ def correct_cs_files(sample_sheet, prefix, chip, extension, config, group=None):
     else:
         fs = "{prefix}/data/align/{sample}.bed"
 
-    return expand(fs, sample=samples, extension=extension, prefix=prefix)
+    # print("group:", group)
+    # print("chip", chip)
+    # print("fs:", expand(fs, sample=samples, extension=extension, prefix=prefix))
+
+    files = expand(fs, sample=samples, extension=extension, prefix=prefix)
+    # print("files", files)
+    return files
 
 
 

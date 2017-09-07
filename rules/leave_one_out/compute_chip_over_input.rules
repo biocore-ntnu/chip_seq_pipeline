@@ -1,0 +1,28 @@
+import pandas as pd
+from os.path import basename
+
+rule get_chip_over_input_from_regions_left_in:
+    input:
+        toptable = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable",
+        cluster = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz"
+    output:
+        "{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios"
+    run:
+        toptable = pd.read_table(input.toptable, sep=" ", index_col=0)
+        cluster = pd.read_table(input.cluster, sep=" ", index_col=0)
+
+        toptable_cluster = cluster.ix[toptable.index]
+
+        names = pd.Series(toptable_cluster.columns, name="FullName")
+        basenames = pd.Series([basename(f).replace(".bed", "") for f in toptable_cluster.columns], name="BaseName")
+
+        names_basenames = pd.concat([names, basenames], 1)
+        m = names_basenames.merge(ss, left_on="BaseName", right_on="Name")["FullName ChIP".split()].drop_duplicates()
+
+        chip_files = m.loc[m.ChIP == "ChIP"].FullName
+        input_files = m.loc[m.ChIP == "Input"].FullName
+
+        chip_counts = cluster[chip_files].sum(axis=1)
+        input_counts = cluster[input_files].sum(axis=1) + 0.5
+
+        chip_counts.div(input_counts, axis=0).to_csv(output[0], sep=" ")

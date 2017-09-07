@@ -14,11 +14,12 @@ tss_or_tes = "(tss|tes)"
 
 
 # if the config dict is empty, no config file was given on the command line
-configfile: "config.yaml"
+if not config:
+    configfile: "config.yaml"
 
 if config["tmux"]:
     from utils.helpers import error_if_not_using_tmux
-    error_if_not_using_tmux
+    error_if_not_using_tmux()
 
 prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
@@ -43,12 +44,14 @@ to_include = ["download/annotation",
               "deeptools/bamcompare","deeptools/bigwig_compare",
               "deeptools/heatmap", "deeptools/profileplot",
               "deeptools/computematrix", "deeptools/bamcoverage",
-              "deeptools/bigwig", "merge_lanes/merge_lanes",
-              "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
-              "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
-              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw",
-              "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
-              "epic/epic_count", "leave_one_out/bam_sample_sheet"]
+              "deeptools/bigwig", "deeptools/multi_bigwig_summary",
+              "deeptools/plot_pca", "deeptools/plot_fingerprint",
+              "merge_lanes/merge_lanes", "compute_tss/compute_tss",
+              "trim/atropos", "align/hisat2", "sort_index_bam/sort_index_bam",
+              "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
+              "chip_seq/csaw", "epic/epic_merge", "epic/epic_blacklist",
+              "epic/epic_cluster", "epic/epic_count",
+              "leave_one_out/compute_chip_over_input", "voom/voom", "limma/limma"] #, "voom/voom"]
 
 
 path_prefix = config["prefix"]
@@ -83,6 +86,11 @@ wildcard_constraints:
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
 
+rule all:
+    input:
+        expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.counts",
+               prefix=prefix, group="AAG_KO_ChIP_1_lo", caller="macs2", contrast="AAG_KO-ELP1_KO")
+
 rule log2_ratio_heatmaps:
     input:
         expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
@@ -92,7 +100,6 @@ rule peaks:
     input:
         expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(sample_sheet.Group)),
                cs_caller=config["cs_callers"], prefix=prefix)
-
 
 rule input_profileplots:
     input:
@@ -167,19 +174,42 @@ rule merged_chip_bigwigs:
         expand("{prefix}/data/merged_bigwig/{group}_ChIP.bigwig", group=groups, prefix=prefix)
 
 
-rule limma:
+rule limma_:
     input:
         expand("{prefix}/data/epic_cluster/{caller}_cluster.csv", caller=config["cs_callers"], prefix=prefix)
 
 
+rule plotpca_individual:
+    input:
+        expand("{prefix}/data/plotpca/multibigwig_individual.pdf",
+                prefix=prefix)
+
+rule plotpca_chip_vs_merged_input:
+    input:
+        expand("{prefix}/data/plotpca/multibigwig_chip_vs_merged_input.pdf",
+               prefix=prefix)
+
+rule fingerprint_plot:
+    input:
+        expand("{prefix}/data/plot_fingerprint/fingerprint_deeptools.pdf",
+               prefix=prefix)
+
+
 if config["leave_one_out"]:
+
+    from itertools import combinations
+
+    def contrasts(groups):
+
+        cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
+
+        return cs
+
     rule leave_one_out:
         input:
-            expand("{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz",
+            expand("{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
                    prefix=prefix, group=loo_ss.Group.drop_duplicates(),
-                   caller=config["cs_callers"]),
-            # expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(loo_ss.Group)),
-            #     cs_caller=config["cs_callers"], prefix=prefix)
+                   caller=config["cs_callers"], contrast=contrasts(groups).values()),
 
 
 if not len(ss.Group.drop_duplicates()) == 1:

@@ -24,7 +24,8 @@ bam:
 
 limma:
   contrasts:
-    WTvsAAG:
+    # WTvsAAG: "WT-AAG"
+
 
 # --------------------------------------
 # Region types
@@ -159,6 +160,14 @@ tss_distance_exon: 500
 epic:
   gap: 3
   window_size: 200
+
+# --------------------------------------
+# macs2 settings
+# --------------------------------------
+
+macs2:
+  broad: "--broad"
+  extra_flags: "" # "--nomodel --extsize 150"
 
 # --------------------------------------
 # csaw settings

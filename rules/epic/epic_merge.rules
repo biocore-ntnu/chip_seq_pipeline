@@ -4,7 +4,7 @@ def epic_merge_bed(w, input):
     if w.caller == "epic":
         s = ""
     elif w.caller == "macs2":
-        s = "-b {}".format(" ".join(input.bed))
+        s = "-r {}".format(" ".join(input.bed))
     else:
         raise Exception("Caller not macs2 or epic: " + w.caller)
 
@@ -24,28 +24,30 @@ rule epic_merge:
         "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input}"
 
 
-def epic_merge_loo_files(w, path_template):
+
+def epic_merge_loo_files(w, loo_path_template, non_loo_path_template):
 
     prefix, group, caller = w.prefix, w.group, w.caller
+    loo_group = loo_ss.loc[loo_ss.Group == group].OriginalGroup.iloc[0]
+    non_loo_groups = list(set(loo_ss[loo_ss.OriginalGroup != loo_group].OriginalGroup))
 
-    loo_file = path_template.format(**locals())
+    loo_file = loo_path_template.format(**locals())
 
     group_non_loo = re.sub("_lo$", "", group)
-    non_loo_groups = [g for g in groups if not g == group_non_loo]
 
-    non_loo_files = expand(path_template, group=non_loo_groups, prefix=prefix, caller=caller)
+    non_loo_files = expand(non_loo_path_template, group=non_loo_groups, prefix=prefix, caller=caller)
 
     return [loo_file] + non_loo_files
 
 
 rule epic_merge_loo:
     input:
-        matrix = lambda w: epic_merge_loo_files(w, "{prefix}/data/epic/{group}.matrix.gz"),
-        bed = lambda w: epic_merge_loo_files(w, "{prefix}/data/peaks/{caller}/{group}.csv"),
+        matrix = lambda w: epic_merge_loo_files(w, "{prefix}/data/epic/loo/{group}.matrix.gz", "{prefix}/data/epic/{group}.matrix.gz"),
+        bed = lambda w: epic_merge_loo_files(w, "{prefix}/data/peaks/{caller}/loo/{group}.csv", "{prefix}/data/peaks/{caller}/{group}.csv"),
     output:
         "{prefix}/data/epic_merge/loo/{group}_{caller}_matrix.gz"
     threads: 48
     params:
-        bed = epic_merge_bed
+        bed = lambda w, input: epic_merge_bed(w, input)
     shell:
-        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input}"
+        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input.matrix}"

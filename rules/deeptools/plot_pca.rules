@@ -1,0 +1,59 @@
+from re import sub
+
+import numpy as np
+import pandas as pd
+
+from sklearn.decomposition import PCA
+
+
+rule normalize_pca:
+    input:
+        "{prefix}/data/multi_bigwig/multibigwig_{multibigwig}.npz"
+    output:
+        "{prefix}/data/multi_bigwig/multibigwig_{multibigwig}.csv"
+    run:
+        arr = np.load(input[0])
+        df = pd.DataFrame(arr["matrix"], columns=arr["labels"]).dropna()
+        row_mean = df.mean(1)
+        df = df.sub(row_mean, axis=0)
+        df.to_csv(output[0], sep=" ", index=False)
+
+
+def add_group_info_pca(files, coords, multibigwig):
+
+    if multibigwig == "chip_vs_merged_input":
+        files = [re.sub("_vs_merged_input.bw$", "", re.sub("^sample_", "", f)) for f in files]
+    else:
+        files = [re.sub(".bw$", "", f) for f in files]
+
+    coords.insert(0, "File", files)
+    coords = coords.merge(ss[["Name", "Group"]], left_on="File", right_on="Name", how="left")
+    coords = coords.drop("Name", axis=1)
+
+    return coords.drop_duplicates()
+
+
+rule compute_pca:
+    input:
+        "{prefix}/data/multi_bigwig/multibigwig_{multibigwig}.csv"
+    output:
+        "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
+    run:
+        df = pd.read_table(input[0], sep=" ")
+
+        pca = PCA(n_components=2)
+        pca.fit(df.T.values)
+        coords = pd.DataFrame(pca.transform(df.T.values), columns="X Y".split(), index=list(df.columns))
+
+        coords = add_group_info_pca(list(df.columns), coords, wildcards.multibigwig)
+
+        coords.to_csv(output[0], sep=" ", index=False)
+
+
+rule plot_pca:
+    input:
+        "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
+    output:
+        "{prefix}/data/plot_pca/pca_{multibigwig}.pdf"
+    script:
+        "../../scripts/plot_pca.R"

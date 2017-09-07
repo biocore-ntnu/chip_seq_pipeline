@@ -2,7 +2,7 @@ ss_to_use = loo_ss if "loo_ss" in vars() else ss
 
 rule epic_count:
     input:
-        correct_cs_files(ss_to_use, config["prefix"], "chip", "bed", config) + correct_cs_files(ss_to_use, config["prefix"], "input", "bed", config)
+        correct_cs_files(ss_to_use, config["prefix"], "chip", "bed", config, None) + correct_cs_files(ss_to_use, config["prefix"], "input", "bed", config, None)
     output:
         "{prefix}/data/epic_count/matrix.csv.gz"
     params:

@@ -1,23 +1,25 @@
 from utils.file_getters import correct_cs_files
 
-ss_to_use = loo_ss if "loo_ss" in vars() else ss
+# absolute path is just a temporary hack because a conda package was not working
+macs2_cmd = "~/anaconda3/envs/python2/bin/macs2 callpeak  {config[macs2][broad]} {params.paired_end} {config[macs2][extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+
+
 
 rule run_macs:
     input:
-        chip = lambda w: correct_cs_files(ss_to_use, w.prefix, "chip", "bam", config, w.group),
-        input = lambda w: correct_cs_files(ss_to_use, w.prefix, "input", "bam", config, w.group)
+        chip = lambda w: correct_cs_files(ss, w.prefix, "chip", "bed", config, w.group),
+        input = lambda w: correct_cs_files(ss, w.prefix, "input", "bed", config, w.group)
     output:
         "{prefix}/data/peaks/macs2/{group}.csv"
     params:
         prefix="{prefix}/data/peaks/macs2/{group}",
-        outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak",
+        outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak" if not config["macs2"]["broad"] else "{prefix}/data/peaks/macs2/{group}_peaks.broadPeak",
         paired_end = "--format BAMPE" if config["paired_end"] else ""
     conda:
         "../../envs/macs2.yaml"
-    threads: 48
+    threads: 1
     shell:
-        # absolute path is just a temporary hack because a conda package was not working
-        "~/anaconda3/envs/python2/bin/macs2 callpeak {params.paired_end} --nomodel --extsize 150 -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+        macs2_cmd
 
 
 rule merge_macs_results:
@@ -27,3 +29,20 @@ rule merge_macs_results:
         "{prefix}/data/peaks/macs2/merged.bed"
     shell:
         "sort -k1,1 -k2,3n {input} | bedtools merge {output[0]}"
+
+
+rule run_macs_loo:
+    input:
+        chip = lambda w: correct_cs_files(loo_ss, w.prefix, "chip", "bed", config, w.group),
+        input = lambda w: correct_cs_files(loo_ss, w.prefix, "input", "bed", config, w.group)
+    output:
+        "{prefix}/data/peaks/macs2/loo/{group}.csv"
+    params:
+        prefix="{prefix}/data/peaks/macs2/loo/{group}",
+        outfile="{prefix}/data/peaks/macs2/loo/{group}_peaks.narrowPeak" if not config["macs2"]["broad"] else "{prefix}/data/peaks/macs2/loo/{group}_peaks.broadPeak",
+        paired_end = "--format BAMPE" if config["paired_end"] else ""
+    conda:
+        "../../envs/macs2.yaml"
+    threads: 1
+    shell:
+        macs2_cmd

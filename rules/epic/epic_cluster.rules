@@ -1,12 +1,32 @@
+from os.path import basename
+
+import pandas as pd
+
+
 rule epic_cluster:
     input:
         "{prefix}/data/epic_merge/{caller}_matrix.gz"
     output:
-        "{prefix}/data/epic_cluster/{caller}_cluster.csv"
+        "{prefix}/data/epic_cluster/{caller}_cluster.csv.gz"
     threads: 48
     shell:
-        "epic-cluster -cpu {threads} -o {output[0]} {input} > {output[0]}"
+        "epic-cluster -cpu {threads} -o {output[0]} -m {input} > {output[0]}"
 
+
+rule epic_cluster_no_input:
+    input:
+        "{prefix}/data/epic_cluster/{caller}_cluster.csv.gz"
+    output:
+        "{prefix}/data/epic_cluster/{caller}_cluster_no_input.csv.gz"
+    run:
+        df = pd.read_table(input[0], compression="gzip", sep=" ")
+
+        input_files = set(ss.loc[ss.ChIP == "Input"].Name)
+        input_files = [basename(f).replace(".bed", "") for f in input_files]
+
+        columns_to_keep = [f for f in df.columns if not basename(f).replace(".bed", "") in input_files]
+
+        df[columns_to_keep].to_csv(output[0], compression="gzip", sep=" ", index=False)
 
 rule epic_cluster_loo:
     input:
@@ -15,4 +35,20 @@ rule epic_cluster_loo:
         "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz"
     threads: 48
     shell:
-        "epic-cluster -cpu {threads} -o {output[0]} {input} > {output[0]}"
+        "epic-cluster -cpu {threads} -o {output[0]} -m {input} > {output[0]}"
+
+
+rule epic_cluster_loo_no_input:
+    input:
+        "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz"
+    output:
+        "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster_no_input.csv.gz"
+    run:
+        df = pd.read_table(input[0], compression="gzip", sep=" ")
+
+        input_files = set(ss.loc[ss.ChIP == "Input"].Name)
+        input_files = [basename(f).replace(".bed", "") for f in input_files]
+
+        columns_to_keep = [f for f in df.columns if not basename(f).replace(".bed", "") in input_files]
+
+        df[columns_to_keep].to_csv(output[0], compression="gzip", sep=" ", index=False)
