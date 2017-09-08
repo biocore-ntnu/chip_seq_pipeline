@@ -1,6 +1,19 @@
 import re
 
 from os import environ
+from os.path import basename
+
+import pandas as pd
+
+def merge_colnames_sample_sheet(columns, ss):
+
+    names = pd.Series(columns, name="FullName")
+    basenames = pd.Series([basename(f).split(".")[0] for f in columns], name="BaseName")
+
+    names_basenames = pd.concat([names, basenames], 1)
+    m = names_basenames.merge(ss, left_on="BaseName", right_on="Name").drop("BaseName", axis=1)
+
+    return m
 
 def error_if_not_using_tmux():
 

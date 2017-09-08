@@ -51,7 +51,9 @@ to_include = ["download/annotation",
               "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
               "chip_seq/csaw", "epic/epic_merge", "epic/epic_blacklist",
               "epic/epic_cluster", "epic/epic_count",
-              "leave_one_out/compute_chip_over_input", "voom/voom", "limma/limma"] #, "voom/voom"]
+              "leave_one_out/compute_chip_over_input",
+              "normalize/average_input", "normalize/divide_chip_input",
+              "voom/voom", "limma/limma"] #, "voom/voom"]
 
 
 path_prefix = config["prefix"]
@@ -86,10 +88,10 @@ wildcard_constraints:
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
 
-rule all:
-    input:
-        expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.counts",
-               prefix=prefix, group="AAG_KO_ChIP_1_lo", caller="macs2", contrast="AAG_KO-ELP1_KO")
+# rule all:
+#     input:
+#         expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.counts",
+#                prefix=prefix, group="AAG_KO_ChIP_1_lo", caller="macs2", contrast="AAG_KO-ELP1_KO")
 
 rule log2_ratio_heatmaps:
     input:
@@ -173,10 +175,21 @@ rule merged_chip_bigwigs:
     input:
         expand("{prefix}/data/merged_bigwig/{group}_ChIP.bigwig", group=groups, prefix=prefix)
 
+from itertools import combinations
+
+def contrasts(groups):
+
+    cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
+
+    return cs
+
+
 
 rule limma_:
     input:
-        expand("{prefix}/data/epic_cluster/{caller}_cluster.csv", caller=config["cs_callers"], prefix=prefix)
+        expand("{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable",
+               caller=config["cs_callers"], prefix=prefix,
+               contrast=contrasts(groups).values())
 
 
 rule plotpca_individual:
@@ -196,20 +209,15 @@ rule fingerprint_plot:
 
 
 if config["leave_one_out"]:
-
-    from itertools import combinations
-
-    def contrasts(groups):
-
-        cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
-
-        return cs
-
     rule leave_one_out:
         input:
             expand("{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
                    prefix=prefix, group=loo_ss.Group.drop_duplicates(),
                    caller=config["cs_callers"], contrast=contrasts(groups).values()),
+            expand("{prefix}/data/chip_over_input/loo/{group}_{caller}_{contrast}.ratios",
+                   prefix=prefix, group=loo_ss.Group.drop_duplicates(),
+                   caller=config["cs_callers"], contrast=contrasts(groups).values())
+
 
 
 if not len(ss.Group.drop_duplicates()) == 1:

@@ -1,20 +1,34 @@
 rule voom:
     input:
-        counts = "{prefix}/data/epic_cluster/{caller}_cluster_no_input.csv.gz",
+        counts = "{prefix}/data/epic_cluster/{caller}_cluster.csv.gz",
         # design = config["design_matrix"]
     output:
         e_values = "{prefix}/data/voom/{caller}.e_values",
         weights = "{prefix}/data/voom/{caller}.weights",
-        plot = "{prefix}/logs/voom/loo/{caller}.pdf"
+        plot = "{prefix}/logs/voom/{caller}.pdf"
     params:
         voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
     script:
         "../../scripts/voom.R"
 
 
+# Need to run voom again to re-estimate weights after averaging input in original e_value file
+rule revoom:
+    input:
+        "{prefix}/data/normalize/ChIP_divided_by_input_{caller}.e_values"
+    output:
+        e_values = "{prefix}/data/revoom/{caller}.e_values",
+        weights = "{prefix}/data/revoom/{caller}.weights",
+        plot = "{prefix}/logs/revoom/{caller}.pdf"
+    params:
+        voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
+    script:
+        "../../scripts/revoom.R"
+
+
 rule voom_loo:
     input:
-        counts = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster_no_input.csv.gz",
+        counts = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz",
         # design = config["design_matrix"]
     output:
         e_values = "{prefix}/data/voom/loo/{group}_{caller}.e_values",

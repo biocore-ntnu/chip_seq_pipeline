@@ -28,6 +28,7 @@ rule epic_cluster_no_input:
 
         df[columns_to_keep].to_csv(output[0], compression="gzip", sep=" ", index=False)
 
+
 rule epic_cluster_loo:
     input:
         "{prefix}/data/epic_merge/loo/{group}_{caller}_matrix.gz"

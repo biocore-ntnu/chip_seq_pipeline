@@ -21,7 +21,7 @@ rule epic_merge:
     params:
         bed = epic_merge_bed
     shell:
-        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input}"
+        "epic-merge -cpu {threads} {params.bed} -o {output[0]} -m {input.matrix}"
 
 
 

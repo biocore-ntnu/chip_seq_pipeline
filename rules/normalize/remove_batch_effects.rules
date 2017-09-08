@@ -1,0 +1,14 @@
+
+# rule remove_batch_effects:
+#     input:
+#         "{prefix}/data/voom/{caller}.e_values"
+#     output:
+#         "{prefix}/data/remove_batch_effects/{caller}.e_values"
+#     run:
+#         df = read.table(input[0], index_col=0)
+
+#         cols = iter([c for _, c in df.iteritems()])
+
+#         last_col = next(cols)
+
+#         for next_col in cols:

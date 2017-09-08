@@ -23,8 +23,10 @@ def add_group_info_pca(files, coords, multibigwig):
 
     if multibigwig == "chip_vs_merged_input":
         files = [re.sub("_vs_merged_input.bw$", "", re.sub("^sample_", "", f)) for f in files]
-    else:
+    elif multibigwig == "individual":
         files = [re.sub(".bw$", "", f) for f in files]
+    else:
+        files = []
 
     coords.insert(0, "File", files)
     coords = coords.merge(ss[["Name", "Group"]], left_on="File", right_on="Name", how="left")
@@ -33,13 +35,16 @@ def add_group_info_pca(files, coords, multibigwig):
     return coords.drop_duplicates()
 
 
-rule compute_pca:
+rule compute_pca_bigwigs:
     input:
         "{prefix}/data/multi_bigwig/multibigwig_{multibigwig}.csv"
     output:
         "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
     run:
         df = pd.read_table(input[0], sep=" ")
+
+        if wildcards.multibigwig == "individual":
+            df = np.log2(df + 1).dropna()
 
         pca = PCA(n_components=2)
         pca.fit(df.T.values)
@@ -55,5 +60,36 @@ rule plot_pca:
         "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
     output:
         "{prefix}/data/plot_pca/pca_{multibigwig}.pdf"
+    script:
+        "../../scripts/plot_pca.R"
+
+
+rule compute_pca_revoom:
+    input:
+        e_values = "{prefix}/data/revoom/{caller}.e_values",
+        names = "{prefix}/data/normalize/ChIP_divided_by_input_{caller}.e_values"
+    output:
+        "{prefix}/data/plot_pca/{caller}.csv"
+    run:
+        df = pd.read_table(input.e_values, sep=" ")
+        names = pd.read_table(input.names, sep=" ", nrows=0, header=1, index_col=0)
+        df.columns = names.columns
+
+        df += df.min() + 0.01
+
+        pca = PCA(n_components=2)
+        pca.fit(df.T.values)
+        coords = pd.DataFrame(pca.transform(df.T.values), columns="X Y".split(), index=list(df.columns))
+
+        coords = add_group_info_pca(list(df.columns), coords, None)
+
+        coords.to_csv(output[0], sep=" ", index=False)
+
+
+rule plot_pca_limma_data:
+    input:
+        "{prefix}/data/plot_pca/{caller}.csv"
+    output:
+        "{prefix}/data/plot_pca/{caller}.pdf"
     script:
         "../../scripts/plot_pca.R"

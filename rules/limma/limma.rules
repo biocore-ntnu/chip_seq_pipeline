@@ -25,14 +25,14 @@ rule design_matrix_loo:
 
 rule limma:
     input:
-        e_values = "{prefix}/data/voom/{caller}.e_values",
-        weights = "{prefix}/data/voom/{caller}.weights",
+        e_values = "{prefix}/data/revoom/{caller}.e_values",
+        weights = "{prefix}/data/revoom/{caller}.weights",
         design = config["design_matrix"] if config["design_matrix"] else "{prefix}/data/limma/design_matrix.txt"
     output:
         all_regions = "{prefix}/data/limma/{caller}_{contrast}.toptable",
         cutoff = "{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable"
     script:
-        "scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
+        "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
 
 
 rule limma_loo:
@@ -45,132 +45,3 @@ rule limma_loo:
         cutoff = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable"
     script:
         "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
-
-
-
-# ###############################################################################################################
-# ####Script to source Limma
-# ###############################################################################################################
-
-
-# library("limma")
-# library("ggplot2")
-# library("affy")
-# library("edgeR")
-# library("geneplotter")
-# library("org.Rn.eg.db")
-
-
-# ###################################################
-# ##Load expression matrix (rows for genes, columns for samples)
-# ###################################################
-
-# files <- paste("../", dir("..", pattern = "Sample.*.CountsRn6.txt$"), sep="")
-
-
-# exp.table <- c()
-# lmp <- read.table(files[1], header = TRUE)
-# exp.table <- lmp[order(lmp[,1]), c(1,7)]
-# dim(exp.table)
-# summary(exp.table)
-
-
-# for (i in 2:length(files)) {
-#     lmp <- read.table(files[i], header=TRUE)
-#     exp.table <- cbind(exp.table, lmp[order(lmp[,1]), c(7)])
-# }
-
-# colnames(exp.table)[2:ncol(exp.table)] <- sub("Sample_(.)_.*", "S0\\1", sub("Sample_(..)_.*", "S\\1", sub("../", "", files)))
-# exp.mat <- exp.table[,2:ncol(exp.table)]
-# rownames(exp.mat) <- exp.table[,1]
-# exp.mat <- exp.mat[!apply(exp.mat == 0, 1, all),]
-# exp.mat <- exp.mat[, order(colnames(exp.mat))]
-
-# #####
-# ## Read design
-# ####
-# targets <- read.table("Targets.txt", header=TRUE)
-# targets$Sample_ID <- sub("^(.)$", "S0\\1", sub("^(..)$", "S\\1", as.character(targets$Sample_ID)))
-# targets$EC <- substring(targets$EC, 1, 3)
-# targets$Layer <- sub("Deep", "D", targets$Layer)
-
-# ###################################################
-# ##Create design matrix
-# ###################################################
-
-# levels.age <- levels(factor(targets$Age))
-# age <- factor(as.character(targets$Age), levels = levels.age)
-# levels.layer <- levels(factor(targets$Layer))
-# layer <- factor(as.character(targets$Layer), levels = levels.layer)
-# levels.EC <- levels(factor(targets$EC))
-# EC <- factor(as.character(targets$EC), levels = levels.EC)
-
-# ff <- factor(paste(EC, age, layer, sep="."))
-# #Making design matrix
-# des <- model.matrix(~0 + ff)
-# colnames(des) <- levels(ff)
-
-
-# ###################################################
-# ##Convert expression matrix to DGEList object using edgeR
-# ###################################################
-
-# dge <- DGEList(counts=exp.mat)
-# dge <- calcNormFactors(dge, method="TMM")
-
-
-# ###################################################
-# ##Perform voom transformation and TMM and quantile normalization
-# ###################################################
-
-# v2 <- voom(dge, des, normalize.method = "quantile", plot = TRUE)
-
-# exp.mat.voom2 <- voom(dge, normalize.method = "quantile", plot=TRUE)
-
-# #saveRDS(exp.mat.voom2, "exp_mat_voom2.rds")
-
-# #Fit linear model, voom transformation, TMM normalization and quantile normalization of data
-# mod2 <- lmFit(v2, des)
-
-
-# cmat <- makeContrasts(MedIIvsD = (Med.P02.II + Med.P09.II + Med.P23.II + Med.P45.II)/4 - (Med.P02.D + Med.P09.D + Med.P23.D + Med.P45.D)/4,
-# LatIIvsD = (Lat.P02.II + Lat.P09.II + Lat.P23.II + Lat.P45.II)/4 - (Lat.P02.D + Lat.P09.D + Lat.P23.D + Lat.P45.D)/4,
-# MedP02IIvsD = Med.P02.II - Med.P02.D, MedP09IIvsD = Med.P09.II - Med.P09.D, MedP23IIvsD = Med.P23.II - Med.P23.D, MedP45IIvsD = Med.P45.II - Med.P45.D,
-# LatP02IIvsD = Lat.P02.II - Lat.P02.D, LatP09IIvsD = Lat.P09.II - Lat.P09.D, LatP23IIvsD = Lat.P23.II - Lat.P23.D, LatP45IIvsD = Lat.P45.II - Lat.P45.D,
-# ECP02vsP09 = (Med.P02.II + Med.P02.D + Lat.P02.II +Lat.P02.D)/4 - (Med.P09.II + Med.P09.D + Lat.P09.II +Lat.P09.D)/4,
-# ECP02vsP23 = (Med.P02.II + Med.P02.D + Lat.P02.II +Lat.P02.D)/4 - (Med.P23.II + Med.P23.D + Lat.P23.II +Lat.P23.D)/4,
-# ECP02vsP45 = (Med.P02.II + Med.P02.D + Lat.P02.II +Lat.P02.D)/4 - (Med.P45.II + Med.P45.D + Lat.P45.II +Lat.P45.D)/4,
-# ECP09vsP23 = (Med.P09.II + Med.P09.D + Lat.P09.II +Lat.P09.D)/4 - (Med.P23.II + Med.P23.D + Lat.P23.II +Lat.P23.D)/4,
-# ECP09vsP45 = (Med.P09.II + Med.P09.D + Lat.P09.II +Lat.P09.D)/4 - (Med.P45.II + Med.P45.D + Lat.P45.II +Lat.P45.D)/4,
-# ECP23vsP45 = (Med.P23.II + Med.P23.D + Lat.P23.II +Lat.P23.D)/4 - (Med.P45.II + Med.P45.D + Lat.P45.II +Lat.P45.D)/4,
-# ECIIvsDeep = (Med.P02.II + Med.P09.II + Med.P23.II + Med.P45.II + Lat.P02.II + Lat.P09.II + Lat.P23.II + Lat.P45.II)/8 - (Med.P02.D + Med.P09.D + Med.P23.D + Med.P45.D + Lat.P02.D + Lat.P09.D + Lat.P23.D + Lat.P45.D)/8,
-# ECYoungvsOld = (Med.P02.II + Med.P09.II + Med.P02.D + Med.P09.D + Lat.P02.II + Lat.P09.II + Lat.P02.D + Lat.P09.D)/8 - (Med.P23.II + Med.P45.II + Med.P23.D + Med.P45.D + Lat.P23.II + Lat.P45.II + Lat.P23.D + Lat.P45.D)/8,
-# MedvsLat = (Med.P02.II + Med.P09.II + Med.P02.D + Med.P09.D + Med.P23.II + Med.P45.II + Med.P23.D + Med.P45.D)/8 - (Lat.P02.II + Lat.P09.II + Lat.P02.D + Lat.P09.D + Lat.P23.II + Lat.P45.II + Lat.P23.D + Lat.P45.D)/8,
-# LIIYoungvsOld = (Med.P02.II + Med.P09.II + Lat.P02.II + Lat.P09.II)/4 - (Med.P23.II + Med.P45.II + Lat.P23.II + Lat.P45.II)/4,
-# DeepYoungvsOld = (Med.P02.D + Med.P09.D + Lat.P02.D + Lat.P09.D)/4 - (Med.P23.D + Med.P45.D + Lat.P23.D + Lat.P45.D)/4,
-# MedYoungvsLatYoung = (Med.P02.II + Med.P09.II + Med.P02.D + Med.P09.D)/4 - (Lat.P02.II + Lat.P09.II + Lat.P02.D + Lat.P09.D)/4,
-# MedOldvsLatOld = (Med.P23.II + Med.P45.II + Med.P23.D + Med.P45.D)/4 - (Lat.P23.II + Lat.P45.II + Lat.P23.D + Lat.P45.D)/4,
-# MedLIIvsLatLII = (Med.P02.II + Med.P09.II + Med.P23.II + Med.P45.II)/4 - (Lat.P02.II + Lat.P09.II + Lat.P23.II + Lat.P45.II)/4,
-# MedDvsLatDeep = (Med.P02.D + Med.P09.D + Med.P23.D + Med.P45.D)/4 - (Lat.P02.D + Lat.P09.D + Lat.P23.D + Lat.P45.D)/4,
-# MedLIIYoungvsLatLIIYoung = (Med.P02.II + Med.P09.II)/2 - (Lat.P02.II + Lat.P09.II)/2,
-# MedLIIOldvsLatLIIOld = (Med.P23.II + Med.P45.II)/2 - (Lat.P23.II + Lat.P45.II)/2,
-# MedLIIYoungvsMedLIIOld = (Med.P02.II + Med.P09.II)/2 - (Med.P23.II + Med.P45.II)/2,
-# MedDYoungvsMedDOld = (Med.P02.D + Med.P09.D)/2 - (Med.P23.D + Med.P45.D)/2,
-# MedYoungvsMedOld = (Med.P02.II + Med.P09.II + Med.P02.D + Med.P09.D)/4 - (Med.P23.II + Med.P45.II + Med.P23.D + Med.P45.D)/4,
-# LatLIIYoungvsLatLIIOld = (Lat.P02.II + Lat.P09.II)/2 - (Lat.P23.II + Lat.P45.II)/2,
-# LatDYoungvsLatDOld = (Lat.P02.D + Lat.P09.D)/2 - (Lat.P23.D + Lat.P45.D)/2,
-# LatYoungvsLatOld = (Lat.P02.II + Lat.P09.II + Lat.P02.D + Lat.P09.D)/4 - (Lat.P23.II + Lat.P45.II + Lat.P23.D + Lat.P45.D)/4,
-# P02IIMedvsLat = Med.P02.II - Lat.P02.II, P09IIMedvsLat = Med.P09.II - Lat.P09.II, P23IIMedvsLat = Med.P23.II - Lat.P23.II, P45IIMedvsLat = Med.P45.II - Lat.P45.II,
-# P02DMedvsLat = Med.P02.D - Lat.P02.D, P09DMedvsLat = Med.P09.D - Lat.P09.D, P23DMedvsLat = Med.P23.D - Lat.P23.D, P45DMedvsLat = Med.P45.D - Lat.P45.D,
-# P02MedvsLat = (Med.P02.II + Med.P02.D)- (Lat.P02.II + Lat.P02.D), P09MedvsLat = (Med.P09.II + Med.P09.D)- (Lat.P09.II + Lat.P09.D),
-# P23MedvsLat = (Med.P23.II + Med.P23.D)- (Lat.P23.II + Lat.P23.D), P45MedvsLat = (Med.P45.II + Med.P45.D)- (Lat.P45.II + Lat.P45.D),
-# MedOldIIvsD = (Med.P23.II + Med.P45.II)/2 - (Med.P23.D + Med.P45.D)/2,
-# levels=des)
-
-# #Compute estimated coefficients and standard errors for my set of contrasts, TMM and quantile normalization
-
-# fit.TMMQua <- contrasts.fit(mod2, cmat)
-# #Empirical Bayes moderation of standard errors
-# fit2.TMMQua <- eBayes(fit.TMMQua)
-
-# #saveRDS(fit2.TMMQua, file = "fit2TMMQua.rds")

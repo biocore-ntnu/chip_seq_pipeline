@@ -1,0 +1,24 @@
+from utils.helpers import merge_colnames_sample_sheet
+
+rule divide_chip_input:
+    input:
+        "{prefix}/data/normalize/averaged_input_{caller}.e_values"
+    output:
+        "{prefix}/data/normalize/ChIP_divided_by_input_{caller}.e_values"
+    run:
+        df = pd.read_table(input[0], sep=" ", header=0, index_col=0)
+
+        cm = merge_colnames_sample_sheet(df.columns, ss)
+
+        gdfs = []
+        for (g, m) in cm.groupby("Group"):
+            chip_files = m.loc[m.ChIP == "ChIP"].FullName.drop_duplicates()
+            input_files = m.loc[m.ChIP == "Input"].FullName.drop_duplicates()
+
+            # subtraction because the data are log normalized
+            gdf = df[chip_files] - df[input_files].values
+            gdfs.append(gdf)
+
+        outdf = pd.concat(gdfs, axis=1)
+
+        outdf.to_csv(output[0], sep=" ")
