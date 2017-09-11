@@ -1,30 +1,43 @@
 import pandas as pd
 
+
 from utils.helpers import merge_colnames_sample_sheet
+
 
 rule get_chip_over_input_from_files_left_in:
     input:
         toptable = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable",
-        cluster = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz"
+        e_values = "{prefix}/data/normalize/loo/averaged_input_{group}_{caller}.e_values"
     output:
         "{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios"
     run:
         toptable = pd.read_table(input.toptable, sep=" ", index_col=0)
-        cluster = pd.read_table(input.cluster, sep=" ", index_col=0)
+        e_values = pd.read_table(input.e_values, sep=" ", index_col=0)
 
-        toptable_cluster = cluster.ix[toptable.index]
+        toptable_cluster = e_values.ix[toptable.index]
+
+        # Only look at files in group
+        original_group = loo_ss.loc[loo_ss.Group == wildcards.group].OriginalGroup.iloc[0]
+        names = loo_ss.loc[loo_ss.OriginalGroup == original_group].Name.drop_duplicates()
+
+        samples_to_fetch = [splitext(basename(f))[0] for f in names]
+        toptable_cluster = toptable_cluster[[f for f in toptable_cluster.columns if splitext(basename(f))[0] in samples_to_fetch]]
+        # toptable_cluster = toptable_cluster[toptable_cluster.]
 
         # This code just connects Filenames and Chip/input status
-        m = merge_colnames_sample_sheet(toptable_cluster.columns, ss)["FullName ChIP"]
+        m = merge_colnames_sample_sheet(toptable_cluster.columns, ss)["FullName ChIP".split()]
 
-        chip_files = m.loc[m.ChIP == "ChIP"].FullName
-        input_files = m.loc[m.ChIP == "Input"].FullName
+        chip_files = m.loc[m.ChIP == "ChIP"].FullName.drop_duplicates()
+        input_files = m.loc[m.ChIP == "Input"].FullName.drop_duplicates()
 
         # row counts
-        chip_counts = cluster[chip_files].sum(axis=1)
-        input_counts = cluster[input_files].sum(axis=1) + 0.5
+        chip_counts = e_values[chip_files]
+        input_counts = e_values[input_files]
+        n = input_files.shape[0] - 1
+        input_counts = input_counts.iloc[:, :n]
 
-        chip_counts.div(input_counts, axis=0).to_csv(output[0], sep=" ")
+        outdf = chip_counts - input_counts.values
+        outdf.to_csv(output[0], sep=" ")
 
 
 def compute_bins(df, bin_size):
@@ -50,6 +63,7 @@ rule get_chip_over_input_from_file_left_out:
     run:
         df = pd.read_table(input.toptable, sep=" ", nrows=5)
         if df.empty:
+            raise Exception("No significant regions found for {}".format(**wildcards))
             idx = pd.Series(["chr1_0_0:200_trunk"])
             value = pd.Series([0.0001])
             outdf = pd.concat([idx, value], 1)

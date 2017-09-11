@@ -1,6 +1,6 @@
 library(edgeR)
 
-df = read.table(snakemake@input[[1]], header=T, row.names=1, sep=" ")
+df = read.table(snakemake@input[[1]], header=T, row.names=1, sep=" ", check.names=FALSE)
 df <- 2 ^ df
 ## design = read.table(snakemake@input[["design"]], header=T, row.names=1)
 

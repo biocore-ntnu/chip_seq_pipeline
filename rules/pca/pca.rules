@@ -5,6 +5,7 @@ import pandas as pd
 
 from sklearn.decomposition import PCA
 
+from os.path import splitext
 
 rule normalize_pca:
     input:
@@ -26,7 +27,7 @@ def add_group_info_pca(files, coords, multibigwig):
     elif multibigwig == "individual":
         files = [re.sub(".bw$", "", f) for f in files]
     else:
-        files = []
+        files = [basename(splitext(f)[0]) for f in files]
 
     coords.insert(0, "File", files)
     coords = coords.merge(ss[["Name", "Group"]], left_on="File", right_on="Name", how="left")
@@ -72,7 +73,7 @@ rule compute_pca_revoom:
         "{prefix}/data/plot_pca/{caller}.csv"
     run:
         df = pd.read_table(input.e_values, sep=" ")
-        names = pd.read_table(input.names, sep=" ", nrows=0, header=1, index_col=0)
+        names = pd.read_table(input.names, sep=" ", nrows=0, header=0, index_col=0)
         df.columns = names.columns
 
         df += df.min() + 0.01
@@ -81,7 +82,7 @@ rule compute_pca_revoom:
         pca.fit(df.T.values)
         coords = pd.DataFrame(pca.transform(df.T.values), columns="X Y".split(), index=list(df.columns))
 
-        coords = add_group_info_pca(list(df.columns), coords, None)
+        coords = add_group_info_pca(list(names), coords, None)
 
         coords.to_csv(output[0], sep=" ", index=False)
 

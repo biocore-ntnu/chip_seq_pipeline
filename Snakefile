@@ -45,7 +45,7 @@ to_include = ["download/annotation",
               "deeptools/heatmap", "deeptools/profileplot",
               "deeptools/computematrix", "deeptools/bamcoverage",
               "deeptools/bigwig", "deeptools/multi_bigwig_summary",
-              "deeptools/plot_pca", "deeptools/plot_fingerprint",
+              "pca/pca", "deeptools/plot_fingerprint",
               "merge_lanes/merge_lanes", "compute_tss/compute_tss",
               "trim/atropos", "align/hisat2", "sort_index_bam/sort_index_bam",
               "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
@@ -202,6 +202,12 @@ rule plotpca_chip_vs_merged_input:
         expand("{prefix}/data/plotpca/multibigwig_chip_vs_merged_input.pdf",
                prefix=prefix)
 
+rule pca_limma:
+    input:
+        expand("{prefix}/data/plot_pca/{caller}.pdf",
+               prefix=prefix, caller=config["cs_callers"])
+
+
 rule fingerprint_plot:
     input:
         expand("{prefix}/data/plot_fingerprint/fingerprint_deeptools.pdf",
@@ -211,12 +217,9 @@ rule fingerprint_plot:
 if config["leave_one_out"]:
     rule leave_one_out:
         input:
-            expand("{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
+            expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios",
                    prefix=prefix, group=loo_ss.Group.drop_duplicates(),
                    caller=config["cs_callers"], contrast=contrasts(groups).values()),
-            expand("{prefix}/data/chip_over_input/loo/{group}_{caller}_{contrast}.ratios",
-                   prefix=prefix, group=loo_ss.Group.drop_duplicates(),
-                   caller=config["cs_callers"], contrast=contrasts(groups).values())
 
 
 

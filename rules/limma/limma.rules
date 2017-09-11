@@ -37,8 +37,8 @@ rule limma:
 
 rule limma_loo:
     input:
-        e_values = "{prefix}/data/voom/loo/{group}_{caller}.e_values",
-        weights = "{prefix}/data/voom/loo/{group}_{caller}.weights",
+        e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
+        weights = "{prefix}/data/revoom/loo/{group}_{caller}.weights",
         design = "{prefix}/data/limma/loo/{group}.txt"
     output:
         all_regions = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
