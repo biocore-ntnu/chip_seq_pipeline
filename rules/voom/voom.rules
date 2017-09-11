@@ -25,30 +25,30 @@ rule revoom:
         "../../scripts/revoom.R"
 
 
-rule voom_loo:
-    input:
-        counts = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz",
-        # design = config["design_matrix"]
-    output:
-        e_values = "{prefix}/data/voom/loo/{group}_{caller}.e_values",
-        weights = "{prefix}/data/voom/loo/{group}_{caller}.weights",
-        plot = "{prefix}/logs/voom/loo/{group}_{caller}.pdf"
-    params:
-        voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
-        # voom_normalization_dge = config["voom_normalization_dge"]
-    script:
-        "../../scripts/voom.R"
+# rule voom_loo:
+#     input:
+#         counts = "{prefix}/data/epic_cluster/loo/{group}_{caller}_cluster.csv.gz",
+#         # design = config["design_matrix"]
+#     output:
+#         e_values = "{prefix}/data/voom/loo/{group}_{caller}.e_values",
+#         weights = "{prefix}/data/voom/loo/{group}_{caller}.weights",
+#         plot = "{prefix}/logs/voom/loo/{group}_{caller}.pdf"
+#     params:
+#         voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
+#         # voom_normalization_dge = config["voom_normalization_dge"]
+#     script:
+#         "../../scripts/voom.R"
 
 
-# Need to run voom again to re-estimate weights after averaging input in original e_value file
-rule revoom_loo:
-    input:
-        "{prefix}/data/normalize/loo/ChIP_divided_by_input_{group}_{caller}.e_values"
-    output:
-        e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
-        weights = "{prefix}/data/revoom/loo/{group}_{caller}.weights",
-        plot = "{prefix}/logs/revoom/loo/{group}_{caller}.pdf"
-    params:
-        voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
-    script:
-        "../../scripts/revoom.R"
+# # Need to run voom again to re-estimate weights after averaging input in original e_value file
+# rule revoom_loo:
+#     input:
+#         "{prefix}/data/normalize/loo/ChIP_divided_by_input_{group}_{caller}.e_values"
+#     output:
+#         e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
+#         weights = "{prefix}/data/revoom/loo/{group}_{caller}.weights",
+#         plot = "{prefix}/logs/revoom/loo/{group}_{caller}.pdf"
+#     params:
+#         voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
+#     script:
+#         "../../scripts/revoom.R"

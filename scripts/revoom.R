@@ -14,4 +14,4 @@ y = voom(dge, lib.size=c(1e6), plot=TRUE) # , normalize.method=snakemake@params[
 dev.off()
 
 write.table(y$E, snakemake@output[["e_values"]], sep=" ")
-write.table(y$weights, snakemake@output[["weights"]], sep=" ")
+write.table(y$weights, snakemake@output[["weights"]], sep=" ", col.names = colnames(y$E))

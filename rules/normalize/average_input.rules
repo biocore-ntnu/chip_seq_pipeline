@@ -30,30 +30,30 @@ rule average_per_group_input:
         outdf.to_csv(output[0], sep=" ")
 
 
-rule average_per_group_input_loo:
-    input:
-        "{prefix}/data/voom/loo/{group}_{caller}.e_values"
-    output:
-        "{prefix}/data/normalize/loo/averaged_input_{group}_{caller}.e_values"
-    run:
-        df = pd.read_table(input[0], sep=" ", header=0, index_col=0)
+# rule average_per_group_input_loo:
+#     input:
+#         "{prefix}/data/voom/loo/{group}_{caller}.e_values"
+#     output:
+#         "{prefix}/data/normalize/loo/averaged_input_{group}_{caller}.e_values"
+#     run:
+#         df = pd.read_table(input[0], sep=" ", header=0, index_col=0)
 
-        col_map = merge_colnames_sample_sheet(df.columns, ss)
+#         col_map = merge_colnames_sample_sheet(df.columns, ss)
 
-        # make input cols per group the same
-        mean_input_cols = []
-        for g in col_map.Group.drop_duplicates():
-            cols = col_map.loc[(col_map.Group == g) & (col_map.ChIP == "Input")].FullName.drop_duplicates()
+#         # make input cols per group the same
+#         mean_input_cols = []
+#         for g in col_map.Group.drop_duplicates():
+#             cols = col_map.loc[(col_map.Group == g) & (col_map.ChIP == "Input")].FullName.drop_duplicates()
 
-            colnames = iter(cols)
-            input_col = pd.Series(df[cols].median(1), name=next(colnames))
-            mean_input_cols.append(input_col)
-            for f in range(len(cols) - 1):
-                mean_input_cols.append(pd.Series(input_col.copy(), name=next(colnames)))
+#             colnames = iter(cols)
+#             input_col = pd.Series(df[cols].median(1), name=next(colnames))
+#             mean_input_cols.append(input_col)
+#             for f in range(len(cols) - 1):
+#                 mean_input_cols.append(pd.Series(input_col.copy(), name=next(colnames)))
 
-        avg_input_df = pd.concat(mean_input_cols, axis=1)
-        chip_df = df[col_map.loc[col_map.ChIP == "ChIP"].FullName.drop_duplicates()]
+#         avg_input_df = pd.concat(mean_input_cols, axis=1)
+#         chip_df = df[col_map.loc[col_map.ChIP == "ChIP"].FullName.drop_duplicates()]
 
-        outdf = pd.concat([chip_df, avg_input_df], axis=1)[df.columns]
+#         outdf = pd.concat([chip_df, avg_input_df], axis=1)[df.columns]
 
-        outdf.to_csv(output[0], sep=" ")
+#         outdf.to_csv(output[0], sep=" ")

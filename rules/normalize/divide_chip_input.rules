@@ -24,28 +24,28 @@ rule divide_chip_input:
         outdf.to_csv(output[0], sep=" ")
 
 
-rule divide_chip_input_loo:
-    input:
-        "{prefix}/data/normalize/loo/averaged_input_{group}_{caller}.e_values"
-    output:
-        "{prefix}/data/normalize/loo/ChIP_divided_by_input_{group}_{caller}.e_values"
-    run:
-        df = pd.read_table(input[0], sep=" ", header=0, index_col=0)
+# rule divide_chip_input_loo:
+#     input:
+#         "{prefix}/data/normalize/loo/averaged_input_{group}_{caller}.e_values"
+#     output:
+#         "{prefix}/data/normalize/loo/ChIP_divided_by_input_{group}_{caller}.e_values"
+#     run:
+#         df = pd.read_table(input[0], sep=" ", header=0, index_col=0)
 
-        cm = merge_colnames_sample_sheet(df.columns, ss)
+#         cm = merge_colnames_sample_sheet(df.columns, ss)
 
-        gdfs = []
-        for (g, m) in cm.groupby("Group"):
-            chip_files = m.loc[m.ChIP == "ChIP"].FullName.drop_duplicates()
-            input_files = m.loc[m.ChIP == "Input"].FullName.drop_duplicates()
+#         gdfs = []
+#         for (g, m) in cm.groupby("Group"):
+#             chip_files = m.loc[m.ChIP == "ChIP"].FullName.drop_duplicates()
+#             input_files = m.loc[m.ChIP == "Input"].FullName.drop_duplicates()
 
-            if len(chip_files) == len(input_files) - 1:
-                input_files = input_files.iloc[:len(input_files) - 1]
+#             if len(chip_files) == len(input_files) - 1:
+#                 input_files = input_files.iloc[:len(input_files) - 1]
 
-            # subtraction because the data are log normalized
-            gdf = df[chip_files] - df[input_files].values
-            gdfs.append(gdf)
+#             # subtraction because the data are log normalized
+#             gdf = df[chip_files] - df[input_files].values
+#             gdfs.append(gdf)
 
-        outdf = pd.concat(gdfs, axis=1)
+#         outdf = pd.concat(gdfs, axis=1)
 
-        outdf.to_csv(output[0], sep=" ")
+#         outdf.to_csv(output[0], sep=" ")

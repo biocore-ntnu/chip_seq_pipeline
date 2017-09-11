@@ -35,6 +35,31 @@ rule limma:
         "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
 
 
+rule remove_loo_sample:
+    input:
+        e_values = "{prefix}/data/revoom/{caller}.e_values",
+        weights = "{prefix}/data/revoom/{caller}.weights",
+    output:
+        e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
+        weights = "{prefix}/data/revoom/loo/{group}_{caller}.weights",
+    run:
+
+        e = pd.read_table(input.e_values, sep=" ")
+        w = pd.read_table(input.weights, sep=" ")
+
+        sample = re.sub("_lo$", "", wildcards.group)
+
+        e = e[[f for f in e.columns if splitext(basename(f))[0] != sample]]
+        w = w[[f for f in w.columns if splitext(basename(f))[0] != sample]]
+
+        # print(e.head(2))
+        # print(w.head(2))
+
+        e.to_csv(output.e_values, sep=" ")
+        w.to_csv(output.weights, sep=" ")
+
+
+
 rule limma_loo:
     input:
         e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
