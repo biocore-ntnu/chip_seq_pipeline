@@ -10,6 +10,14 @@ from itertools import product
 import pandas as pd
 
 
+from itertools import combinations
+
+def make_contrasts(groups):
+
+    cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
+
+    return cs
+
 tss_or_tes = "(tss|tes)"
 
 
@@ -31,6 +39,7 @@ if config["leave_one_out"]:
 else:
     loo_groups = []
 
+# print(loo_ss)
 
 if config.get("external_control_sample_sheet", "") and config["external_control_sample_sheet"]:
     ec_ss = pd.read_table(config["external_control_sample_sheet"], sep="\s+", header=0)
@@ -52,6 +61,7 @@ to_include = ["download/annotation",
               "chip_seq/csaw", "epic/epic_merge", "epic/epic_blacklist",
               "epic/epic_cluster", "epic/epic_count",
               "leave_one_out/compute_chip_over_input",
+              "leave_one_out/violin_plots",
               "normalize/average_input", "normalize/divide_chip_input",
               "voom/voom", "limma/limma"] #, "voom/voom"]
 
@@ -66,6 +76,7 @@ second_group = None
 if all_but_first_group:
     second_group = groups[1]
 
+contrasts = make_contrasts(groups).values()
 
 regions = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon",
            "stop_codon", "stop_codon_redefined_as_selenocysteine", "three_prime_UTR",
@@ -82,7 +93,8 @@ wildcard_constraints:
     group = "({})".format("|".join(groups + loo_groups + ec_groups)),
     chip = "(chip|input|log2ratio|ChIP|Input)",
     region_type = "({})".format("|".join(regions + custom_regions)),
-    caller = "({})".format("|".join(config["cs_callers"]))
+    caller = "({})".format("|".join(config["cs_callers"])),
+    contrast = "({})".format("|".join(contrasts))
 
 
 for rule in to_include:
@@ -175,13 +187,7 @@ rule merged_chip_bigwigs:
     input:
         expand("{prefix}/data/merged_bigwig/{group}_ChIP.bigwig", group=groups, prefix=prefix)
 
-from itertools import combinations
 
-def contrasts(groups):
-
-    cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
-
-    return cs
 
 
 
@@ -189,7 +195,7 @@ rule limma_:
     input:
         expand("{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable",
                caller=config["cs_callers"], prefix=prefix,
-               contrast=contrasts(groups).values())
+               contrast=contrasts)
 
 
 rule plotpca_individual:
@@ -217,9 +223,9 @@ rule fingerprint_plot:
 if config["leave_one_out"]:
     rule leave_one_out:
         input:
-            expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios",
-                   prefix=prefix, group=loo_ss.Group.drop_duplicates(),
-                   caller=config["cs_callers"], contrast=contrasts(groups).values()),
+            expand("{prefix}/data/loo/chip_over_input/merged_{group}_{caller}_lo_info.pdf",
+                   prefix=prefix, group=ss.Group.drop_duplicates(),
+                   caller=config["cs_callers"], contrast=contrasts),
 
 
 
