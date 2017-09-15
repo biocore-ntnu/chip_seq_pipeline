@@ -10,3 +10,18 @@ rule plot_fingerprints_individual:
         48
     shell:
         "plotFingerprint -p {threads} -b {input.bam} --minMappingQuality {config[fastq_quality]} -plot {output.plot} --outRawCounts {output.raw} -T 'Min quality: {config[fastq_quality]}'"
+
+
+rule plot_fingerprints_individual_per_group:
+    input:
+        bam = lambda w: expand("{prefix}/data/align/{sample}.bam.sorted", prefix=prefix,
+                               sample=ss.loc[ss.Group == w.group].Name.drop_duplicates()),
+        idx = lambda w: expand("{prefix}/data/align/{sample}.bam.sorted.bai", prefix=prefix,
+                               sample=ss.loc[ss.Group == w.group].Name.drop_duplicates())
+    output:
+        plot = "{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.pdf",
+        raw = "{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.counts"
+    threads:
+        48
+    shell:
+        "plotFingerprint -p {threads} -b {input.bam} --minMappingQuality {config[fastq_quality]} -plot {output.plot} --outRawCounts {output.raw} -T 'Min quality: {config[fastq_quality]}'"

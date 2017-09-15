@@ -40,7 +40,8 @@ rule compute_pca_bigwigs:
     input:
         "{prefix}/data/multi_bigwig/multibigwig_{multibigwig}.csv"
     output:
-        "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
+       coords =  "{prefix}/data/plot_pca/pca_{multibigwig}.csv",
+       variance_explained = "{prefix}/data/plot_pca/var_pca_{multibigwig}.csv"
     run:
         df = pd.read_table(input[0], sep=" ")
 
@@ -55,10 +56,13 @@ rule compute_pca_bigwigs:
 
         coords.to_csv(output[0], sep=" ", index=False)
 
+        open(output.variance_explained, "w+").write("X Y\n" + " ".join([str(f) for f in pca.explained_variance_ratio_]))
+
 
 rule plot_pca:
     input:
-        "{prefix}/data/plot_pca/pca_{multibigwig}.csv"
+        coords =  "{prefix}/data/plot_pca/pca_{multibigwig}.csv",
+        variance_explained = "{prefix}/data/plot_pca/var_pca_{multibigwig}.csv"
     output:
         "{prefix}/data/plot_pca/pca_{multibigwig}.pdf"
     script:
@@ -70,7 +74,8 @@ rule compute_pca_revoom:
         e_values = "{prefix}/data/revoom/{caller}.e_values",
         names = "{prefix}/data/normalize/ChIP_divided_by_input_{caller}.e_values"
     output:
-        "{prefix}/data/plot_pca/{caller}.csv"
+        coords = "{prefix}/data/plot_pca/{caller}.csv",
+        variance_explained = "{prefix}/data/plot_pca/var_{caller}.csv"
     run:
         df = pd.read_table(input.e_values, sep=" ")
         names = pd.read_table(input.names, sep=" ", nrows=0, header=0, index_col=0)
@@ -84,12 +89,15 @@ rule compute_pca_revoom:
 
         coords = add_group_info_pca(list(names), coords, None)
 
-        coords.to_csv(output[0], sep=" ", index=False)
+        coords.to_csv(output.coords, sep=" ", index=False)
+
+        open(output.variance_explained, "w+").write("X Y\n" + " ".join([str(f) for f in pca.explained_variance_ratio_]))
 
 
 rule plot_pca_limma_data:
     input:
-        "{prefix}/data/plot_pca/{caller}.csv"
+        coords = "{prefix}/data/plot_pca/{caller}.csv",
+        variance_explained = "{prefix}/data/plot_pca/var_{caller}.csv"
     output:
         "{prefix}/data/plot_pca/{caller}.pdf"
     script:

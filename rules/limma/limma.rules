@@ -1,5 +1,6 @@
 import re
 
+
 rule design_matrix:
     input:
         config["sample_sheet"]
@@ -43,7 +44,6 @@ rule remove_loo_sample:
         e_values = "{prefix}/data/revoom/loo/{group}_{caller}.e_values",
         weights = "{prefix}/data/revoom/loo/{group}_{caller}.weights",
     run:
-
         e = pd.read_table(input.e_values, sep=" ")
         w = pd.read_table(input.weights, sep=" ")
 
@@ -52,12 +52,8 @@ rule remove_loo_sample:
         e = e[[f for f in e.columns if splitext(basename(f))[0] != sample]]
         w = w[[f for f in w.columns if splitext(basename(f))[0] != sample]]
 
-        # print(e.head(2))
-        # print(w.head(2))
-
         e.to_csv(output.e_values, sep=" ")
         w.to_csv(output.weights, sep=" ")
-
 
 
 rule limma_loo:
@@ -69,4 +65,20 @@ rule limma_loo:
         all_regions = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}.toptable",
         cutoff = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable"
     script:
-        "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
+        "../../scripts/differential_analysis.R"
+
+
+rule split_toptable_into_plus_minus_logfc:
+    input:
+        "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable"
+    output:
+        "{prefix}/data/limma/loo/{logfc}_{group}_{caller}_{contrast}_cutoff.toptable"
+    run:
+        df = pd.read_table(input[0], sep=" ")
+
+        if df.empty:
+            df.to_csv(output[0], sep=" ")
+        elif wildcards.logfc == "above":
+            df.loc[df.logFC > 0].to_csv(output[0], sep=" ")
+        elif wildcards.logfc == "below":
+            df.loc[df.logFC < 0].to_csv(output[0], sep=" ")

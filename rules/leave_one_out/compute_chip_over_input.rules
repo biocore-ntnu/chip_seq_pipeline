@@ -4,10 +4,10 @@ from utils.helpers import merge_colnames_sample_sheet
 
 rule get_chip_over_input:
     input:
-        toptable = "{prefix}/data/limma/loo/{group}_{caller}_{contrast}_cutoff.toptable",
+        toptable = "{prefix}/data/limma/loo/{logfc}_{group}_{caller}_{contrast}_cutoff.toptable",
         e_values = "{prefix}/data/normalize/averaged_input_{caller}.e_values"
     output:
-        "{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios"
+        "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}.ratios"
     run:
         toptable = pd.read_table(input.toptable, sep=" ", index_col=0)
         e_values = pd.read_table(input.e_values, sep=" ", index_col=0)

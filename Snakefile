@@ -12,11 +12,13 @@ import pandas as pd
 
 from itertools import combinations
 
+
 def make_contrasts(groups):
 
     cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
 
     return cs
+
 
 tss_or_tes = "(tss|tes)"
 
@@ -54,16 +56,15 @@ to_include = ["download/annotation",
               "deeptools/heatmap", "deeptools/profileplot",
               "deeptools/computematrix", "deeptools/bamcoverage",
               "deeptools/bigwig", "deeptools/multi_bigwig_summary",
-              "pca/pca", "deeptools/plot_fingerprint",
-              "merge_lanes/merge_lanes", "compute_tss/compute_tss",
-              "trim/atropos", "align/hisat2", "sort_index_bam/sort_index_bam",
-              "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
-              "chip_seq/csaw", "epic/epic_merge", "epic/epic_blacklist",
-              "epic/epic_cluster", "epic/epic_count",
-              "leave_one_out/compute_chip_over_input",
-              "leave_one_out/violin_plots",
-              "normalize/average_input", "normalize/divide_chip_input",
-              "voom/voom", "limma/limma"] #, "voom/voom"]
+              "deeptools/plot_coverage", "pca/pca",
+              "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
+              "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
+              "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
+              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw",
+              "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
+              "epic/epic_count", "leave_one_out/compute_chip_over_input",
+              "leave_one_out/violin_plots", "normalize/average_input",
+              "normalize/divide_chip_input", "voom/voom", "limma/limma"] #, "voom/voom"]
 
 
 path_prefix = config["prefix"]
@@ -104,6 +105,10 @@ for rule in to_include:
 #     input:
 #         expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.counts",
 #                prefix=prefix, group="AAG_KO_ChIP_1_lo", caller="macs2", contrast="AAG_KO-ELP1_KO")
+
+rule all:
+    input:
+        expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
 
 rule log2_ratio_heatmaps:
     input:
@@ -219,13 +224,29 @@ rule fingerprint_plot:
         expand("{prefix}/data/plot_fingerprint/fingerprint_deeptools.pdf",
                prefix=prefix)
 
+rule _plot_fingerprints_individual_per_group:
+    input:
+        expand("{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.pdf",
+               prefix=prefix, group="WT")
+
+rule _plot_coverage_individual_per_group:
+    input:
+        expand("{prefix}/data/plot_coverage/{group}_coverage.pdf",
+               prefix=prefix, group="WT")
+
+
+
+
+
+
 
 if config["leave_one_out"]:
     rule leave_one_out:
         input:
-            expand("{prefix}/data/loo/chip_over_input/merged_{group}_{caller}_lo_info.pdf",
+            expand("{prefix}/data/loo/chip_over_input/merged_{logfc}_{group}_{caller}_lo_info.pdf",
                    prefix=prefix, group=ss.Group.drop_duplicates(),
-                   caller=config["cs_callers"], contrast=contrasts),
+                   caller=config["cs_callers"], contrast=contrasts,
+                   logfc="above below".split())
 
 
 

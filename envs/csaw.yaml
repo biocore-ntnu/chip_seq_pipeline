@@ -1,4 +1,6 @@
 channels:
   - bioconda
+  - r
 dependencies:
  - bioconductor-csaw
+ - r-statmod

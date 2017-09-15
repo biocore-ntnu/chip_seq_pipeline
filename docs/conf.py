@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# NTNU-Biocore ChIP-Seq Analysis Pipeline documentation build configuration file, created by
-# sphinx-quickstart on Tue Jul  4 16:35:22 2017.
+# epic documentation build configuration file, created by
+# sphinx-quickstart on Wed Jul 19 11:24:44 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -24,6 +24,8 @@
 
 # -- General configuration ------------------------------------------------
 
+numfig = True
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 # needs_sphinx = '1.0'
@@ -31,7 +33,7 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -46,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'NTNU-Biocore ChIP-Seq Analysis Pipeline'
+project = 'epic'
 copyright = '2017, Endre Bakken Stovner'
 author = 'Endre Bakken Stovner'
 
@@ -83,7 +85,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -100,7 +102,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'NTNU-BiocoreChIP-SeqAnalysisPipelinedoc'
+htmlhelp_basename = 'epicdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -127,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'NTNU-BiocoreChIP-SeqAnalysisPipeline.tex', 'NTNU-Biocore ChIP-Seq Analysis Pipeline Documentation',
+    (master_doc, 'epic.tex', 'epic Documentation',
      'Endre Bakken Stovner', 'manual'),
 ]
 
@@ -137,7 +139,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ntnu-biocorechip-seqanalysispipeline', 'NTNU-Biocore ChIP-Seq Analysis Pipeline Documentation',
+    (master_doc, 'epic', 'epic Documentation',
      [author], 1)
 ]
 
@@ -148,10 +150,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'NTNU-BiocoreChIP-SeqAnalysisPipeline', 'NTNU-Biocore ChIP-Seq Analysis Pipeline Documentation',
-     author, 'NTNU-BiocoreChIP-SeqAnalysisPipeline', 'One line description of project.',
+    (master_doc, 'epic', 'epic Documentation',
+     author, 'epic', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

@@ -5,9 +5,9 @@ from re import sub
 
 rule add_loo_info_to_chip_over_input:
     input:
-        "{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.ratios"
+        "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}.ratios"
     output:
-        "{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}_lo_info.ratios"
+        "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}_lo_info.ratios"
     run:
         df = pd.read_table(input[0], sep=" ", index_col=0)
         names = {f: splitext(basename(f))[0] for f in df.columns}
@@ -36,10 +36,12 @@ rule add_loo_info_to_chip_over_input:
 
 rule merge_loo_info:
     input:
-        lambda w: expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}_lo_info.ratios",
-                         group=loo_ss.loc[loo_ss.OriginalGroup == w.group].Group, prefix=prefix, contrast=contrasts, caller=config["cs_callers"])
+        lambda w:
+        expand("{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}_lo_info.ratios",
+               group=loo_ss.loc[loo_ss.OriginalGroup == w.group].Group,
+               prefix=prefix, contrast=contrasts, caller=w.caller, logfc=w.logfc)
     output:
-        "{prefix}/data/loo/chip_over_input/merged_{group}_{caller}_lo_info.ratios"
+        "{prefix}/data/loo/chip_over_input/merged_{logfc}_{group}_{caller}_lo_info.ratios"
     run:
         dfs = [pd.read_table(f, sep=" ") for f in input]
         df = pd.concat(dfs).reset_index(drop=True)
@@ -49,8 +51,8 @@ rule merge_loo_info:
 
 rule violinplot:
     input:
-        "{prefix}/data/loo/chip_over_input/merged_{group}_{caller}_lo_info.ratios"
+        "{prefix}/data/loo/chip_over_input/merged_{logfc}_{group}_{caller}_lo_info.ratios"
     output:
-        "{prefix}/data/loo/chip_over_input/merged_{group}_{caller}_lo_info.pdf"
+        "{prefix}/data/loo/chip_over_input/merged_{logfc}_{group}_{caller}_lo_info.pdf"
     script:
         "../../scripts/violinplots.R"

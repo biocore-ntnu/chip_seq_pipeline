@@ -1,0 +1,22 @@
+from epic.config.genomes import get_effective_genome_length
+
+rule download:
+    output: "{prefix}/data/genome/genome.2bit"
+    resources: instances = 1
+    run:
+        TWOBIT_PATTERN = 'http://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.2bit'
+        url = TWOBIT_PATTERN.format(genome=config["genome"])
+        shell('wget -O {output}.tmp {url} && mv {output}.tmp {output}')
+
+
+rule compute_gc_bias:
+    input:
+        genome = "{prefix}/data/genome/genome.2bit",
+        bam = "{prefix}/data/align/{sample}.bam.sorted"
+    output:
+        plot = "{prefix}/data/gcbias/{sample}_gc_bias.pdf",
+        gc_bias_frequencies = "{prefix}/data/gcbias/{sample}_gc_bias.freq"
+    params:
+        genome_length = "-l " + str(get_effective_genome_length(config["genome"], 100)) if not config["paired_end"] else ""
+    shell:
+        "computeGCBias -b {input[0]} --effectiveGenomeSize {params.genome_length} -g {input.genome} -l {config[fragment_length]} --GCbiasFrequenciesFile {output.gc_bias_frequencies} --biasPlot {output.plot}"
