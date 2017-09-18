@@ -1,6 +1,7 @@
 sort_cmd = "samtools sort {input[0]} > {output[0]}"
 index_cmd = "samtools index {input[0]}"
-if not config["bam"]:
+
+if config["filetype"] in ["bam", "bed"]:
 
 
     rule sort_bam:
@@ -35,7 +36,7 @@ else:
         input:
             bams
         output:
-            "{prefix}/data/align/{sample}.bam.sorted"
+            "{prefix}/data/bam/{sample}.bam.sorted"
         conda:
             "../../envs/global.yaml"
         shell:
@@ -44,9 +45,9 @@ else:
 
     rule index_bam:
         input:
-            "{prefix}/data/align/{sample}.bam.sorted"
+            "{prefix}/data/bam/{sample}.bam.sorted"
         output:
-            "{prefix}/data/align/{sample}.bam.sorted.bai"
+            "{prefix}/data/bam/{sample}.bam.sorted.bai"
         conda:
             "../../envs/global.yaml"
         shell:
@@ -74,13 +75,13 @@ else:
 
 
 
-# rules/deeptools/bamcompare.rules:5:    return expand("{prefix}/data/align/{sample}.bam.sorted", sample=set(samples), prefix=w.prefix)
-# rules/deeptools/bamcoverage.rules:5:        bam = "{prefix}/data/align/{sample}.bam.sorted",
-# rules/deeptools/bamcoverage.rules:6:        index = "{prefix}/data/align/{sample}.bam.sorted.bai"
+# rules/deeptools/bamcompare.rules:5:    return expand("{prefix}/data/bam/{sample}.bam.sorted", sample=set(samples), prefix=w.prefix)
+# rules/deeptools/bamcoverage.rules:5:        bam = "{prefix}/data/bam/{sample}.bam.sorted",
+# rules/deeptools/bamcoverage.rules:6:        index = "{prefix}/data/bam/{sample}.bam.sorted.bai"
 # rules/deeptools/bamcoverage.rules:14:        bam = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
 # rules/deeptools/bamcoverage.rules:15:        index = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
-# rules/deeptools/bigwig.rules:5:        "{prefix}/data/align/{sample}.bam.sorted",
-# rules/deeptools/bigwig.rules:6:        "{prefix}/data/align/{sample}.bam.sorted.bai"
+# rules/deeptools/bigwig.rules:5:        "{prefix}/data/bam/{sample}.bam.sorted",
+# rules/deeptools/bigwig.rules:6:        "{prefix}/data/bam/{sample}.bam.sorted.bai"
 # rules/deeptools/bigwig.rules:23:        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted",
 # rules/deeptools/bigwig.rules:24:        "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
 # rules/sort_index_bam/sort_index_bam.rules:8:            "{path}.bam.sorted"

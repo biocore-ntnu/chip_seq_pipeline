@@ -2,8 +2,8 @@ bamcoverage_cmd = "bamCoverage --normalizeUsingRPKM -b {input.bam} -o {output[0]
 
 rule bamcoverage:
     input:
-        bam = "{prefix}/data/align/{sample}.bam.sorted",
-        index = "{prefix}/data/align/{sample}.bam.sorted.bai"
+        bam = "{prefix}/data/bam/{sample}.bam.sorted",
+        index = "{prefix}/data/bam/{sample}.bam.sorted.bai"
     output:
         "{prefix}/data/bamcoverage/{sample}.bw"
     shell:

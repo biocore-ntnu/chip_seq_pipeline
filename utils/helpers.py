@@ -5,6 +5,9 @@ from os.path import basename
 
 import pandas as pd
 
+
+from snakemake.io import expand
+
 def merge_colnames_sample_sheet(columns, ss):
 
     names = pd.Series(columns, name="FullName")
@@ -46,6 +49,32 @@ def fetch_main_targets(snakefile="Snakefile"):
             targets.append(match.group(1))
 
     return targets
+
+
+def expand_zip(template, zip_dict, regular_dict):
+
+    regular_vars = regular_dict.keys()
+
+    new_template = template
+
+    for k, v in regular_dict.items():
+        if isinstance(v, str):
+            new_template = new_template.replace("{" + k + "}", v)
+
+    new_templates = []
+    for k, v_list in regular_dict.items():
+
+        if not isinstance(v_list, str):
+            for v in v_list:
+                r = "{" + k + "}"
+                new_templates.append(new_template.replace(r, v))
+
+    final_paths = []
+    for t in new_templates:
+        final_paths.extend(expand(t, **zip_dict))
+
+    return final_paths
+
 
 if __name__ == "__main__":
 

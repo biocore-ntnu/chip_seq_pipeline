@@ -1,7 +1,7 @@
 rule area_distance:
     input:
         tss = "{prefix}/data/{folder}/{tss_or_tes}.bed",
-        data = "{prefix}/data/align/{sample}.bed"
+        data = "{prefix}/data/bam/{sample}.bed"
     output:
         "{prefix}/data/{folder}/{tss_or_tes}_{sample}.area_distance"
     wildcard_constraints:

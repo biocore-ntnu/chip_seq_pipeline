@@ -1,8 +1,8 @@
 
 rule plot_fingerprints_individual:
     input:
-        bam = expand("{prefix}/data/align/{sample}.bam.sorted", prefix=prefix, sample=ss.Name.drop_duplicates()),
-        idx = expand("{prefix}/data/align/{sample}.bam.sorted.bai", prefix=prefix, sample=ss.Name.drop_duplicates())
+        bam = expand("{prefix}/data/bam/{sample}.bam.sorted", prefix=prefix, sample=ss.Name.drop_duplicates()),
+        idx = expand("{prefix}/data/bam/{sample}.bam.sorted.bai", prefix=prefix, sample=ss.Name.drop_duplicates())
     output:
         plot = "{prefix}/data/plot_fingerprint/fingerprint_deeptools.pdf",
         raw = "{prefix}/data/plot_fingerprint/fingerprint_deeptools.counts"
@@ -14,9 +14,9 @@ rule plot_fingerprints_individual:
 
 rule plot_fingerprints_individual_per_group:
     input:
-        bam = lambda w: expand("{prefix}/data/align/{sample}.bam.sorted", prefix=prefix,
+        bam = lambda w: expand("{prefix}/data/bam/{sample}.bam.sorted", prefix=prefix,
                                sample=ss.loc[ss.Group == w.group].Name.drop_duplicates()),
-        idx = lambda w: expand("{prefix}/data/align/{sample}.bam.sorted.bai", prefix=prefix,
+        idx = lambda w: expand("{prefix}/data/bam/{sample}.bam.sorted.bai", prefix=prefix,
                                sample=ss.loc[ss.Group == w.group].Name.drop_duplicates())
     output:
         plot = "{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.pdf",

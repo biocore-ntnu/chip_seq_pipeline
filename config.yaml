@@ -19,8 +19,10 @@ external_control_sample_sheet:
 prefix:
   "/mnt/scratch/projects/epipp"
 
-bam:
-  false
+# bed, bam or fastq
+filetype:
+  bam
+
 
 limma:
   contrasts:
@@ -58,6 +60,8 @@ region_files:
 # # --------------------------------------
 
 # chip:
+    # params:
+    #     lambda w, input: compute_edger_contrast_vector()
 #   - chip
 #   - input
 #   - log2ratio

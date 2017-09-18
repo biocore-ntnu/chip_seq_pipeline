@@ -52,20 +52,20 @@ def _get_samples(sample_sheet, chip, group=None):
 def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
     "Gets the chip seq files. By default gets all files."
 
-    # print("group:", group)
     samples = _get_samples(sample_sheet, chip, group)
-    # print("samples:", samples)
 
-    if extension == "bam" and not config["bam"]:
-        fs = "{prefix}/data/align/{sample}.bam.sorted"
-    elif extension == "bam" and config["bam"]:
+    if extension == "bam" and config["filetype"] == "fastq":
+        fs = "{prefix}/data/bam/{sample}.bam.sorted"
+    elif extension == "bam" and config["filetype"] == "bed":
+        fs = "{prefix}/data/bam/{sample}.bam.sorted"
+    elif extension == "bam" and not config["filetype"] == "bam":
         ss = sample_sheet
         files = list(ss.loc[ss.Name.isin(samples)].File)
         fs = files
     elif config["paired_end"]:
-        fs = "{prefix}/data/align/{sample}.bedpe"
+        fs = "{prefix}/data/bam/{sample}.bedpe"
     else:
-        fs = "{prefix}/data/align/{sample}.bed"
+        fs = "{prefix}/data/bam/{sample}.bed"
 
     # print("group:", group)
     # print("chip", chip)
@@ -79,6 +79,6 @@ def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
 
 def get_bam_or_bed(sample, no_multi_aligners, file_format):
 
-    f = "{prefix}/data/align/{sample}.{file_format}"
+    f = "{prefix}/data/bam/{sample}.{file_format}"
 
     return f.format(**vars())

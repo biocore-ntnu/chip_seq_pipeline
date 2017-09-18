@@ -1,23 +1,33 @@
-tmux: false
+# Ensure use of the tmux window manager
+# If you log off from remote server the pipeline will continue running
+tmux: true
 
-leave_one_out: false
+# Config for ChIP-Seq pipeline
+
+leave_one_out: False
+
+# ---------------------------------
+# sample sheet
+# ---------------------------------
 
 sample_sheet:
-  tests/test_data/paired_end/sample_sheet.txt
+  "example/sample_sheet.txt"
 
 external_control_sample_sheet:
-  tests/test_data/external_controls/sample_sheet.txt
 
-# no trailing /, ie my_project/folder not my_project/folder/
+
 prefix:
-  tests/test_data/paired_end
+  "/media/local-disk2/home/endrebas/code/chip_seq_pipeline"
+
+# bed, bam or fastq
+filetype:
+  bed
+
 
 limma:
   contrasts:
-    WTvsGENE1:
+    # WTvsAAG: "WT-AAG"
 
-filetype:
-  fastq
 
 # --------------------------------------
 # Region types
@@ -39,9 +49,10 @@ region_types:
 # custom regions also used to group data in plots, see blah
 
 region_files:
-  quantiles_internal_exon: test_data/WT.internal_exon.bed
-  quantiles_exon: test_data/WT.exon.bed
-  quantiles_gene: test_data/WT.gene.bed
+  # angle_genes: private/epipp/angle_genes.bed
+  # quantiles_internal_exon: private/barbara/WT.internal_exon.bed
+  # quantiles_exon: private/barbara/WT.exon.bed
+  # quantiles_gene: private/barbara/WT.gene.bed
 
 
 # # --------------------------------------
@@ -49,6 +60,8 @@ region_files:
 # # --------------------------------------
 
 # chip:
+    # params:
+    #     lambda w, input: compute_edger_contrast_vector()
 #   - chip
 #   - input
 #   - log2ratio
@@ -84,7 +97,7 @@ paired_end: False
 
 # if have one locally (must be gzipped)
 local_annotation_gff3:
-  test_data/gencode.v26.annotation.gff3.gz
+  private/epipp/gencode.v26.annotation.gff3.gz
 
 # if local_annotation_file is blank, this file will be downloaded and used
 remote_annotation_gff3:
@@ -97,8 +110,9 @@ region_file:
 # HISAT2 index
 # ---------------------------------
 
+# ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
 index_prefix:
-  tests/test_data/genomes/hisat2/hg38/genome
+  /mnt/cargo/genomes/hisat2/hg38/genome
 
 # ---------------------
 # fastq minimum quality
@@ -144,6 +158,14 @@ tss_distance_gene: 3000
 tss_distance_exon: 500
 
 # --------------------------------------
+# epic settings
+# --------------------------------------
+
+epic:
+  gap: 3
+  window_size: 200
+
+# --------------------------------------
 # macs2 settings
 # --------------------------------------
 
@@ -152,13 +174,15 @@ macs2:
   extra_flags: "" # "--nomodel --extsize 150"
 
 # --------------------------------------
-# epic settings
+# csaw settings
 # --------------------------------------
 
-epic:
-  gap: 3
-  window_size: 200
 
+window_size: 200
+
+# "an integer scalar for the minimum count sum across libraries for each window"
+# i.e. rows with fewer reads than this are not analyzed by CSAW
+csaw_filter: 1
 
 # --------------------------------------
 # differential analysis

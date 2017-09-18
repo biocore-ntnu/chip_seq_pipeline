@@ -1,5 +1,6 @@
 private/
 projects/
+example/data/
 
 .cache/
 data/

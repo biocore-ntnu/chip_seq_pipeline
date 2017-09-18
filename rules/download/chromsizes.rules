@@ -1,0 +1,7 @@
+
+
+rule fetch_chromsizes:
+    output:
+        "{prefix}/data/download/chromsizes/{genome}.chromsizes"
+    shell:
+        "fetchChromSizes {wildcards.genome} > {output[0]}"

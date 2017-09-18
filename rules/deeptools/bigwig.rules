@@ -2,8 +2,8 @@ cmd = "bamCoverage --binSize 1 -p {threads} --normalizeUsingRPKM -b {input[0]} -
 
 rule bam_to_bigwig:
     input:
-        "{prefix}/data/align/{sample}.bam.sorted",
-        "{prefix}/data/align/{sample}.bam.sorted.bai"
+        "{prefix}/data/bam/{sample}.bam.sorted",
+        "{prefix}/data/bam/{sample}.bam.sorted.bai"
     output:
         "{prefix}/data/bigwig/{sample}.bigwig"
     resources:

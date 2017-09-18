@@ -21,8 +21,8 @@ limma:
   contrasts:
     WTvsGENE1:
 
-bam:
-  false
+filetype:
+  fastq
 
 # --------------------------------------
 # Region types
@@ -158,6 +158,14 @@ epic:
   gap: 3
   window_size: 200
 
+
+# --------------------------------------
+# macs2 settings
+# --------------------------------------
+
+macs2:
+  broad: "--broad"
+  extra_flags: "" # "--nomodel --extsize 150"
 
 # --------------------------------------
 # differential analysis

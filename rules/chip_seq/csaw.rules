@@ -41,7 +41,7 @@ rule csaw_design_matrix:
     output:
         "{prefix}/data/peaks/csaw/design.csv"
     params:
-        groups = lambda _: list(ss.ix[ss.loc[ss.ChIP=="ChIP"].Name.drop_duplicates().index].Group)
+        groups = list(ss.ix[ss.loc[ss.ChIP=="ChIP"].Name.drop_duplicates().index].Group)
     script:
         "../../scripts/csaw_design_matrix.R"
 
@@ -67,8 +67,6 @@ rule csaw_analyze:
         estimate_disp = "{prefix}/data/peaks/csaw/estimate_disp.RDS"
     output:
         "{prefix}/data/peaks/csaw/{contrast}.raw"
-    # params:
-    #     lambda w, input: compute_edger_contrast_vector()
     conda:
         "../../envs/csaw.yaml"
     script:

@@ -6,8 +6,6 @@ rule bamtobed:
         "{path}.bed"
     conda:
         "../../envs/global.yaml"
-    # wildcard_constraints:
-        # file = "^[/]*"
     shell: "bamToBed -i {input[0]} > {output[0]}"
 
 
@@ -18,6 +16,14 @@ rule bamtobed_pe:
         "{path}.bedpe"
     conda:
         "../../envs/global.yaml"
-        # wildcard_constraints:
-        # file = "^[/]*"
-    shell: "bamToBed -i {input[0]} > {output[0]}"
+    shell: "bamToBed -bedpe -i {input[0]} > {output[0]}"
+
+
+rule bedtobam:
+    input:
+        bed = lambda w: ss.loc[ss.Name == w.sample].File,
+        chromsizes = "{{prefix}}/data/download/chromsizes/{genome}.chromsizes".format(genome=config["genome"])
+    output:
+        "{prefix}/data/bam/{sample}.bam"
+    shell:
+        "bedToBam -i {input.bed} -g {input.chromsizes} > {output[0]}"

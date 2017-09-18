@@ -2,7 +2,7 @@ def bam_group(w, chip):
     df = sample_sheet
     samples = df.loc[(df.Group == w.group) & (df.ChIP == chip)].Name
 
-    return expand("{prefix}/data/align/{sample}.bam.sorted", sample=set(samples), prefix=w.prefix)
+    return expand("{prefix}/data/bam/{sample}.bam.sorted", sample=set(samples), prefix=w.prefix)
 
 
 rule merge_bam_group:

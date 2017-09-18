@@ -2,6 +2,7 @@ import os
 
 from leave_one_out.create_sample_sheets import create_sample_sheet
 from utils.file_getters import read_sample_sheet, sample_vs_group
+from utils.helpers import expand_zip
 from snakemake.shell import shell
 
 shell.executable("bash")
@@ -51,7 +52,7 @@ else:
     ec_ss, ec_samples, ec_groups = pd.DataFrame(), [], []
 
 
-to_include = ["download/annotation",
+to_include = ["download/annotation", "download/chromsizes",
               "deeptools/bamcompare","deeptools/bigwig_compare",
               "deeptools/heatmap", "deeptools/profileplot",
               "deeptools/computematrix", "deeptools/bamcoverage",
@@ -109,6 +110,7 @@ for rule in to_include:
 rule all:
     input:
         expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
+
 
 rule log2_ratio_heatmaps:
     input:
@@ -193,9 +195,6 @@ rule merged_chip_bigwigs:
         expand("{prefix}/data/merged_bigwig/{group}_ChIP.bigwig", group=groups, prefix=prefix)
 
 
-
-
-
 rule limma_:
     input:
         expand("{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable",
@@ -203,15 +202,10 @@ rule limma_:
                contrast=contrasts)
 
 
-rule plotpca_individual:
-    input:
-        expand("{prefix}/data/plotpca/multibigwig_individual.pdf",
-                prefix=prefix)
-
 rule plotpca_chip_vs_merged_input:
     input:
-        expand("{prefix}/data/plotpca/multibigwig_chip_vs_merged_input.pdf",
-               prefix=prefix)
+        expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf",
+               prefix=prefix, multibigwig="chip_vs_merged_input individual".split())
 
 rule pca_limma:
     input:
@@ -272,11 +266,24 @@ if not len(ss.Group.drop_duplicates()) == 1:
                     group1=group1, group2=group2, prefix=prefix)
 
 
+        # modified_templates = []
+        # for t in templates:
+        #     modified_templates.append(t.format(**zip_dict))
+
+
+        # for t in modified_templates:
+        #     modified_templates
+
+
+
+
     rule log2_ratio_input_normalized_group_vs_input_normalized_group:
         input:
-            expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png",
-                   group1="WT GENE2_KO".split(), group2="GENE1_KO",
-                   region_type=all_regions, chip="log2ratio", prefix=prefix)
+               expand_zip("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png",
+                          zip_dict={"group1": group1, "group2": group2},
+                          regular_dict={"region_type": all_regions, "chip": "log2_ratio",
+                                        "prefix": prefix})
+
 
 
 # bad: should not hinge on having design_matrix available;
