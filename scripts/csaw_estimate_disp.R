@@ -24,4 +24,5 @@ print("identify db windows")
 y <- asDGEList(data, norm.factors=normfacs)
 y <- estimateDisp(y, design)
 
-saveRDS(y, snakemake@output[[1]])
+saveRDS(y, snakemake@output[["disp"]])
+saveRDS(data, snakemake@output[["data"]])
