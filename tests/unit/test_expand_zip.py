@@ -10,7 +10,7 @@ from utils.helpers import expand_zip
 
 @pytest.fixture
 def zip_dict():
-    return {"g1": [1, 2, 3], "g2": [4, 5]}
+    return {"g1": [1, 2, 3], "g2": [4, 5, 6]}
 
 
 @pytest.fixture
@@ -25,17 +25,11 @@ def template():
 @pytest.fixture
 def expected_result():
     return ["hoo/data/tes/1vs4",
-            "hoo/data/tes/1vs5",
-            "hoo/data/tes/2vs4",
             "hoo/data/tes/2vs5",
-            "hoo/data/tes/3vs4",
-            "hoo/data/tes/3vs5",
+            "hoo/data/tes/3vs6",
             "hoo/data/tss/1vs4",
-            "hoo/data/tss/1vs5",
-            "hoo/data/tss/2vs4",
             "hoo/data/tss/2vs5",
-            "hoo/data/tss/3vs4",
-            "hoo/data/tss/3vs5"]
+            "hoo/data/tss/3vs6"]
 
 
 

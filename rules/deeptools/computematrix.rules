@@ -106,7 +106,7 @@ rule compute_matrix:
 # input-norm group vs group #
 #############################
 
-if second_group:
+if more_than_one_group:
 
     sort_order_matrix_group_vs_group = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/sort_order_matrix_{group1}_vs_{group2}.mat.gz"
     rule compute_sort_order_matrix_group_vs_group:
@@ -127,7 +127,7 @@ if second_group:
         input:
             bigwig = "{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig",
             # the bed decides sort order
-            bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=second_group)
+            bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=more_than_one_group)
         output:
             matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/{group1}_vs_{group2}.mat.gz"
         threads: 48
@@ -138,7 +138,7 @@ if second_group:
         run:
             # if the sort order matrix exists, avoid recomputation
             # doing it this way to avoid 1) DAG hacks (ruleorder etc) 2) recomputation (expensive!)
-            if wildcards.group1 == first_group and wildcards.group2 == second_group:
+            if wildcards.group1 == first_group and wildcards.group2 == more_than_one_group:
                 sort_order_matrix = params.sort_order_matrix.format(**wildcards)
                 shell("cp {sort_order_matrix} {output.matrix}")
             else:

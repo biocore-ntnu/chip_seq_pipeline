@@ -54,25 +54,15 @@ def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
 
     samples = _get_samples(sample_sheet, chip, group)
 
-    if extension == "bam" and config["filetype"] == "fastq":
+    if extension == "bam" :
         fs = "{prefix}/data/bam/{sample}.bam.sorted"
-    elif extension == "bam" and config["filetype"] == "bed":
-        fs = "{prefix}/data/bam/{sample}.bam.sorted"
-    elif extension == "bam" and not config["filetype"] == "bam":
-        ss = sample_sheet
-        files = list(ss.loc[ss.Name.isin(samples)].File)
-        fs = files
     elif config["paired_end"]:
         fs = "{prefix}/data/bam/{sample}.bedpe"
     else:
         fs = "{prefix}/data/bam/{sample}.bed"
 
-    # print("group:", group)
-    # print("chip", chip)
-    # print("fs:", expand(fs, sample=samples, extension=extension, prefix=prefix))
-
     files = expand(fs, sample=samples, extension=extension, prefix=prefix)
-    # print("files", files)
+
     return files
 
 

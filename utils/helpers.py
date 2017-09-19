@@ -71,7 +71,7 @@ def expand_zip(template, zip_dict, regular_dict):
 
     final_paths = []
     for t in new_templates:
-        final_paths.extend(expand(t, **zip_dict))
+        final_paths.extend(expand(t, zip, **zip_dict))
 
     return final_paths
 

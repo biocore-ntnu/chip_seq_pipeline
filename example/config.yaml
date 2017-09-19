@@ -49,7 +49,7 @@ region_types:
 # custom regions also used to group data in plots, see blah
 
 region_files:
-  angle_genes: private/epipp/angle_genes.bed
+  # angle_genes: private/epipp/angle_genes.bed
   # quantiles_internal_exon: private/barbara/WT.internal_exon.bed
   # quantiles_exon: private/barbara/WT.exon.bed
   # quantiles_gene: private/barbara/WT.gene.bed

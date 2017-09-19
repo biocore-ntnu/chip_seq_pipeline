@@ -21,6 +21,6 @@ def test_dna_repair_dag(target):
 def test_dna_repair_dag_bam(target):
 
     exit_status = run_dag(target, "tests/test_data/paired_end/config.yaml",
-                          extras="--config bam=true sample_sheet=tests/test_data/paired_end/sample_sheet_bam.txt")
+                          extras="--config filetype=bam sample_sheet=tests/test_data/paired_end/sample_sheet_bam.txt")
 
     assert exit_status == 0

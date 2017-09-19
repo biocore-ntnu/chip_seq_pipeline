@@ -74,9 +74,9 @@ input_samples = list(ss[ss.ChIP == "Input"].Name.drop_duplicates())
 groups = list(sample_sheet.Group.drop_duplicates())
 first_group = groups[0]
 all_but_first_group = groups[1:]
-second_group = None
+more_than_one_group = None
 if all_but_first_group:
-    second_group = groups[1]
+    more_than_one_group = groups[1]
 
 contrasts = make_contrasts(groups).values()
 
@@ -117,6 +117,18 @@ rule log2_ratio_heatmaps:
         expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix),
 
+rule input_heatmaps:
+    input:
+        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
+                group=groups, region_type=all_regions, chip="input", prefix=prefix)
+
+
+rule chip_heatmaps:
+    input:
+        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
+                group=groups, region_type=all_regions, chip="chip", prefix=prefix)
+
+
 rule peaks:
     input:
         expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(sample_sheet.Group)),
@@ -133,17 +145,6 @@ rule log2_ratio_profileplots:
         expand("{prefix}/data/profileplot/{region_type}_{chip}_scale_regions_{group}_profile_plot.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix)
 
-
-rule input_heatmaps:
-    input:
-        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
-               group=groups, region_type=all_regions, chip="input", prefix=prefix)
-
-
-rule chip_heatmaps:
-    input:
-        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
-                group=groups, region_type=all_regions, chip="chip", prefix=prefix)
 
 
 rule input_tss_tes_plots:
@@ -221,17 +222,12 @@ rule fingerprint_plot:
 rule _plot_fingerprints_individual_per_group:
     input:
         expand("{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.pdf",
-               prefix=prefix, group="WT")
+               prefix=prefix, group=groups)
 
 rule _plot_coverage_individual_per_group:
     input:
         expand("{prefix}/data/plot_coverage/{group}_coverage.pdf",
-               prefix=prefix, group="WT")
-
-
-
-
-
+               prefix=prefix, group=groups)
 
 
 if config["leave_one_out"]:
@@ -265,23 +261,11 @@ if not len(ss.Group.drop_duplicates()) == 1:
             expand("{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig", zip,
                     group1=group1, group2=group2, prefix=prefix)
 
-
-        # modified_templates = []
-        # for t in templates:
-        #     modified_templates.append(t.format(**zip_dict))
-
-
-        # for t in modified_templates:
-        #     modified_templates
-
-
-
-
     rule log2_ratio_input_normalized_group_vs_input_normalized_group:
         input:
                expand_zip("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png",
                           zip_dict={"group1": group1, "group2": group2},
-                          regular_dict={"region_type": all_regions, "chip": "log2_ratio",
+                          regular_dict={"region_type": all_regions, "chip": "log2ratio",
                                         "prefix": prefix})
 
 
