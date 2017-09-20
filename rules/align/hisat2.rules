@@ -22,7 +22,7 @@ def correct_input_flags(reads):
 
     return input_flags
 
-if config["filetype"] == "fastq":
+if filetype == "fastq":
     rule hisat2:
         "Run hisat2 to align fastqs"
         input:

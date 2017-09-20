@@ -35,6 +35,21 @@ Novel features
 
    installation
    quick_start
+   basic_intro
+
+.. toctree::
+   :caption: Configuration Files
+   :hidden:
+   :maxdepth: 2
+
+   configuration_files
+
+.. toctree::
+   :caption: Quality Control
+   :hidden:
+   :maxdepth: 2
+
+
 
 .. toctree::
    :caption: Peak calling

@@ -9,16 +9,16 @@ print(ss.ChIP.str.lower())
 print(ss)
 
 
-# rule download_example_data:
-#     output:
-#         "data/{chip}_{sample}_{type}.bed.gz"
-#     params:
-#         url = lambda w: ss.loc[(ss.CellType == w.type) & (ss.Sample == int(w.sample)) & (ss.ChIP == w.chip)].URL.iloc[0]
-#     shell:
-#         "curl {params.url} > {output[0]}"
+rule download_example_data:
+    output:
+        "download/{chip}_{sample}_{type}.bed.gz"
+    params:
+        url = lambda w: ss.loc[(ss.CellType == w.type) & (ss.Sample == int(w.sample)) & (ss.ChIP == w.chip)].URL.iloc[0]
+    shell:
+        "curl {params.url} > {output[0]}"
 
 
-infiles = {(chip, sample, celltype): "data/{chip}_{sample}_{type}.bed.gz".format(sample=sample, type=celltype, chip=chip) for chip, sample, celltype in zip(ss.ChIP, ss.Sample, ss.CellType)}
+infiles = {(chip, sample, celltype): "download/{chip}_{sample}_{type}.bed.gz".format(sample=sample, type=celltype, chip=chip) for chip, sample, celltype in zip(ss.ChIP, ss.Sample, ss.CellType)}
 print(infiles)
 
 

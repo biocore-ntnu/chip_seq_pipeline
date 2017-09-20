@@ -36,13 +36,19 @@ prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
-if config["leave_one_out"]:
-    loo_ss = create_sample_sheet(ss)
-    loo_groups = list(loo_ss.Group.drop_duplicates())
-else:
-    loo_groups = []
+def find_filetype(ss):
 
-# print(loo_ss)
+    filetypes = ss.File.str.replace(".gz$", "").str.split(".", expand=True).iloc[:, -1]
+    filetypes = list(filetypes.drop_duplicates())
+    assert len(filetypes) == 1, "More than one filetype in sample sheet: " + ", ".join(filetypes)
+
+    return filetypes[0]
+
+filetype = find_filetype(ss)
+
+loo_ss = create_sample_sheet(ss)
+loo_groups = list(loo_ss.Group.drop_duplicates())
+
 
 if config.get("external_control_sample_sheet", "") and config["external_control_sample_sheet"]:
     ec_ss = pd.read_table(config["external_control_sample_sheet"], sep="\s+", header=0)
@@ -101,6 +107,7 @@ wildcard_constraints:
 
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
+
 
 # rule all:
 #     input:
@@ -230,14 +237,14 @@ rule _plot_coverage_individual_per_group:
                prefix=prefix, group=groups)
 
 
-if config["leave_one_out"]:
-    rule leave_one_out:
-        input:
-            expand("{prefix}/data/loo/chip_over_input/merged_{logfc}_{group}_{caller}_lo_info.pdf",
-                   prefix=prefix, group=ss.Group.drop_duplicates(),
-                   caller=config["cs_callers"], contrast=contrasts,
-                   logfc="above below".split())
+loo_file = "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}_lo_info.ratios"
 
+rule leave_one_out:
+    input:
+        expand(loo_file,
+                prefix=prefix, group=loo_ss.Group.drop_duplicates(),
+                caller=config["cs_callers"], contrast=contrasts,
+                logfc="above below".split())
 
 
 if not len(ss.Group.drop_duplicates()) == 1:

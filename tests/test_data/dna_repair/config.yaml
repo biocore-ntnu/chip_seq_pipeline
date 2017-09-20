@@ -12,7 +12,7 @@ sample_sheet:
   tests/test_data/dna_repair/sample_sheet.txt
 
 external_control_sample_sheet:
-  tests/test_data/external_controls/sample_sheet.txt
+  # tests/test_data/external_controls/sample_sheet.txt
 
 prefix:
   tests/test_data/dna_repair

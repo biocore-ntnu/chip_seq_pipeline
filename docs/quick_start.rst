@@ -1,20 +1,16 @@
 Quick-start
 ================================
 
-To use epic, you need at least one ChIP and one input bed file.
-Let's download some test data from github:
+bincs is written as a Snakemake_ pipeline.
+
+.. _Snakemake: http://snakemake.readthedocs.io/en/stable/
+
+bincs requires a config file and a sample sheet to run.
+
+To obtain the example files you should go to the folder example and run the command
 
 .. code-block:: bash
 
-   wget https://raw.githubusercontent.com/biocore-ntnu/epic/master/examples/control.bedpe
-   wget https://raw.githubusercontent.com/biocore-ntnu/epic/master/examples/test.bed
+   snakemake -s download_data_and_create_sample_sheet.Snakefile
 
-Now you can run epic on these files with
-
-.. code-block:: bash
-
-   epic -t test.bed -c control.bedpe -o enriched_regions.csv
-
-The -t means treatment (ChIP), while the -c means control (input). The -o is the
-path where you want to store the results. If no output path is given, the
-results are written to stdout.
+This will download some data from gencode and create an appropriate sample sheet.

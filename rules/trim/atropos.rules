@@ -28,7 +28,7 @@ def atropos_input_files(w):
         return sample_sheet.loc[sample_sheet.Name==w.sample].File
 
 
-if config["filetype"] == "fastq":
+if filetype == "fastq":
     rule atropos:
         input:
             atropos_input_files

@@ -97,11 +97,11 @@ paired_end: False
 
 # if have one locally (must be gzipped)
 local_annotation_gff3:
-  private/epipp/gencode.v26.annotation.gff3.gz
+  # private/epipp/gencode.v26.annotation.gff3.gz
 
 # if local_annotation_file is blank, this file will be downloaded and used
 remote_annotation_gff3:
-  ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gff3.gz
+  ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gff3.gz
 
 region_file:
   pass

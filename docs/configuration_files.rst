@@ -1,0 +1,120 @@
+Configuration files
+===================
+
+bincs requires two files to run, namely a configuration file and a
+sample sheet.
+
+A config file describes the pipeline settings, such as genome build, annotation
+files and ChIP-Seq callers. The sample sheet describes the layout of your
+experiment and the files which contain your biological data.
+
+Sample sheet
+------------
+
+Let's look at the sample sheet first.
+
+This file contains five columns: File, Name, Group, ChIP and Mate.
+
+
+.. code-block:: csv
+
+   File Name Group ChIP Mate
+   download/ChIP_1_fibroblast.bed.gz fibroblast_1_ChIP fibroblast ChIP 1
+   download/ChIP_2_fibroblast.bed.gz fibroblast_2_ChIP fibroblast ChIP 1
+   download/ChIP_3_fibroblast.bed.gz fibroblast_3_ChIP fibroblast ChIP 1
+   download/ChIP_1_keratinocyte.bed.gz keratinocyte_1_ChIP keratinocyte ChIP 1
+   download/ChIP_2_keratinocyte.bed.gz keratinocyte_2_ChIP keratinocyte ChIP 1
+   download/ChIP_3_keratinocyte.bed.gz keratinocyte_3_ChIP keratinocyte ChIP 1
+   download/ChIP_1_melanocyte.bed.gz melanocyte_1_ChIP melanocyte ChIP 1
+   download/ChIP_2_melanocyte.bed.gz melanocyte_2_ChIP melanocyte ChIP 1
+   download/ChIP_3_melanocyte.bed.gz melanocyte_3_ChIP melanocyte ChIP 1
+   download/Input_1_fibroblast.bed.gz fibroblast_1_Input fibroblast Input 1
+   download/Input_2_fibroblast.bed.gz fibroblast_2_Input fibroblast Input 1
+   download/Input_3_fibroblast.bed.gz fibroblast_3_Input fibroblast Input 1
+   download/Input_1_keratinocyte.bed.gz keratinocyte_1_Input keratinocyte Input 1
+   download/Input_2_keratinocyte.bed.gz keratinocyte_2_Input keratinocyte Input 1
+   download/Input_3_keratinocyte.bed.gz keratinocyte_3_Input keratinocyte Input 1
+   download/Input_1_melanocyte.bed.gz melanocyte_1_Input melanocyte Input 1
+   download/Input_2_melanocyte.bed.gz melanocyte_2_Input melanocyte Input 1
+   download/Input_3_melanocyte.bed.gz melanocyte_3_Input melanocyte Input 1
+
+
+* **File**
+
+   This is the path to the ChIP-Seq file. Valid filetypes are fastq(.gz), bed/bedpe(.gz)
+   and bam.
+
+* **Name**
+
+   This is the name of the sample the file contains.
+
+* **Group**
+
+   This is the group the sample belongs to. The group variable is used to denote
+   which files should be analyzed together and often corresponds to an
+   experimental condition, timepoint or tissue type. For example, when calling
+   peaks, you do not want to call peaks for all the data pooled, but rather find
+   peaks for each group, fibroblast, keratinocyte and melanocyte so that you
+   know which peaks are specific to which condition.
+
+* **ChIP**
+
+   This variable tells whether the file is a ChIP file or an Input file. Since
+   ChIP-Seq data typically contain ~90-95% noise, having a background file for
+   statistical comparisons is extremely important.
+
+   Note that there is no requirement about the number of Input files being the
+   same as the number of ChIP files. Also, ChIP and Input files are not matched,
+   i.e., fibroblast_1_ChIP is not matched against fibroblast_1_Input above. In
+   all analyses, the background signal is pooled, since it is supposed to be
+   just background noise.
+
+* **Mate**
+
+   Mate is used to denote whether a file contains reads from the first mate or
+   second in paired end data. It is only applicable when the file format used is
+   fastq.
+
+
+Configuration file
+------------------
+
+The configuration file contains a wealth of variables which indicate
+user-configurable settings.
+
+.. code-block:: yaml
+
+   sample_sheet: sample_sheet.txt
+
+Path to the sample sheet to be used. Must be absolute or relative to the
+Snakemake workdir.
+
+.. code-block:: yaml
+
+   tmux: false # or true
+
+This flag indicates whether running in a tmux session is required to start the
+pipeline. This ensures that a long running process will continue even if you
+disconnect from a remote host.
+
+.. code-block:: yaml
+
+   external_control_sample_sheet: path/to/external_control_sample_sheet.txt
+
+This is a path to a sample sheet of external control files. This should be left
+blank in most experiments. It is only relevant in situations where you have ChIP
+of other species. When these align to the genome, the binding is certainly
+non-specific. Therefore, regions with a lot of reads from these regions are used
+as a blacklist.
+
+.. code-block:: yaml
+
+   prefix:
+     "/mnt/scratch/projects/epipp"
+
+This is the path that is used as a prefix for all the temporary and final
+results that the pipeline produces.
+
+.. code-block:: yaml
+
+   filetype:

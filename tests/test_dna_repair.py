@@ -12,7 +12,7 @@ targets = fetch_main_targets()
 @pytest.mark.parametrize("target", targets + multi_group_targets)
 def test_dna_repair_dag(target):
 
-    exit_status = run_dag(target, "tests/test_data/dna_repair/config.yaml")
+    exit_status = run_dag(target, "tests/test_data/dna_repair/config.yaml", "tests/test_data/dna_repair/sample_sheet.txt")
 
     assert exit_status == 0
 
@@ -23,6 +23,7 @@ def test_dna_repair_dag(target):
 def test_dna_repair_dag_bam(target):
 
     exit_status = run_dag(target, "tests/test_data/dna_repair/config.yaml",
-                          extras="--config filetype=bam sample_sheet=tests/test_data/dna_repair/sample_sheet_bam.txt")
+                          "tests/test_data/dna_repair/sample_sheet_bam.txt",
+                          extras="--config filetype=bam")
 
     assert exit_status == 0

@@ -4,24 +4,22 @@ tmux: true
 
 # Config for ChIP-Seq pipeline
 
-leave_one_out: False
-
 # ---------------------------------
 # sample sheet
 # ---------------------------------
 
+
 sample_sheet:
   sample_sheet_fixed.txt
+
 
 external_control_sample_sheet:
   sample_sheet_controls.txt
 
+
 prefix:
   "/mnt/scratch/projects/epipp"
 
-# bed, bam or fastq
-filetype:
-  bam
 
 
 limma:
@@ -41,6 +39,7 @@ region_types:
   - exon
   - gene
   - internal_exon
+
 
 # custom region files cannot have any of the following names: "CDS", "exon",
 # "five_prime_UTR", "gene", "start_codon", "stop_codon",

@@ -19,7 +19,10 @@ rule design_matrix_loo:
     run:
         group = re.sub("_lo$", "", wildcards.group)
 
+        # print(group, wildcards.group)
+
         df = pd.read_table(input[0], index_col=0, sep=" ")
+        # print(df)
         df = df.drop(group)
         df.to_csv(output[0], sep=" ")
 
