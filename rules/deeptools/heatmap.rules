@@ -1,4 +1,7 @@
+import gzip, json, io
+
 ruleorder: find_heatmap_sort_order > create_heatmap
+
 
 rule find_heatmap_sort_order:
     input:
@@ -13,6 +16,43 @@ rule find_heatmap_sort_order:
         "plotHeatmap -m {input[0]} --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
 
 
+def new_labels(w, input):
+
+    header = gzip.open(input.matrix).readline().decode()[1:]
+    labels = json.load(io.StringIO(header))["sample_labels"]
+
+    if w.chip == "log2ratio":
+        labels = [l.replace("sample_", "").replace("_vs_merged_input", "") for l in labels]
+
+    return " ".join(labels)
+
+def region_type_info(region_type):
+    if "gene" in region_type:
+        return "Region type: {} (All regions scaled to be {} bp)".format(region_type, config["tss_distance_gene"])
+    else:
+        return "Region type: {} (All regions scaled to be {} bp)".format(region_type, config["tss_distance_exon"])
+
+def new_header(w):
+
+    header = []
+    if w.chip == "log2ratio":
+        header.append("ChIP vs merged input files.")
+    else:
+        header.append(w.chip)
+
+    header.append("Group: " + w.group)
+
+    header.append(region_type_info(w.region_type))
+
+    return " ".join(header)
+
+
+def new_start_label(w):
+    return "TSS" if "gene" in w.region_type else "5'"
+
+def new_end_label(w):
+    return lambda w: "TES" if "gene" in w.region_type else "3'"
+
 rule create_heatmap:
     input:
         matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz",
@@ -21,12 +61,25 @@ rule create_heatmap:
     resources:
         instances = 1
     priority: 100
-    shell:
-        "plotHeatmap -T '{wildcards.group} (scale-regions)' -m {input.matrix} --sortRegions no -out {output.graph}"
-
+    params:
+        header = new_header,
+        start_label = new_start_label,
+        end_label = new_end_label
+    run:
+        labels = new_labels(wildcards, input)
+        shell("plotHeatmap -T '{params.header}' --samplesLabel {params.labels} --startLabel \"{params.start_label}\" --endLabel \"{params.end_label}\" -m {input.matrix} --sortRegions no -out {output.graph}")
 
 
 ruleorder: find_group_vs_group_heatmap_sort_order > create_group_vs_group_heatmap
+
+
+def new_group_vs_group_header(w):
+
+    header = ["ChIP {group1} vs {group2}. First the log2ratio of each group against the input was taken, then the log2ratio of these groups vs each other."]
+    header.append(region_type_info(w.region_type))
+
+    return " ".join(header)
+
 
 rule find_group_vs_group_heatmap_sort_order:
     input:
@@ -37,6 +90,7 @@ rule find_group_vs_group_heatmap_sort_order:
     resources:
         instances = 1
     priority: 100
+    # params:
     shell:
         "plotHeatmap -m {input[0]} --sortRegions descend  -out {output.graph} --outFileSortedRegions {output.sort_order}"
 
@@ -47,9 +101,11 @@ rule create_group_vs_group_heatmap:
     output:
         graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png"
     params:
-        title = lambda w: w.group1 + " vs " + w.group2
+        title = new_group_vs_group_header,
+        start_label = new_start_label,
+        end_label = new_end_label
     resources:
         instances = 1
     priority: 100
     shell:
-        "plotHeatmap -T '{params.title}' -m {input.matrix} --sortRegions no -out {output.graph}"
+        "plotHeatmap --startLabel \"{params.start_label}\" --endLabel \"{params.end_label}\" -T '{params.title}' -m {input.matrix} --sortRegions no -out {output.graph}"

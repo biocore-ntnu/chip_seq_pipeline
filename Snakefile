@@ -36,6 +36,7 @@ prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
+
 def find_filetype(ss):
 
     filetypes = ss.File.str.replace(".gz$", "").str.split(".", expand=True).iloc[:, -1]
@@ -43,6 +44,7 @@ def find_filetype(ss):
     assert len(filetypes) == 1, "More than one filetype in sample sheet: " + ", ".join(filetypes)
 
     return filetypes[0]
+
 
 filetype = find_filetype(ss)
 
@@ -109,11 +111,6 @@ for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
 
 
-# rule all:
-#     input:
-#         expand("{prefix}/data/loo/chip_over_input/{group}_{caller}_{contrast}.counts",
-#                prefix=prefix, group="AAG_KO_ChIP_1_lo", caller="macs2", contrast="AAG_KO-ELP1_KO")
-
 rule all:
     input:
         expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
@@ -123,6 +120,7 @@ rule log2_ratio_heatmaps:
     input:
         expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix),
+
 
 rule input_heatmaps:
     input:

@@ -85,7 +85,7 @@ cs_callers:
   - epic
   - macs2
 
-genome: hg38
+genome: hg19
 
 # paired end not implemented yet
 paired_end: False

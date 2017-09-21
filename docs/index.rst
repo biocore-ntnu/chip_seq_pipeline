@@ -1,7 +1,4 @@
-.. epic documentation master file, created by
-   sphinx-quickstart on Wed Jul 19 11:24:44 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. bincs
 
 bincs: the biocore-NTNU ChIP-Seq pipeline
 ===========================================

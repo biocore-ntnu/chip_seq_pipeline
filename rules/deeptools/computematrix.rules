@@ -34,7 +34,6 @@ def options(w):
     if "gene" in w.region_type:
         dist = config["tss_distance_gene"]
         opts.append(region_starts.format(dist=dist))
-
     else:
         dist = config["tss_distance_exon"]
         opts.append(region_starts.format(dist=dist))
