@@ -1,5 +1,5 @@
 Coverage plots
-""""""""""""""
+--------------
 
 Coverage plots are used to assess the sequencing depth of a sample.
 
