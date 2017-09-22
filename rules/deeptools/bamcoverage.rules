@@ -1,5 +1,6 @@
 bamcoverage_cmd = "bamCoverage --normalizeUsingRPKM -b {input.bam} -o {output[0]}"
 
+
 rule bamcoverage:
     input:
         bam = "{prefix}/data/bam/{sample}.bam.sorted",
@@ -8,6 +9,7 @@ rule bamcoverage:
         "{prefix}/data/bamcoverage/{sample}.bw"
     shell:
         bamcoverage_cmd
+
 
 rule bamcoverage_merged_group:
     input:

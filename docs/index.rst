@@ -46,7 +46,9 @@ Novel features
    :hidden:
    :maxdepth: 2
 
-
+   pca
+   coverage_plot
+   fingerprint_plots
 
 .. toctree::
    :caption: Peak calling
@@ -55,6 +57,13 @@ Novel features
 
    peak_calling
 
+
+.. toctree::
+   :caption: Bigwigs
+   :hidden:
+   :maxdepth: 2
+
+   bigwigs
 
 .. toctree::
    :caption: Graphs

@@ -12,19 +12,31 @@ Example Output
    A log2-ratio heatmap showing each sample against the pooled input for the
    group fibroblast.
 
+Targets
+-------
+
+There are three targets for creating regular heatmaps: log2_ratio_heatmaps,
+chip_heatmaps and input_heatmaps. The log2_ratio_heatmaps creates a heatmap of
+each ChIP sample against the pooled input for each group in the sample sheet.
+The chip_heatmaps and input_heatmaps create heatmaps of the RPKM-normalized ChIP
+or Input files for each group.
+
+There is also a target for creating a heatmap of group vs group called
+log2_ratio_group_vs_group_heatmap. It creates one graph per group comparison of
+input-normalized ChIP groups against each other. This target requires that you
+have more than one group in your sample sheet.
+
+..
+   .. code-block:: bash
+
+      snakemake log2_ratio_heatmaps # or chip_heatmaps or input_heatmaps or
+                                    # log2_ratio_group_vs_group_heatmap
+
 Options
 -------
 
-There are three targets for creating heatmaps: log2_ratio_heatmaps,
-chip_heatmaps and input_heatmaps.
-
-.. code-block:: bash
-
-   snakemake log2_ratio_heatmaps # or chip_heatmaps or input_heatmaps
-
-The log2_ratio_heatmaps creates a heatmap of each ChIP sample against the pooled
-input for each group in the sample sheet. The chip_heatmaps and input_heatmaps
-create heatmaps of the RPKM-normalized ChIP or Input files for each group.
+There are several settings that can be used to choose which regions should be
+included in the heatmaps and how much of each region to display.
 
 Predefined Regions
 ~~~~~~~~~~~~~~~~~~

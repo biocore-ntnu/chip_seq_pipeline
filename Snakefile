@@ -170,7 +170,7 @@ rule log2_ratio_tss_tes_plots:
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix)
 
 
-rule group_merged_chip_vs_merged_input:
+rule group_merged_chip_vs_merged_input_bigwig:
     input:
         expand("{prefix}/data/bigwigcompare/group_{group}_chip_vs_input.bigwig",
                group=groups, prefix=prefix)
@@ -208,10 +208,16 @@ rule limma_:
                contrast=contrasts)
 
 
-rule plotpca_chip_vs_merged_input:
+rule pca_chip_vs_merged_input:
     input:
         expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf",
-               prefix=prefix, multibigwig="chip_vs_merged_input individual".split())
+               prefix=prefix, multibigwig="chip_vs_merged_input")
+
+
+rule pca_individual:
+    input:
+        expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf",
+                prefix=prefix, multibigwig="individual")
 
 rule pca_limma:
     input:
@@ -221,15 +227,10 @@ rule pca_limma:
 
 rule fingerprint_plot:
     input:
-        expand("{prefix}/data/plot_fingerprint/fingerprint_deeptools.pdf",
-               prefix=prefix)
-
-rule _plot_fingerprints_individual_per_group:
-    input:
         expand("{prefix}/data/plot_fingerprint/{group}_fingerprint_deeptools.pdf",
                prefix=prefix, group=groups)
 
-rule _plot_coverage_individual_per_group:
+rule coverage_plot:
     input:
         expand("{prefix}/data/plot_coverage/{group}_coverage.pdf",
                prefix=prefix, group=groups)
@@ -261,12 +262,12 @@ if not len(ss.Group.drop_duplicates()) == 1:
             group2.append(g2)
 
 
-    rule log2_ratio_group_vs_group_bigwig_chip_only:
+    rule log2_ratio_group_vs_group_bigwig:
         input:
             expand("{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig", zip,
                     group1=group1, group2=group2, prefix=prefix)
 
-    rule log2_ratio_input_normalized_group_vs_input_normalized_group:
+    rule log2_ratio_group_vs_group_heatmap:
         input:
                expand_zip("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/group_vs_group/{group1}_vs_{group2}_{region_type}.png",
                           zip_dict={"group1": group1, "group2": group2},

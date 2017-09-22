@@ -66,8 +66,10 @@ rule create_heatmap:
         start_label = new_start_label,
         end_label = new_end_label
     run:
-        labels = new_labels(wildcards, input)
-        shell("plotHeatmap -T '{params.header}' --samplesLabel {params.labels} --startLabel \"{params.start_label}\" --endLabel \"{params.end_label}\" -m {input.matrix} --sortRegions no -out {output.graph}")
+        labels = new_labels(wildcards, input) # Not done in params since it
+                                              # requires the input file to read
+                                              # the labels
+        shell("plotHeatmap -T '{params.header}' --samplesLabel {labels} --startLabel \"{params.start_label}\" --endLabel \"{params.end_label}\" -m {input.matrix} --sortRegions no -out {output.graph}")
 
 
 ruleorder: find_group_vs_group_heatmap_sort_order > create_group_vs_group_heatmap
