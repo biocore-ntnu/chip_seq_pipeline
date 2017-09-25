@@ -21,7 +21,6 @@ prefix:
   "/mnt/scratch/projects/epipp"
 
 
-
 limma:
   contrasts:
     # WTvsAAG: "WT-AAG"

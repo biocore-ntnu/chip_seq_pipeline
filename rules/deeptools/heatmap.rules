@@ -26,6 +26,7 @@ def new_labels(w, input):
 
     return " ".join(labels)
 
+
 def region_type_info(region_type):
     if "gene" in region_type:
         return "Region type: {} (All regions scaled to be {} bp)".format(region_type, config["tss_distance_gene"])
@@ -57,7 +58,7 @@ rule create_heatmap:
     input:
         matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz",
     output:
-        graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png"
+        graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png"
     resources:
         instances = 1
     priority: 100

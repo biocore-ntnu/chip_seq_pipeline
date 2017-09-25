@@ -4,6 +4,7 @@ from utils.helpers import fetch_main_targets, multi_group_targets
 from .helpers import run_dag
 
 
+
 targets = fetch_main_targets()
 # targets = ["peaks", "input_profileplots"]
 

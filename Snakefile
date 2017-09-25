@@ -118,20 +118,20 @@ rule all:
 
 rule log2_ratio_heatmaps:
     input:
-        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
+        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix),
 
 
 rule input_heatmaps:
     input:
-        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
+        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png",
                 group=groups, region_type=all_regions, chip="input", prefix=prefix)
 
 
 rule chip_heatmaps:
     input:
-        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{group}_{region_type}.png",
-                group=groups, region_type=all_regions, chip="chip", prefix=prefix)
+        expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png",
+               group=groups, region_type=all_regions, chip="input", prefix=prefix)
 
 
 rule peaks:
@@ -209,17 +209,23 @@ rule limma_:
 
 
 rule pca_chip_vs_merged_input:
+    """Create a PCA of all the ChIP samples log2-divided by the merged input from
+       the samples' respective groups."""
     input:
         expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf",
                prefix=prefix, multibigwig="chip_vs_merged_input")
 
 
 rule pca_individual:
+    """Create a PCA of all the ChIP-samples and all Input-samples in the same plot.
+    The data are RPKM-normalized."""
     input:
         expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf",
                 prefix=prefix, multibigwig="individual")
 
 rule pca_limma:
+    """Create a PCA of the data that is input to limma for differential expression.
+       This data has gone through several rounds of normalization."""
     input:
         expand("{prefix}/data/plot_pca/{caller}.pdf",
                prefix=prefix, caller=config["cs_callers"])
