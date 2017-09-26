@@ -17,7 +17,7 @@ external_control_sample_sheet:
 
 
 prefix:
-  "/media/local-disk2/home/endrebas/code/chip_seq_pipeline"
+  "/mnt/scratch/epigenome_roadmap"
 
 # bed, bam or fastq
 filetype:

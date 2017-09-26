@@ -25,5 +25,7 @@ rule bedtobam:
         chromsizes = "{{prefix}}/data/download/chromsizes/{genome}.chromsizes".format(genome=config["genome"])
     output:
         "{prefix}/data/bam/{sample}.bam"
+    conda:
+        "../../envs/global.yaml"
     shell:
         "bedToBam -i {input.bed} -g {input.chromsizes} > {output[0]}"

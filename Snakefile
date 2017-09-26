@@ -28,6 +28,7 @@ tss_or_tes = "(tss|tes)"
 if not config:
     configfile: "config.yaml"
 
+
 if config["tmux"]:
     from utils.helpers import error_if_not_using_tmux
     error_if_not_using_tmux()
@@ -111,9 +112,9 @@ for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
 
 
-rule all:
-    input:
-        expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
+# rule all:
+#     input:
+#         expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
 
 
 rule log2_ratio_heatmaps:

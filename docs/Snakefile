@@ -5,19 +5,92 @@ Should be able to generate the docs for you.
   - Other data must be kept elsewhere
 """
 
+configfile: "example/config.yaml"
+
+# subworkflow pipeline:
+#     snakefile: "../Snakefile"
+#     workdir: ".."
+
+include: "../Snakefile"
+
+import re
+
+prefix = config["prefix"]
+
 rule all:
     input:
-        "docs/{target}.rst".expand(target="pca")
-
-"Have code that collects targets from the main Snakefile first and their comments and their output paths"
+        "docs/{target}.rst".format(target="pca")
 
 
+def fetch_rules(snakefile):
+    "Have code that collects targets from the main Snakefile first and their comments and their output paths"
+
+    rules = open(snakefile).read()#.split("rule ")[1:]
+
+    regex_matches = re.findall('rule (\w+):\s+"""(.*?)""".*?expand\(["\'](.*?)["\'],.*?\)', rules, flags=re.DOTALL | re.MULTILINE)
+
+    matches = {target_name: (re.sub("\n\s+", " ", docstring), outpath) for target_name, docstring, outpath in regex_matches}
+
+    return matches
+
+
+targets = fetch_rules("Snakefile")
+
+
+template = """{name}
+
+{main_description}
+
+Targets
+-------
+
+{target_descriptions}
+
+Workflow to create targets
+--------------------------
+
+{workflow_description}
+"""
 
 
 rule pca:
     input:
-        expand("{prefix}/data/plot_pca/pca_{multibigwig}.pdf", prefix=prefix, multibigwig="chip_vs_merged_input")
+        pca_chip_vs_merged_input = expand("{prefix}/data/plot_pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
+        pca_individual = expand("{prefix}/data/plot_pca/pca_individual.pdf", prefix=prefix),
+        pca_limma = expand("{prefix}/data/plot_pca/{caller}.pdf",
+                           prefix=prefix, caller=config["cs_callers"])
     output:
-        "docs/pca.rst"
+        doc = "docs/pca.rst",
+        pca_chip_vs_merged_input = expand("docs/img/pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
+        pca_individual = expand("docs/img/pca/pca_individual.pdf", prefix=prefix),
+        pca_limma = expand("docs/img/pca/{caller}.pdf",
+                           prefix=prefix, caller=config["cs_callers"])
     run:
+        name = "PCA"
         main_description = "bincs can create three types of PCA for you."
+
+        target_descriptions = []
+
+        input_dict = dict(input)
+        output_dict = dict(output)
+
+        for target, (docstring, output_path) in targets.items():
+
+            target = target + "\n" + '"' * len(target)
+
+            figure = output_dict[target]
+
+            example_output = """.. figure:: {figure}
+     :scale: 45%
+
+
+"""
+
+            s = """{target}
+
+            {docstring}
+
+            {example_output}
+
+            Output path = `{output_path}`
+            """

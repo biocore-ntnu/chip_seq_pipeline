@@ -1,7 +1,6 @@
 from utils.file_getters import correct_cs_files
 
-# absolute path is just a temporary hack because a conda package was not working
-macs2_cmd = "~/anaconda3/envs/python2/bin/macs2 callpeak  {config[macs2][broad]} {params.paired_end} {config[macs2][extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+macs2_cmd = "macs2 callpeak  {config[macs2][broad]} {params.paired_end} {config[macs2][extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
 
 

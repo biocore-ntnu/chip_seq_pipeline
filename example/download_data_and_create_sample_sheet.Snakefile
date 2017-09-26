@@ -1,8 +1,6 @@
 import pandas as pd
 
-
 from os.path import abspath
-
 
 ss = pd.read_table("example_data_links.txt", sep=" ")
 print(ss.ChIP.str.lower())
