@@ -3,7 +3,6 @@ from utils.file_getters import correct_cs_files
 macs2_cmd = "macs2 callpeak  {config[macs2][broad]} {params.paired_end} {config[macs2][extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
 
-
 rule run_macs:
     input:
         chip = lambda w: correct_cs_files(ss, w.prefix, "chip", "bed", config, w.group),

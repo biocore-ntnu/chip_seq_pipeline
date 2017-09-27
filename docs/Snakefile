@@ -5,6 +5,10 @@ Should be able to generate the docs for you.
   - Other data must be kept elsewhere
 """
 
+from snakemake.shell import shell
+
+shell.executable("bash")
+
 configfile: "example/config.yaml"
 
 # subworkflow pipeline:
@@ -49,16 +53,81 @@ Targets
 Workflow to create targets
 --------------------------
 
-{workflow_description}
+{workflow_descriptions}
 """
 
 
-rule pca:
+rule rulegraphs:
+    output:
+        "docs/img/rulegraphs/{target}.pdf"
+    shell:
+        "snakemake -n --configfile example/config.yaml --rulegraph {wildcards.target} | dot -Tpdf > {output[0]}"
+
+
+def create_target_description(target, figure, docstring, output_path):
+
+    target_header = target + "\n" + '"' * len(target)
+
+    example_output = """.. figure:: {figure}
+:scale: 45%""".format(**locals())
+
+    target_description = """{target_header}
+
+{docstring}
+
+{example_output}
+
+Output path = `{output_path}`""".format(**locals())
+
+    return target_description
+
+
+def create_target_descriptions(targets, output_dict):
+
+    target_descriptions = []
+
+    for target, (docstring, output_path) in targets.items():
+
+        figure = output_dict[target]
+
+        target_description = create_target_description(target, figure, docstring, output_path)
+        target_descriptions.append(target_description)
+
+    return "\n\n".join(target_descriptions)
+
+
+def create_workflow_description(target, figure):
+
+    target_header = target + "\n" + '"' * len(target)
+
+    return """{target_header}
+
+.. figure:: {figure}
+:scale: 45%""".format(**vars())
+
+
+def create_workflow_descriptions(targets, rulegraphs):
+
+    workflow_descriptions = []
+    for target in targets:
+
+        figure = rulegraphs[target]
+
+        workflow_description = create_workflow_description(target, figure)
+
+        workflow_descriptions.append(workflow_description)
+
+    return "\n\n".join(workflow_descriptions)
+
+
+rulegraphs_pca = {k: "docs/img/rulegraphs/{target}.svg".format(target=k) for k in "pca_chip_vs_merged_input pca_individual pca_limma".split()}
+rule docs_pca:
     input:
         pca_chip_vs_merged_input = expand("{prefix}/data/plot_pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
         pca_individual = expand("{prefix}/data/plot_pca/pca_individual.pdf", prefix=prefix),
         pca_limma = expand("{prefix}/data/plot_pca/{caller}.pdf",
-                           prefix=prefix, caller=config["cs_callers"])
+                           prefix=prefix, caller=config["cs_callers"]),
+        rulegraphs = rulegraphs_pca.values()
     output:
         doc = "docs/pca.rst",
         pca_chip_vs_merged_input = expand("docs/img/pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
@@ -69,28 +138,10 @@ rule pca:
         name = "PCA"
         main_description = "bincs can create three types of PCA for you."
 
-        target_descriptions = []
-
         input_dict = dict(input)
         output_dict = dict(output)
 
-        for target, (docstring, output_path) in targets.items():
+        target_descriptions = create_target_descriptions(targets, output_dict)
+        workflow_descriptions = create_workflow_descriptions(targets, rulegraphs_pca)
 
-            target = target + "\n" + '"' * len(target)
-
-            figure = output_dict[target]
-
-            example_output = """.. figure:: {figure}
-     :scale: 45%
-
-
-"""
-
-            s = """{target}
-
-            {docstring}
-
-            {example_output}
-
-            Output path = `{output_path}`
-            """
+        print(template.format(**locals()))

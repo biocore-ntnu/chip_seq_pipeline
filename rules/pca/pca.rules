@@ -64,7 +64,7 @@ rule plot_pca:
         coords =  "{prefix}/data/plot_pca/pca_{multibigwig}.csv",
         variance_explained = "{prefix}/data/plot_pca/var_pca_{multibigwig}.csv"
     output:
-        "{prefix}/data/plot_pca/pca_{multibigwig}.pdf"
+        "{prefix}/data/plot_pca/pca_{multibigwig}.{graph_extension}"
     script:
         "../../scripts/plot_pca.R"
 
@@ -99,6 +99,6 @@ rule plot_pca_limma_data:
         coords = "{prefix}/data/plot_pca/{caller}.csv",
         variance_explained = "{prefix}/data/plot_pca/var_{caller}.csv"
     output:
-        "{prefix}/data/plot_pca/{caller}.pdf"
+        "{prefix}/data/plot_pca/{caller}.{graph_extension}"
     script:
         "../../scripts/plot_pca.R"
