@@ -1,0 +1,208 @@
+# ---------------------------------
+# Various
+# ---------------------------------
+
+# Ensure that Snakemake won't start unless you use of the tmux session manager
+tmux: {{ tmux }}
+
+
+# ---------------------------------
+# Sample Sheet
+# ---------------------------------
+
+# Main sample sheet. Required.
+sample_sheet:
+  {{ sample_sheet }}
+
+
+# A sample sheet of external controls. Optional.
+# For example the same ChIP used in a different species. Can be used to find
+# non-specific binding by aligning these files to the genome used and seeing
+# which bins get a lot of reads. These are candidates for blacklisting and tested
+# according to a Poisson model.
+external_control_sample_sheet:
+
+
+# Path of where the workflow output should be stored. Required.
+prefix:
+  {{ prefix }}
+
+
+# --------------------------------------
+# Region types
+# --------------------------------------
+
+# custom region types can be any of the following: "CDS", "exon",
+# "five_prime_UTR", "gene", "start_codon", "stop_codon",
+# "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript",
+# "internal_exon"
+region_types:
+  - exon
+  - gene
+  - internal_exon
+
+
+# custom region files cannot have any of the following names: "CDS", "exon",
+# "five_prime_UTR", "gene", "start_codon", "stop_codon",
+# "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript",
+# "internal_exon"
+# custom regions also used to group data in plots, see blah
+
+region_files:
+  angle_genes: private/epipp/angle_genes.bed
+  # quantiles_internal_exon: private/barbara/WT.internal_exon.bed
+  # quantiles_exon: private/barbara/WT.exon.bed
+  # quantiles_gene: private/barbara/WT.gene.bed
+
+
+# --------------------------------------
+# Differential enrichment
+# --------------------------------------
+
+# Contrasts to test for differential enrichment between groups. Optional.
+# The names used must be the same as the column names in the design_matrix.
+contrasts:
+  {{ contrasts }}
+
+# # --------------------------------------
+# # Affects heatmaps and profileplots
+# # --------------------------------------
+
+# chip:
+    # params:
+    #     lambda w, input: compute_edger_contrast_vector()
+#   - chip
+#   - input
+#   - log2ratio
+
+# --------------------------------------
+# Bin size for heatmaps and profileplots
+# --------------------------------------
+
+graph_bin_size: 10
+
+# ---------------------------------
+# general settings
+# ---------------------------------
+
+merge_lanes:
+  true
+
+# callers to use:
+# available: macs2, epic
+cs_callers:
+  - epic
+  - macs2
+
+genome: hg38
+
+# paired end not implemented yet
+paired_end: False
+
+
+# ---------------------------------
+# region file
+# ---------------------------------
+
+# if have one locally (must be gzipped)
+local_annotation_gff3:
+  private/epipp/gencode.v26.annotation.gff3.gz
+
+# if local_annotation_file is blank, this file will be downloaded and used
+remote_annotation_gff3:
+  ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gff3.gz
+
+region_file:
+  pass
+
+# ---------------------------------
+# HISAT2 index
+# ---------------------------------
+
+# ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
+index_prefix:
+  /mnt/cargo/genomes/hisat2/hg38/genome
+
+# ---------------------
+# fastq minimum quality
+# ---------------------
+
+fastq_quality:
+  - 20
+
+# --------------------------------------
+# Remove adapters
+# --------------------------------------
+
+adapters:
+
+# minimum read length after trimming
+min_read_length:
+  - 14
+
+# ---------------------------------
+# HISAT2 align
+# ---------------------------------
+
+hisat2_extra_flags: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
+
+# --------------------------------------
+# Remove reads with duplicate alignments
+# --------------------------------------
+
+keep_multi_aligning_reads: yes
+
+# --------------------------------------
+# fragment length
+# --------------------------------------
+
+fragment_length: 150
+
+# --------------------------------------
+# tss/tes graph settings
+# --------------------------------------
+
+# how many nucleotides in each direction around the TSS/TES to graph
+tss_distance_gene: 3000
+tss_distance_exon: 500
+
+# --------------------------------------
+# epic settings
+# --------------------------------------
+
+epic:
+  gap: 3
+  window_size: 200
+
+# --------------------------------------
+# macs2 settings
+# --------------------------------------
+
+macs2:
+  broad: "--broad"
+  extra_flags: "" # "--nomodel --extsize 150"
+
+# --------------------------------------
+# csaw settings
+# --------------------------------------
+
+
+window_size: 200
+
+# "an integer scalar for the minimum count sum across libraries for each window"
+# i.e. rows with fewer reads than this are not analyzed by CSAW
+csaw_filter: 1
+
+# --------------------------------------
+# differential analysis
+# --------------------------------------
+
+# a custom script to perform the differential analysis
+# if none specified, will use the one in scripts/differential_analysis.R
+# take a look at if for inspiration!
+
+differential_analysis:
+  "oo"
+
+design_matrix:
+  #"design_matrix.csv"
