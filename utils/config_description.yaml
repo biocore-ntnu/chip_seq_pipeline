@@ -1,0 +1,219 @@
+general:
+  prefix:
+    type: str
+    description: Path to store the intermediate and final results. Will be created if it does not exist.
+    required: True
+    default: my_project
+    examples:
+      - /absolute_path/to_some/dir
+      - local_path/preferably_the_project_name
+
+  tmux:
+    type: bool
+    description: "If set, ensures that Snakemake won't start unless you use the tmux session manager."
+    required: False
+    default: False
+
+
+sample_sheets:
+  sample_sheet:
+    type: file
+    description: Main sample sheet.
+    required: True
+    default: sample_sheet.txt
+
+  external_control_sample_sheet:
+    type: file
+    description: "A sample sheet of external controls. For example the same ChIP used in a different species.
+
+Can be used to find non-specific binding by aligning these files to the genome used and seeing
+which bins get a lot of reads. These are candidates for blacklisting and tested
+according to a Poisson model."
+    required: False
+
+
+regions:
+  regions:
+    type: [file]
+    description: "`regions` is a list of the regions to be plotted in the heatmaps and profileplots.
+
+The following regions are valid:
+```'CDS', 'exon', # 'five_prime_UTR', 'gene', 'start_codon', 'stop_codon',
+'stop_codon_redefined_as_selenocysteine', 'three_prime_UTR', 'transcript',
+'internal_exon'```
+
+Using it requires that you either have the configuration variable
+`remote_annotation_gff3` or `local_annotation_gff3` defined."
+    required: False
+    default: ["genes", "exons"]
+
+
+# # Regions to graph in the heatmaps and profileplots
+# # -------------------------------------------------
+
+# # `regions` is a list of the regions to be plotted in the heatmaps and profileplots.
+# # They require that you either have the configuration variable
+# # `remote_annotation_gff3` or `local_annotation_gff3`  defined.
+# # Since
+# #
+# regions:
+#   {{ regions }}
+
+
+# # `custom_regions` is a map between region names and the files used to define the
+# # custom regions.
+# #
+# # Custom regions are also used to group data in plots. See the example files in
+# # TODO: create example test file.
+
+# custom_regions:
+#   {{ custom_regions }}
+
+
+# # Contrasts
+# # ---------
+
+# # Contrasts to test for differential enrichment between groups. Optional.
+# # The names used must be the same as the column names in the design_matrix.
+# contrasts:
+#   {{ contrasts }}
+
+
+# # callers to use:
+# # available: macs2, epic
+# cs_callers:
+#   - epic
+#   - macs2
+
+# # --------------------------------------
+# # Bin size for heatmaps and profileplots
+# # --------------------------------------
+
+# graph_bin_size: 10
+
+# # ---------------------------------
+# # general settings
+# # ---------------------------------
+
+# merge_lanes:
+#   true
+
+
+# # --------------------------------------
+# # epic settings
+# # --------------------------------------
+
+# epic:
+#   gap: 3
+#   window_size: 200
+
+# # --------------------------------------
+# # macs2 settings
+# # --------------------------------------
+
+# macs2:
+#   broad: "--broad"
+#   extra_flags: "" # "--nomodel --extsize 150"
+
+# # --------------------------------------
+# # csaw settings
+# # --------------------------------------
+
+
+# window_size: 200
+
+# # "an integer scalar for the minimum count sum across libraries for each window"
+# # i.e. rows with fewer reads than this are not analyzed by CSAW
+# csaw_filter: 1
+
+
+# genome: hg38
+
+# # paired end not implemented yet
+# paired_end: False
+
+
+# # ---------------------------------
+# # region file
+# # ---------------------------------
+
+# # if have one locally (must be gzipped)
+# local_annotation_gff3:
+#   private/epipp/gencode.v26.annotation.gff3.gz
+
+# # if local_annotation_file is blank, this file will be downloaded and used
+# remote_annotation_gff3:
+#   ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gff3.gz
+
+# region_file:
+#   pass
+
+# # ---------------------------------
+# # HISAT2 index
+# # ---------------------------------
+
+# # ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
+# index_prefix:
+#   /mnt/cargo/genomes/hisat2/hg38/genome
+
+# # ---------------------
+# # fastq minimum quality
+# # ---------------------
+
+# fastq_quality:
+#   - 20
+
+# # --------------------------------------
+# # Remove adapters
+# # --------------------------------------
+
+# adapters:
+
+# # minimum read length after trimming
+# min_read_length:
+#   - 14
+
+# # ---------------------------------
+# # HISAT2 align
+# # ---------------------------------
+
+# hisat2_extra_flags: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
+
+# # --------------------------------------
+# # Remove reads with duplicate alignments
+# # --------------------------------------
+
+# keep_multi_aligning_reads: yes
+
+# # --------------------------------------
+# # fragment length
+# # --------------------------------------
+
+# fragment_length: 150
+
+# # --------------------------------------
+# # tss/tes graph settings
+# # --------------------------------------
+
+# # how many nucleotides in each direction around the TSS/TES to graph
+# tss_distance_gene: 3000
+# tss_distance_exon: 500
+
+
+# # --------------------------------------
+# # differential analysis
+# # --------------------------------------
+
+# # a custom script to perform the differential analysis
+# # if none specified, will use the one in scripts/differential_analysis.R
+# # take a look at if for inspiration!
+
+# differential_analysis:
+#   "oo"
+
+# design_matrix:
+#   #"design_matrix.csv"
+
+# # ---------------------------------
+# # Various
+# # ---------------------------------

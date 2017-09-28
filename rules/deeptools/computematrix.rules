@@ -48,11 +48,11 @@ def get_bed_regions(w):
         return "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed".format(region_type=w.region_type, prefix=w.prefix)
     else:
 
-        region_files = config["region_files"][w.region_type]
-        if isinstance(region_files, str):
-            return region_files
+        custom_regions = config["custom_regions"][w.region_type]
+        if isinstance(custom_regions, str):
+            return custom_regions
         else:
-            return " ".join(region_files)
+            return " ".join(custom_regions)
 
 
 #############################

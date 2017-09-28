@@ -10,7 +10,7 @@ rule gff_to_bed:
         "| cut -f 1-6 > {output[0]}"
 
 
-valid_region_types = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon", "stop_codon",
+valid_regions = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon", "stop_codon",
  "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript"]
 
 rule remove_duplicate_tss:
@@ -19,7 +19,7 @@ rule remove_duplicate_tss:
     output:
         "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed"
     wildcard_constraints:
-        region_type = "({})".format("|".join(valid_region_types))
+        region_type = "({})".format("|".join(valid_regions))
     run:
         import pandas as pd
 

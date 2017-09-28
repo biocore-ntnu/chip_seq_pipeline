@@ -93,9 +93,9 @@ regions = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon",
            "stop_codon", "stop_codon_redefined_as_selenocysteine", "three_prime_UTR",
            "transcript", "internal_exon"]
 
-regular_regions = config["region_types"] if config["region_types"] else []
+regular_regions = config["regions"] if config["regions"] else []
 
-custom_regions = list(config["region_files"]) if config["region_files"] else []
+custom_regions = list(config["custom_regions"]) if config["custom_regions"] else []
 all_regions = regular_regions + custom_regions
 
 

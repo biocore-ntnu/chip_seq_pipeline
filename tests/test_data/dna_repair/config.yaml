@@ -32,7 +32,7 @@ filetype:
 # "five_prime_UTR", "gene", "start_codon", "stop_codon",
 # "stop_codon_redefined_as_selenocysteine", "three_prime_UTR", "transcript",
 # "internal_exon"
-region_types:
+regions:
   - exon
   - gene
   - internal_exon
@@ -43,7 +43,7 @@ region_types:
 # "internal_exon"
 # custom regions also used to group data in plots, see blah
 
-region_files:
+custom_regions:
   quantiles_internal_exon: test_data/WT.internal_exon.bed
   quantiles_exon: test_data/WT.exon.bed
   quantiles_gene: test_data/WT.gene.bed

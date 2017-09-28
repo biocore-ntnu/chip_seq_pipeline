@@ -41,7 +41,7 @@ included in the heatmaps and how much of each region to display.
 Predefined Regions
 ~~~~~~~~~~~~~~~~~~
 
-The region_types list in the config file can be used to select which regions
+The regions list in the config file can be used to select which regions
 should be graphed. The valid options are:
 
 .. code-block:: yaml
@@ -55,7 +55,7 @@ either under local_annotation_gff3 or remote_annotation_gff3.
 
 .. code-block:: yaml
 
-   region_types:
+   regions:
      - exon
      - gene
      - internal_exon
@@ -72,12 +72,12 @@ Custom Regions
 ~~~~~~~~~~~~~~
 
 If a you do not have a gff3 annotation available for your genome, you can use
-the region_files option in the config. This is a list of the region type name
+the custom_regions option in the config. This is a list of the region type name
 and then the path to a bed file denoting the regions.
 
 .. code-block:: yaml
 
-   region_files:
+   custom_regions:
      quantiles_internal_exon: test_data/WT.internal_exon.bed
      quantiles_exon: test_data/WT.exon.bed
      quantiles_gene: test_data/WT.gene.bed
