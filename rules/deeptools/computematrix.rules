@@ -35,7 +35,7 @@ def options(w):
         dist = config["tss_distance_gene"]
         opts.append(region_starts.format(dist=dist))
     else:
-        dist = config["tss_distance_exon"]
+        dist = config["tss_distance_other"]
         opts.append(region_starts.format(dist=dist))
         opts.append(region_labels)
 
@@ -61,7 +61,6 @@ def get_bed_regions(w):
 
 computematrix_cmd = ("computeMatrix {params.subcommand} -p {threads}  "
                      "{params.options} "
-                     "--binSize {config[graph_bin_size]} "
                      "-R {input.bed} -S {input.bigwig} -out {output.matrix}")
 
 sort_order_matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/sort_order_matrix_{group}.mat.gz"

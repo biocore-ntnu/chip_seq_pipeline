@@ -14,7 +14,7 @@ Choose peak callers by adding them to the list cs\_callers in your config.yaml:
 
 .. code-block:: yaml
 
-   cs_callers:
+   peak_callers:
      - epic
      - macs2
 

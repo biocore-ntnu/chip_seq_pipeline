@@ -65,7 +65,7 @@ contrasts:
 
 # callers to use:
 # available: macs2, epic
-cs_callers:
+peak_callers:
   - epic
   - macs2
 
@@ -137,7 +137,7 @@ region_file:
 # ---------------------------------
 
 # ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
-index_prefix:
+hisat2_index_prefix:
   /mnt/cargo/genomes/hisat2/hg38/genome
 
 # ---------------------
@@ -167,7 +167,7 @@ hisat2_extra_flags: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
 # Remove reads with duplicate alignments
 # --------------------------------------
 
-keep_multi_aligning_reads: yes
+remove_multi_aligning_reads: yes
 
 # --------------------------------------
 # fragment length
@@ -181,7 +181,7 @@ fragment_length: 150
 
 # how many nucleotides in each direction around the TSS/TES to graph
 tss_distance_gene: 3000
-tss_distance_exon: 500
+tss_distance_other: 500
 
 
 # --------------------------------------

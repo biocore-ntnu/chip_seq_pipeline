@@ -1,4 +1,5 @@
 general:
+  description: "Settings common to all the targets."
   prefix:
     type: str
     description: Path to store the intermediate and final results. Will be created if it does not exist.
@@ -16,6 +17,8 @@ general:
 
 
 sample_sheets:
+  description: "The sample sheet describes the sequence files to use, their type (ChIP/Input) and which experimental condition they belong to."
+
   sample_sheet:
     type: file
     description: Main sample sheet.
@@ -32,7 +35,95 @@ according to a Poisson model."
     required: False
 
 
-regions:
+genomes_and_annotations:
+
+  genome:
+    type: str
+    description: "Which genome to use. Must be the UCSC name. Mostly used to automatically fetch genome and chromosome sizes."
+    required: True
+    default: hg38
+
+
+alignment:
+  description: These flags and options are only of interest if your filetype is fastq.
+
+  hisat2_index_prefix:
+    type: str
+    description: The prefix of the hisat2 genome index. Premade indexes can be found at ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
+    required: To align the fastqs to the genome. If the input is not fastq, these files are not used.
+    example:
+      "/mnt/cargo/genomes/hisat2/hg38/genome"
+
+  hisat2_extra_flags:
+    type: str
+    description: Additional flags to give to hisat2.
+    required: False
+    default: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
+
+  keep_multi_aligning_reads:
+    type: str
+    description: If this flag is set, multi aligning reads from the alignment are removed (i.e. those with a NH:i field of 1.)
+    required: False
+    default: True
+
+  adapters:
+    type: [str]
+    description: A list of adapters to remove from your fastqs.
+    required: False
+    default: ""
+    example:
+      - ACGTACGT
+      - AAAAAGGG
+
+  min_read_length:
+    type: int
+    description: The minimum length of your reads after adapter removal.
+    required: False
+    default: 14
+
+
+sequencing:
+  fragment_length:
+    type: int
+    description: "Estimated size of the sequenced fragments."
+    required: True
+    example: 150
+
+  fastq_quality:
+    type: int
+    description: "Minimum required fastq quality."
+    required: False
+    default: 20
+    example:
+      - 0
+      - 20
+
+
+heatmaps_and_profileplots:
+
+  description: "Settings for heatmaps and profileplots."
+
+  annotation_gff3:
+    type: str
+    description: "The gzipped gencode annotation file to use. It is used to find the regions to be plotted in heatmaps and profileplots. If the path starts with www/http/ftp it will be downloaded, otherwise the path will be interpreted to be local.
+
+This kind of high-quality annotation only exists for humans and mice. If your genome is any other, the appropriate regions will be downloaded from UCSC refGene for your genome."
+    required: False
+    default: ""
+    example:
+      - private/epipp/gencode.v26.annotation.gff3.gz
+      - ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gff3.gz
+
+  tss_distance_gene:
+    type: int
+    default: 3000
+    description: "The distance to be shown upstream and downstream of any region with 'gene' in the name in the heatmaps and profileplots."
+
+  tss_distance_other:
+    type: int
+    default: 500
+    description: "The distance to be shown upstream and downstream of any region without 'gene' in the name in the heatmaps and profileplots."
+
   regions:
     type: [file]
     description: "`regions` is a list of the regions to be plotted in the heatmaps and profileplots.
@@ -47,173 +138,81 @@ Using it requires that you either have the configuration variable
     required: False
     default: ["genes", "exons"]
 
+  custom_regions:
+    type: {name: file}
+    description: "`custom_regions` is a map between region names and bed-files used to define the
+custom regions.
 
-# # Regions to graph in the heatmaps and profileplots
-# # -------------------------------------------------
+Custom region files can also be used to draw different lines and colors for
+different regions in the same plot. This can be done by adding a seventh column
+called deepTools_group to the file. If used, the file must be sorted on the
+column deepTools_group."
 
-# # `regions` is a list of the regions to be plotted in the heatmaps and profileplots.
-# # They require that you either have the configuration variable
-# # `remote_annotation_gff3` or `local_annotation_gff3`  defined.
-# # Since
-# #
-# regions:
-#   {{ regions }}
+differential_enrichment:
+  contrasts:
+    type: [str]
+    description: "Contrasts to test for differential enrichment between groups.
+The names used must be the same as the column names in the design_matrix."
+    required: False
+    default: "Each group in the design matrix is tested against the others in pairs."
+    examples:
+      - WT-KO1
+      - WT-KO2
 
-
-# # `custom_regions` is a map between region names and the files used to define the
-# # custom regions.
-# #
-# # Custom regions are also used to group data in plots. See the example files in
-# # TODO: create example test file.
-
-# custom_regions:
-#   {{ custom_regions }}
-
-
-# # Contrasts
-# # ---------
-
-# # Contrasts to test for differential enrichment between groups. Optional.
-# # The names used must be the same as the column names in the design_matrix.
-# contrasts:
-#   {{ contrasts }}
+  design_matrix:
+    type: file
+    description: "The file used to describe the experimental setup."
+    required: False
+    default: "A design matrix with intercept where each group in the sample sheet is a column in the design matrix. Command used is model.matrix(~0 + groups)."
 
 
-# # callers to use:
-# # available: macs2, epic
-# cs_callers:
-#   - epic
-#   - macs2
+peak_calling:
+  peak_callers:
+    type: [str]
+    description: "The peak callers used to find peaks. Valid values are epic and macs2."
+    required: False
+    default:
+      - macs2
+      - epic
 
-# # --------------------------------------
-# # Bin size for heatmaps and profileplots
-# # --------------------------------------
-
-# graph_bin_size: 10
-
-# # ---------------------------------
-# # general settings
-# # ---------------------------------
-
-# merge_lanes:
-#   true
+  epic_gap:
+    type: int
+    description: "The epic gaps-allowed parameter."
+    required: False
+    default: 3
 
 
-# # --------------------------------------
-# # epic settings
-# # --------------------------------------
-
-# epic:
-#   gap: 3
-#   window_size: 200
-
-# # --------------------------------------
-# # macs2 settings
-# # --------------------------------------
-
-# macs2:
-#   broad: "--broad"
-#   extra_flags: "" # "--nomodel --extsize 150"
-
-# # --------------------------------------
-# # csaw settings
-# # --------------------------------------
+  epic_window_size:
+    type: int
+    description: "The epic window-size parameter."
+    required: False
+    default: 200
 
 
-# window_size: 200
-
-# # "an integer scalar for the minimum count sum across libraries for each window"
-# # i.e. rows with fewer reads than this are not analyzed by CSAW
-# csaw_filter: 1
-
-
-# genome: hg38
-
-# # paired end not implemented yet
-# paired_end: False
+  macs2_broad:
+    type: str
+    description: "The macs2 --broad parameter."
+    required: False
+    default: ""
 
 
-# # ---------------------------------
-# # region file
-# # ---------------------------------
-
-# # if have one locally (must be gzipped)
-# local_annotation_gff3:
-#   private/epipp/gencode.v26.annotation.gff3.gz
-
-# # if local_annotation_file is blank, this file will be downloaded and used
-# remote_annotation_gff3:
-#   ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gff3.gz
-
-# region_file:
-#   pass
-
-# # ---------------------------------
-# # HISAT2 index
-# # ---------------------------------
-
-# # ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/data
-# index_prefix:
-#   /mnt/cargo/genomes/hisat2/hg38/genome
-
-# # ---------------------
-# # fastq minimum quality
-# # ---------------------
-
-# fastq_quality:
-#   - 20
-
-# # --------------------------------------
-# # Remove adapters
-# # --------------------------------------
-
-# adapters:
-
-# # minimum read length after trimming
-# min_read_length:
-#   - 14
-
-# # ---------------------------------
-# # HISAT2 align
-# # ---------------------------------
-
-# hisat2_extra_flags: "--no-spliced-alignment -k 1 --no-discordant --no-mixed"
-
-# # --------------------------------------
-# # Remove reads with duplicate alignments
-# # --------------------------------------
-
-# keep_multi_aligning_reads: yes
-
-# # --------------------------------------
-# # fragment length
-# # --------------------------------------
-
-# fragment_length: 150
-
-# # --------------------------------------
-# # tss/tes graph settings
-# # --------------------------------------
-
-# # how many nucleotides in each direction around the TSS/TES to graph
-# tss_distance_gene: 3000
-# tss_distance_exon: 500
+  macs2_extra_flags:
+    type: str
+    description: "Any other flags you wish to pass to macs2"
+    required: False
+    default: ""
+    example: "--nomodel --extsize 150"
 
 
-# # --------------------------------------
-# # differential analysis
-# # --------------------------------------
+  csaw_window_size:
+    type: int
+    description: "The window size csaw should use."
+    required: False
+    default: 200
 
-# # a custom script to perform the differential analysis
-# # if none specified, will use the one in scripts/differential_analysis.R
-# # take a look at if for inspiration!
 
-# differential_analysis:
-#   "oo"
-
-# design_matrix:
-#   #"design_matrix.csv"
-
-# # ---------------------------------
-# # Various
-# # ---------------------------------
+  csaw_filter:
+    type: int
+    description: "The minimum required count sum across libraries for a bin to be included in the analysis."
+    required: False
+    default: 1

@@ -126,14 +126,14 @@ rule docs_pca:
         pca_chip_vs_merged_input = expand("{prefix}/data/plot_pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
         pca_individual = expand("{prefix}/data/plot_pca/pca_individual.pdf", prefix=prefix),
         pca_limma = expand("{prefix}/data/plot_pca/{caller}.pdf",
-                           prefix=prefix, caller=config["cs_callers"]),
+                           prefix=prefix, caller=config["peak_callers"]),
         rulegraphs = rulegraphs_pca.values()
     output:
         doc = "docs/pca.rst",
         pca_chip_vs_merged_input = expand("docs/img/pca/pca_chip_vs_merged_input.pdf", prefix=prefix),
         pca_individual = expand("docs/img/pca/pca_individual.pdf", prefix=prefix),
         pca_limma = expand("docs/img/pca/{caller}.pdf",
-                           prefix=prefix, caller=config["cs_callers"])
+                           prefix=prefix, caller=config["peak_callers"])
     run:
         name = "PCA"
         main_description = "bincs can create three types of PCA for you."
@@ -145,3 +145,8 @@ rule docs_pca:
         workflow_descriptions = create_workflow_descriptions(targets, rulegraphs_pca)
 
         print(template.format(**locals()))
+
+
+# rule docs_config:
+#     input:
+#         "utils/"

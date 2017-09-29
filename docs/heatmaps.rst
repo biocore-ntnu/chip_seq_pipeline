@@ -122,10 +122,10 @@ To set the size of the regions before the TSS and after the TSS to graph, use th
 .. code-block:: yaml
 
    tss_distance_gene: 3000
-   tss_distance_exon: 500
+   tss_distance_other: 500
 
 The setting tss_distance_gene will be used for all region names that contain "gene" in the name,
-otherwise the setting tss_distance_exon will be used.
+otherwise the setting tss_distance_other will be used.
 
 How the heatmaps are produced
 -----------------------------

@@ -104,7 +104,7 @@ wildcard_constraints:
     group = "({})".format("|".join(groups + loo_groups + ec_groups)),
     chip = "(chip|input|log2ratio|ChIP|Input)",
     region_type = "({})".format("|".join(regions + custom_regions)),
-    caller = "({})".format("|".join(config["cs_callers"])),
+    caller = "({})".format("|".join(config["peak_callers"])),
     contrast = "({})".format("|".join(contrasts))
 
 
@@ -138,7 +138,7 @@ rule chip_heatmaps:
 rule peaks:
     input:
         expand("{prefix}/data/peaks/{cs_caller}/{group}.csv", group=list(set(sample_sheet.Group)),
-               cs_caller=config["cs_callers"], prefix=prefix)
+               cs_caller=config["peak_callers"], prefix=prefix)
 
 rule input_profileplots:
     input:
@@ -205,7 +205,7 @@ rule merged_chip_bigwigs:
 rule limma_:
     input:
         expand("{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable",
-               caller=config["cs_callers"], prefix=prefix,
+               caller=config["peak_callers"], prefix=prefix,
                contrast=contrasts)
 
 
@@ -229,7 +229,7 @@ rule pca_limma:
        This data has gone through several rounds of normalization."""
     input:
         expand("{prefix}/data/plot_pca/{caller}.pdf",
-               prefix=prefix, caller=config["cs_callers"])
+               prefix=prefix, caller=config["peak_callers"])
 
 
 rule fingerprint_plot:
@@ -249,7 +249,7 @@ rule leave_one_out:
     input:
         expand(loo_file,
                 prefix=prefix, group=loo_ss.Group.drop_duplicates(),
-                caller=config["cs_callers"], contrast=contrasts,
+                caller=config["peak_callers"], contrast=contrasts,
                 logfc="above below".split())
 
 

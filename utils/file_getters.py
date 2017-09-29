@@ -64,11 +64,3 @@ def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
     files = expand(fs, sample=samples, extension=extension, prefix=prefix)
 
     return files
-
-
-
-def get_bam_or_bed(sample, no_multi_aligners, file_format):
-
-    f = "{prefix}/data/bam/{sample}.{file_format}"
-
-    return f.format(**vars())

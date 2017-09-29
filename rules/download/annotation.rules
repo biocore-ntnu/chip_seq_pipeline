@@ -1,9 +1,12 @@
+
 rule download_gencode:
     output:
         "{prefix}/data/annotation/annotation.gff3"
     run:
-        local_annotation = config.get("local_annotation_gff3", "")
-        if local_annotation and os.path.exists(local_annotation):
-            shell("zcat {local_annotation} > {output[0]}")
+        annotation_gff3 = config["annotation_gff3"]
+        local_annotation = re.search("^(ftp|www|http)", annotation_gff3)
+
+        if local_annotation:
+            shell("zcat {annotation_gff3} > {output[0]}")
         else:
-            shell("curl {config[remote_annotation_gff3]} | gunzip > {output[0]}")
+            shell("curl {annotation_gff3} | gunzip > {output[0]}")

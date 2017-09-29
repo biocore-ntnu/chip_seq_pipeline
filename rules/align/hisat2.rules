@@ -22,24 +22,35 @@ def correct_input_flags(reads):
 
     return input_flags
 
+
+def remove_multi_aligning(remove):
+
+    if remove:
+        return "grep -E '@|NH:i:1$' |"
+    else:
+        return ""
+
+
 if filetype == "fastq":
     rule hisat2:
         "Run hisat2 to align fastqs"
         input:
             reads = lambda w: fetch_fastqs(w.sample, config["paired_end"], w.prefix),
-            index = config["index_prefix"] + ".1.ht2"
+            index = config["hisat2_index_prefix"] + ".1.ht2"
         output:
             "{prefix}/data/bam/{sample}.bam"
         log:
             "logs/bam/{sample}.log"
         params:
-            idx = config["index_prefix"],
+            idx = config["hisat2_index_prefix"],
             extra = config["hisat2_extra_flags"],
             input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"], w.prefix)),
+            remove_multi_aligning = remove_multi_aligning(config["remove_multi_aligning_reads"])
         threads: 8
         conda:
             "../../envs/global.yaml"
         shell:
             "(hisat2 {params.extra} --threads {threads}"
             " -x {params.idx} {params.input_flags} | "
+            "{params.remove_multi_aligning} "
             "samtools view -h -o {output[0]}) > {log[0]} 2>&1"
