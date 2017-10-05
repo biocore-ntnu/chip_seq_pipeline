@@ -33,6 +33,7 @@ if config["tmux"]:
     from utils.helpers import error_if_not_using_tmux
     error_if_not_using_tmux()
 
+
 prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
