@@ -22,7 +22,7 @@ def atropos_input_files(w):
     if "__external_control" in w.prefix:
         sample_sheet = ec_ss
 
-    if config["merge_lanes"]:
+    if merge_lanes:
         return "{prefix}/data/merged_lanes/{sample}.fastq".format(sample=w.sample, prefix=w.prefix)
     else:
         return sample_sheet.loc[sample_sheet.Name==w.sample].File

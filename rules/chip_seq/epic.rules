@@ -18,8 +18,8 @@ rule run_epic:
     resources:
         instances = 1
     shell:
-        "epic -cpu {threads} -g {config[epic][gap]} -w "
-        "{config[epic][window_size]} -gn {config[genome]} "
+        "epic -cpu {threads} -g {config[epic_gap]} -w "
+        "{config[epic_window_size]} -gn {config[genome]} "
         "{params.paired_end} "
         "-b {output.bed} -t {input.chip} -c {input.input} "
         "-sm {output.matrix} -bw {output.bigwig_folder} "
@@ -42,8 +42,8 @@ rule run_epic_loo:
     resources:
         instances = 1
     shell:
-        "epic -cpu {threads} -g {config[epic][gap]} -w "
-        "{config[epic][window_size]} -gn {config[genome]} "
+        "epic -cpu {threads} -g {config[epic_gap]} -w "
+        "{config[epic_window_size]} -gn {config[genome]} "
         "{params.paired_end} "
         "-b {output.bed} -t {input.chip} -c {input.input} "
         "-sm {output.matrix} "

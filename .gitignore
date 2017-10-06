@@ -1,3 +1,4 @@
+
 private/
 projects/
 example/data/
@@ -10,6 +11,7 @@ _build/
 
 deeptools.cfg
 
+*.bkup
 *.#*
 *.bai
 *.svg

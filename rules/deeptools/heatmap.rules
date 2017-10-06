@@ -1,21 +1,5 @@
 import gzip, json, io
 
-ruleorder: find_heatmap_sort_order > create_heatmap
-
-
-rule find_heatmap_sort_order:
-    input:
-        matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/sort_order_matrix_{group}.mat.gz".format(group=first_group),
-    output:
-        graph = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_{{region_type}}.png".format(group=first_group),
-        sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
-    resources:
-        instances = 1
-    priority: 100
-    shell:
-        "plotHeatmap -m {input[0]} --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
-
-
 def new_labels(w, input):
 
     header = gzip.open(input.matrix).readline().decode()[1:]
@@ -52,7 +36,23 @@ def new_start_label(w):
     return "TSS" if "gene" in w.region_type else "5'"
 
 def new_end_label(w):
-    return lambda w: "TES" if "gene" in w.region_type else "3'"
+    return "TES" if "gene" in w.region_type else "3'"
+
+ruleorder: find_heatmap_sort_order > create_heatmap
+
+
+rule find_heatmap_sort_order:
+    input:
+        matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/sort_order_matrix_{group}.mat.gz".format(group=first_group),
+    output:
+        graph = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_{{region_type}}.png".format(group=first_group),
+        sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
+    resources:
+        instances = 1
+    priority: 100
+    shell:
+        "plotHeatmap -m {input[0]} --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
+
 
 rule create_heatmap:
     input:

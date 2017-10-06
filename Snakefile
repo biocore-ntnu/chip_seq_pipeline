@@ -48,7 +48,32 @@ def find_filetype(ss):
     return filetypes[0]
 
 
+def find_merge_lanes(ss, filetype):
+
+    if filetype not in ["fastq", "fq"]:
+        return False
+    elif len(ss.Name) == len(ss.Name.drop_duplicates()):
+        return False
+    else:
+        return True
+
+
+# def find_paired_end(ss, filetype):
+
+#     if filetype in ["bedpe"]:
+#         return True
+#     elif set(ss.Mate) == {1, 2}:
+#         return True
+#     elif filetype == "bam":
+#         for f in ss.File:
+#             result = subprocess.check_output("samtools view -c -f 1 {}".format(f))
+#             print(result)
+
+#     raise
+
 filetype = find_filetype(ss)
+merge_lanes = find_merge_lanes(ss, filetype)
+# paired_end = find_paired_end(ss, filetype)
 
 loo_ss = create_sample_sheet(ss)
 loo_groups = list(loo_ss.Group.drop_duplicates())
@@ -103,6 +128,8 @@ all_regions = regular_regions + custom_regions
 wildcard_constraints:
     sample = "({})".format("|".join(chip_samples + input_samples + ec_samples)),
     group = "({})".format("|".join(groups + loo_groups + ec_groups)),
+    group1 = "({})".format("|".join(groups + loo_groups + ec_groups)),
+    group2 = "({})".format("|".join(groups + loo_groups + ec_groups)),
     chip = "(chip|input|log2ratio|ChIP|Input)",
     region_type = "({})".format("|".join(regions + custom_regions)),
     caller = "({})".format("|".join(config["peak_callers"])),
@@ -249,16 +276,16 @@ loo_file = "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast
 rule leave_one_out:
     input:
         expand(loo_file,
-                prefix=prefix, group=loo_ss.Group.drop_duplicates(),
-                caller=config["peak_callers"], contrast=contrasts,
-                logfc="above below".split())
+               prefix=prefix, group=loo_ss.Group.drop_duplicates(),
+               caller=config["peak_callers"], contrast=contrasts,
+               logfc="above below".split())
 
 
 if not len(ss.Group.drop_duplicates()) == 1:
 
     svsg = sample_vs_group(ss, "ChIP")
 
-    rule bigwig_log2ratio_sample_vs_group:
+    rule log2_ratio_sample_vs_group_bigwig:
         input:
             expand("{prefix}/data/bigwigcompare/sample_{sample}_vs_group_{group}.bigwig", zip, sample=svsg.Sample, group=svsg.OtherGroup, prefix=prefix)
 

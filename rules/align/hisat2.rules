@@ -23,12 +23,12 @@ def correct_input_flags(reads):
     return input_flags
 
 
-def remove_multi_aligning(remove):
+def keep_multi_aligning(keep):
 
-    if remove:
-        return "grep -E '@|NH:i:1$' |"
-    else:
+    if keep:
         return ""
+    else:
+        return "grep -E '@|NH:i:1$' |"
 
 
 if filetype == "fastq":
@@ -45,7 +45,7 @@ if filetype == "fastq":
             idx = config["hisat2_index_prefix"],
             extra = config["hisat2_extra_flags"],
             input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"], w.prefix)),
-            remove_multi_aligning = remove_multi_aligning(config["remove_multi_aligning_reads"])
+            remove_multi_aligning = keep_multi_aligning(config["keep_multi_aligning_reads"])
         threads: 8
         conda:
             "../../envs/global.yaml"

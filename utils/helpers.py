@@ -32,9 +32,9 @@ def get_if_not_empty(config, key, default):
         return default
 
 # not automatically discovered since they give errors when sample sheet only has one group
-multi_group_targets = ["log2_ratio_group_vs_group_bigwig_chip_only",
-                       "bigwig_log2ratio_sample_vs_group",
-                       "log2_ratio_input_normalized_group_vs_input_normalized_group"]
+multi_group_targets = ["log2_ratio_sample_vs_group_bigwig",
+                       "log2_ratio_group_vs_group_bigwig",
+                       "log2_ratio_group_vs_group_heatmap"]
 
 
 def fetch_main_targets(snakefile="Snakefile"):

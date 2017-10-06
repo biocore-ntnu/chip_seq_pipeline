@@ -90,6 +90,12 @@ sequencing:
 
   description: heyo
 
+  paired_end:
+    type: bool
+    description: Whether or not the reads are paired end.
+    required: True
+    default: False
+
   fragment_length:
     type: int
     description: "Estimated size of the sequenced fragments."

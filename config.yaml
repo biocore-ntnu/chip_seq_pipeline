@@ -81,6 +81,10 @@ min_read_length: 14
 # Sequencing 
 # ----------
 # heyo
+# Whether or not the reads are paired end.
+# (Required)
+paired_end: 
+
 # Estimated size of the sequenced fragments.
 # (Required)
 fragment_length: 150

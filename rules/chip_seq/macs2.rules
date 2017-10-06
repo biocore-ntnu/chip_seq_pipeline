@@ -1,6 +1,6 @@
 from utils.file_getters import correct_cs_files
 
-macs2_cmd = "macs2 callpeak  {config[macs2][broad]} {params.paired_end} {config[macs2][extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+macs2_cmd = "macs2 callpeak  {config[macs2_broad]} {params.paired_end} {config[macs2_extra_flags]} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
 
 rule run_macs:
@@ -11,8 +11,8 @@ rule run_macs:
         "{prefix}/data/peaks/macs2/{group}.csv"
     params:
         prefix="{prefix}/data/peaks/macs2/{group}",
-        outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak" if not config["macs2"]["broad"] else "{prefix}/data/peaks/macs2/{group}_peaks.broadPeak",
-        paired_end = "--format BAMPE" if config["paired_end"] else ""
+        outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak" if not config["macs2_broad"] else "{prefix}/data/peaks/macs2/{group}_peaks.broadPeak",
+        paired_end = "--format BEDPE" if config["paired_end"] else ""
     conda:
         "../../envs/macs2.yaml"
     threads: 1
@@ -37,8 +37,8 @@ rule run_macs_loo:
         "{prefix}/data/peaks/macs2/loo/{group}.csv"
     params:
         prefix="{prefix}/data/peaks/macs2/loo/{group}",
-        outfile="{prefix}/data/peaks/macs2/loo/{group}_peaks.narrowPeak" if not config["macs2"]["broad"] else "{prefix}/data/peaks/macs2/loo/{group}_peaks.broadPeak",
-        paired_end = "--format BAMPE" if config["paired_end"] else ""
+        outfile="{prefix}/data/peaks/macs2/loo/{group}_peaks.narrowPeak" if not config["macs2_broad"] else "{prefix}/data/peaks/macs2/loo/{group}_peaks.broadPeak",
+        paired_end = "--format BEDPE" if config["paired_end"] else ""
     conda:
         "../../envs/macs2.yaml"
     threads: 1

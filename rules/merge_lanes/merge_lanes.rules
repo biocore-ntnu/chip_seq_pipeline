@@ -6,7 +6,7 @@ def fastqs_to_merge(w, sample_sheet, ec_ss):
     return sample_sheet.loc[sample_sheet.Name==w.sample].File
 
 
-if config["merge_lanes"] and filetype == "fastq":
+if merge_lanes and filetype == "fastq":
 
     rule merge_lanes:
         input:

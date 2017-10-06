@@ -44,10 +44,11 @@ def options(w):
 
 def get_bed_regions(w):
 
+    custom_regions = config["custom_regions"] or []
+
     if w.region_type not in custom_regions:
         return "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed".format(region_type=w.region_type, prefix=w.prefix)
     else:
-
         custom_regions = config["custom_regions"][w.region_type]
         if isinstance(custom_regions, str):
             return custom_regions
