@@ -21,8 +21,6 @@ def make_contrasts(groups):
     return cs
 
 
-tss_or_tes = "(tss|tes)"
-
 
 # if the config dict is empty, no config file was given on the command line
 if not config:

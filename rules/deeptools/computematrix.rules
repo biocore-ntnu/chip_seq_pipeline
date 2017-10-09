@@ -44,16 +44,17 @@ def options(w):
 
 def get_bed_regions(w):
 
+    annotation_exists = config.get("annotation_gff3", "")
+
     custom_regions = config["custom_regions"] or []
 
-    if w.region_type not in custom_regions:
+    if w.region_type not in custom_regions and annotation_exists:
         return "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed".format(region_type=w.region_type, prefix=w.prefix)
+    elif w.region_type not in custom_regions:
+        return "{prefix}/data/annotation/refgene/{region_type}.bed".format(**w)
     else:
         custom_regions = config["custom_regions"][w.region_type]
-        if isinstance(custom_regions, str):
-            return custom_regions
-        else:
-            return " ".join(custom_regions)
+        return custom_regions
 
 
 #############################

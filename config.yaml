@@ -106,7 +106,7 @@ fastq_quality: 20
 # genome is any other, the appropriate regions will be downloaded from UCSC
 # refGene for your genome.
 # (Not required)
-annotation_gff3: 
+annotation_gff3: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_27/gencode.v27.annotation.gff3.gz
 
 # The distance to be shown upstream and downstream of any region with 'gene' in
 # the name in the heatmaps and profileplots.
