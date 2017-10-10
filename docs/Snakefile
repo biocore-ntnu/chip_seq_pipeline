@@ -15,7 +15,7 @@ configfile: "example/config.yaml"
 #     snakefile: "../Snakefile"
 #     workdir: ".."
 
-include: "../Snakefile"
+# include: "../Snakefile"
 
 import re
 

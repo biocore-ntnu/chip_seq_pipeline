@@ -1,42 +1,36 @@
-Heatmaps
-========
+Profileplots
+============
 
-bincs can be used to create heatmaps of ChIP-Seq data for predefined regions.
+bincs can be used to create profileplots of ChIP-Seq data for predefined regions.
 
 Example Output
 --------------
 
-.. figure:: img/fibroblast_gene.png
+.. figure:: img/profileplots/fibroblast_gene.png
    :scale: 40%
 
-   A log2-ratio heatmap showing each sample against the pooled input for the
+   A log2-ratio profileplot showing each sample against the pooled input for the
    group fibroblast.
 
 Targets
 -------
 
-There are three targets for creating regular heatmaps: log2_ratio_heatmaps,
-chip_heatmaps and input_heatmaps. The log2_ratio_heatmaps creates a heatmap of
+There are three targets for creating regular profileplots: log2_ratio_profileplots,
+chip_profileplots and input_profileplots. The log2_ratio_profileplots creates a profileplot of
 each ChIP sample against the pooled input for each group in the sample sheet.
-The chip_heatmaps and input_heatmaps create heatmaps of the RPKM-normalized ChIP
+The chip_profileplots and input_profileplots create profileplots of the RPKM-normalized ChIP
 or Input files for each group.
-
-There is also a target for creating a heatmap of group vs group called
-log2_ratio_group_vs_group_heatmap. It creates one graph per group comparison of
-input-normalized ChIP groups against each other. This target requires that you
-have more than one group in your sample sheet.
 
 ..
    .. code-block:: bash
 
-      snakemake log2_ratio_heatmaps # or chip_heatmaps or input_heatmaps or
-                                    # log2_ratio_group_vs_group_heatmap
+      snakemake log2_ratio_profileplots # or chip_profileplots or input_profileplots or
 
 Options
 -------
 
 There are several settings that can be used to choose which regions should be
-included in the heatmaps and how much of each region to display.
+included in the profileplots and how much of each region to display.
 
 Predefined Regions
 ~~~~~~~~~~~~~~~~~~
@@ -86,7 +80,7 @@ expression separately. The deepTools_group variable must be sorted. If a seventh
 column is used, you must use the exact header names shown below.
 
 .. code-block:: tsv
-   :caption: Example bed-file with regions to display in the heatmap.
+   :caption: Example bed-file with regions to display in the profileplot.
 
    #chrom  start   end     name    score   strand  deepTools_group
    chr2    241252956       241253035       exon:ENST00000391975.5:11       .       -       0
@@ -124,11 +118,13 @@ To set the size of the regions before the TSS and after the TSS to graph, use th
 The setting tss_distance_gene will be used for all region names that contain "gene" in the name,
 otherwise the setting tss_distance_other will be used.
 
-How the heatmaps are produced
------------------------------
+..
 
-For our example data, this is how the heatmaps are produced:
+   How the profileplots are produced
+   -----------------------------
 
-.. figure:: img/rulegraphs/log2_ratio_heatmaps_rulegraph.png
+   For our example data, this is how the profileplots are produced:
 
-   The DAG for the log2_ratio_heatmaps target.
+   .. figure:: img/rulegraphs/log2_ratio_profileplots_rulegraph.png
+
+      The DAG for the log2_ratio_profileplots target.

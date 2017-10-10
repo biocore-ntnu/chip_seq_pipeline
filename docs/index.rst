@@ -21,7 +21,6 @@ Novel features
   conditions
 
 
-
 -----
 
 
@@ -71,6 +70,7 @@ Novel features
    :maxdepth: 2
 
    heatmaps
+   profileplots
 
 
 
