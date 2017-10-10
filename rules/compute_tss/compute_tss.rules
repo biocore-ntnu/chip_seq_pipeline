@@ -10,6 +10,9 @@ rule gff_to_bed:
         "| cut -f 1-6 > {output[0]}"
 
 
+ruleorder: compute_internal_exons > remove_duplicate_tss
+
+
 rule remove_duplicate_tss:
     input:
         "{prefix}/data/annotation/{region_type}/annotation.bed"
@@ -39,7 +42,7 @@ rule remove_duplicate_tss:
 
 rule compute_internal_exons:
     input:
-        exons = "{prefix}/data/annotation/exon/annotation.bed"
+        exons = "{prefix}/data/annotation/exon/annotation_no_duplicate_tss.bed"
     output:
         "{prefix}/data/compute_tss/internal_exon/annotation_no_duplicate_tss.bed"
     script:

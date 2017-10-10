@@ -178,23 +178,10 @@ rule log2_ratio_profileplots:
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix)
 
 
-
-rule input_tss_tes_plots:
-    input:
-        expand("{prefix}/data/profileplot/{region_type}_{chip}_{scaled}_{group}_reference_plot.png", scaled="tss tes".split(),
-               group=groups, region_type=all_regions, chip="input", prefix=prefix)
-
-
-rule chip_tss_tes_plots:
+rule chip_profileplots:
     input:
         expand("{prefix}/data/profileplot/{region_type}_{chip}_{scaled}_{group}_reference_plot.png", scaled="tss tes".split(),
                 group=groups, region_type=all_regions, chip="chip", prefix=prefix)
-
-
-rule log2_ratio_tss_tes_plots:
-    input:
-        expand("{prefix}/data/profileplot/{region_type}_{chip}_{scaled}_{group}_reference_plot.png", scaled="tss tes".split(),
-                group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix)
 
 
 rule group_merged_chip_vs_merged_input_bigwig:
