@@ -23,6 +23,7 @@ def make_contrasts(groups):
 
 
 # if the config dict is empty, no config file was given on the command line
+# perhaps this should give an error instead?
 if not config:
     configfile: "config.yaml"
 
