@@ -1,19 +1,22 @@
 Installation
 ================================
 
-The preferred way to install epic is to use the conda_ package manager.
+To use bincs, you need snakemake and the conda package manager.
 
-.. _conda: https://conda.io/docs/install/quick.html
+First we will install the conda pacakge manager. Go to
+https://www.anaconda.com/download/ and select the Python 3+ version.
 
-First install conda according to the instructions, then you can install epic
-with
+Then follow the installation instructions.
 
-.. code-block:: bash
-
-   conda install -c bioconda epic
-
-You can also install epic from PyPI with
+Next, we will need to install snakemake. We will do this using anaconda.
 
 .. code-block:: bash
 
-   pip install bioepic
+   # install snakemake from the channel bioconda
+   conda install -c bioconda snakemake
+
+Finally you can install bincs with the command
+
+.. code-block:: bash
+
+   git clone git@github.com:biocore-ntnu/chip_seq_pipeline.git bincs

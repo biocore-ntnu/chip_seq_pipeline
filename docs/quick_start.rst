@@ -5,12 +5,20 @@ bincs is written as a Snakemake_ pipeline.
 
 .. _Snakemake: http://snakemake.readthedocs.io/en/stable/
 
-bincs requires a config file and a sample sheet to run.
+See the `installation page`_ for instructions on how to install Snakemake.
 
-To obtain the example files you should go to the folder example and run the command
+.. _`installation page`: installation.html
+
+The data for this quick-start example can be found at zenodo_.
+
+.. _zenodo: https://zenodo.org/record/1008923#.Wd3cTxOCxlc
+
+Go to the subfolder examples/quick_start under bincs and download the dataset.
 
 .. code-block:: bash
 
-   snakemake -s download_data_and_create_sample_sheet.Snakefile
+   cd bincs/examples/quick_start
+   wget https://zenodo.org/record/1008923/files/subsample_example_data.tar
+   tar -xvf subsample_example_data.tar
 
-This will download some data from gencode and create an appropriate sample sheet.
+bincs requires a config file and a sample sheet to run.
