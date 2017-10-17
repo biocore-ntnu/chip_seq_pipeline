@@ -27,7 +27,7 @@ rule design_matrix_loo:
         df.to_csv(output[0], sep=" ")
 
 
-rule limma:
+rule run_limma:
     input:
         e_values = "{prefix}/data/revoom/{caller}.e_values",
         weights = "{prefix}/data/revoom/{caller}.weights",

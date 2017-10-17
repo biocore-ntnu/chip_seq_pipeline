@@ -1,7 +1,8 @@
 Installation
 ================================
 
-To use bincs, you need snakemake and the conda package manager.
+To use bincs, you need only need snakemake and the conda package manager. (Every
+other dependecy is installed automatically by these two wonderful tools!)
 
 First we will install the conda pacakge manager. Go to
 https://www.anaconda.com/download/ and select the Python 3+ version.

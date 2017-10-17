@@ -117,14 +117,3 @@ To set the size of the regions before the TSS and after the TSS to graph, use th
 
 The setting tss_distance_gene will be used for all region names that contain "gene" in the name,
 otherwise the setting tss_distance_other will be used.
-
-..
-
-   How the profileplots are produced
-   -----------------------------
-
-   For our example data, this is how the profileplots are produced:
-
-   .. figure:: img/rulegraphs/log2_ratio_profileplots_rulegraph.png
-
-      The DAG for the log2_ratio_profileplots target.

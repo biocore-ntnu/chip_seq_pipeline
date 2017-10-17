@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 
 
@@ -19,9 +20,9 @@ def compute_internal_exons(exons):
 
 
 if __name__ == "__main__":
-    exons = pd.read_table(snakemake.input.exons, header=None,
+    exons = pd.read_table(sys.argv[1], header=None,
                           names="Chromosome Start End Name Score Strand".split(), index_col=False)
 
     outdf = compute_internal_exons(exons)
 
-    outdf.to_csv(snakemake.output[0], sep="\t", header=False, index=False)
+    outdf.to_csv(sys.stdout, sep="\t", header=False, index=False)

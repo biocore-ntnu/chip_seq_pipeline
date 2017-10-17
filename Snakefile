@@ -16,10 +16,9 @@ from itertools import combinations
 
 def make_contrasts(groups):
 
-    cs = {"minus".join([a, b]): "-".join([a, b]) for a, b in combinations(groups, 2)}
+    cs = ["-".join([a, b]) for a, b in combinations(groups, 2)]
 
     return cs
-
 
 
 # if the config dict is empty, no config file was given on the command line
@@ -95,7 +94,7 @@ to_include = ["download/annotation", "download/chromsizes",
               "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
               "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
               "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
-              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw",
+              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw_differential",
               "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
               "epic/epic_count", "leave_one_out/compute_chip_over_input",
               "leave_one_out/violin_plots", "normalize/average_input",
@@ -112,7 +111,10 @@ more_than_one_group = None
 if all_but_first_group:
     more_than_one_group = groups[1]
 
-contrasts = make_contrasts(groups).values()
+if config.get("contrasts", ""):
+    contrasts = config["contrasts"]
+else:
+    contrasts = make_contrasts(groups)
 
 regions = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon",
            "stop_codon", "stop_codon_redefined_as_selenocysteine", "three_prime_UTR",
@@ -216,7 +218,7 @@ rule merged_chip_bigwigs:
         expand("{prefix}/data/merged_bigwig/{group}_ChIP.bigwig", group=groups, prefix=prefix)
 
 
-rule limma_:
+rule limma:
     input:
         expand("{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable",
                caller=config["peak_callers"], prefix=prefix,
