@@ -1,3 +1,5 @@
+
+
 def get_fastqs(paired_end):
     if paired_end:
         return ["{prefix}/data/trim/{sample}_1.fastq", "{prefix}/data/trim/{sample}_2.fastq"]

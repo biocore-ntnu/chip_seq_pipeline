@@ -12,8 +12,6 @@ rule run_epic:
         bigwig_folder = "{prefix}/data/epic/{group}_bigwigs/"
     params:
         paired_end = "--paired-end" if config["paired_end"] else ""
-    # conda:
-    #     "../../envs/global.yaml"
     threads: 48
     resources:
         instances = 1

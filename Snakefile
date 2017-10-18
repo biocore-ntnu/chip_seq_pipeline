@@ -20,7 +20,6 @@ def make_contrasts(groups):
 
     return cs
 
-
 # if the config dict is empty, no config file was given on the command line
 # perhaps this should give an error instead?
 if not config:
@@ -135,7 +134,6 @@ wildcard_constraints:
     region_type = "({})".format("|".join(regions + custom_regions)),
     caller = "({})".format("|".join(config["peak_callers"])),
     contrast = "({})".format("|".join(contrasts))
-
 
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)

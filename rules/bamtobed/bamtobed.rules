@@ -1,4 +1,5 @@
 
+
 rule bamtobed:
     input:
         "{path}.bam.sorted"
@@ -19,13 +20,16 @@ rule bamtobed_pe:
     shell: "bamToBed -bedpe -i {input[0]} > {output[0]}"
 
 
-rule bedtobam:
-    input:
-        bed = lambda w: ss.loc[ss.Name == w.sample].File,
-        chromsizes = "{{prefix}}/data/download/chromsizes/{genome}.chromsizes".format(genome=config["genome"])
-    output:
-        "{prefix}/data/bam/{sample}.bam"
-    conda:
-        "../../envs/global.yaml"
-    shell:
-        "bedToBam -i {input.bed} -g {input.chromsizes} > {output[0]}"
+if not filetype == "fastq":
+
+
+    rule bedtobam:
+        input:
+            bed = lambda w: ss.loc[ss.Name == w.sample].File,
+            chromsizes = "{{prefix}}/data/download/chromsizes/{genome}.chromsizes".format(genome=config["genome"])
+        output:
+            "{prefix}/data/bam/{sample}.bam"
+        conda:
+            "../../envs/global.yaml"
+        shell:
+            "bedToBam -i {input.bed} -g {input.chromsizes} > {output[0]}"

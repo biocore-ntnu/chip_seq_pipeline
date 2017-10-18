@@ -1,7 +1,7 @@
 sort_cmd = "samtools sort {input[0]} > {output[0]}"
 index_cmd = "samtools index {input[0]}"
 
-if filetype in ["bam", "bed"]:
+if filetype not in ["bam", "bed"]:
 
 
     rule sort_bam:
