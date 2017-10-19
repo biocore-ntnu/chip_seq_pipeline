@@ -36,6 +36,7 @@ def read_rna_seq_sample_sheet(sample_sheet):
     if os.path.exists:
         return read_sample_sheet(sample_sheet)
 
+
 def _get_samples(sample_sheet, chip, group=None):
 
     chip_idx = sample_sheet.ChIP.str.contains(chip, flags=re.IGNORECASE)

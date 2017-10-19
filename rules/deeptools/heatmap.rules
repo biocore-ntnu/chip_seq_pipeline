@@ -13,9 +13,9 @@ def new_labels(w, input):
 
 def region_type_info(region_type):
     if "gene" in region_type:
-        return "Region type: {} (All regions scaled to be {} bp)".format(region_type, config["tss_distance_gene"])
+        return "Region type: {} (All regions scaled to be 1000 bp)".format(region_type)
     else:
-        return "Region type: {} (All regions scaled to be {} bp)".format(region_type, config["tss_distance_other"])
+        return "Region type: {} (All regions scaled to be 1000 bp)".format(region_type)
 
 def new_header(w):
 
@@ -93,7 +93,6 @@ rule find_group_vs_group_heatmap_sort_order:
     resources:
         instances = 1
     priority: 100
-    # params:
     shell:
         "plotHeatmap -m {input[0]} --sortRegions descend  -out {output.graph} --outFileSortedRegions {output.sort_order}"
 

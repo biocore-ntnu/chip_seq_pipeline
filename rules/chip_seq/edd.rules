@@ -1,0 +1,23 @@
+from utils.file_getters import correct_cs_files
+
+
+rule edd_create_empty_unalignable:
+    output:
+        "{prefix}/data/peaks/edd/unalignable.csv"
+    shell:
+        "touch {output[0]}"
+
+rule edd:
+    input:
+        chip = "{prefix}/data/bamcompare/{group}_ChIP.bam",
+        input = "{prefix}/data/bamcompare/{group}_Input.bam",
+        chrom_sizes = "{prefix}/data/download/chromsizes/{genome}.chromsizes",
+        unalignable = "{prefix}/data/peaks/edd/unalignable.csv"
+    output:
+        "{prefix}/data/peaks/edd/{group}.csv",
+    params:
+        output_dir = "{prefix}/data/peaks/edd/"
+    conda:
+        "../../envs/edd.yaml"
+    shell:
+        "edd {input.chrom_sizes} {input.unalignable} {input.chip} {input.input} {params.output_dir}"

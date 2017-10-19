@@ -1,0 +1,74 @@
+from utils.file_getters import correct_cs_files
+from utils.helpers import get_if_not_empty
+
+
+def filenames_to_string(chip, input):
+    fnames = chip
+    fnames.extend(input)
+    r = "c('" + "', '".join(fnames) + "')"
+    return r
+
+_chip_input = lambda w: correct_cs_files(ss, w.prefix, "chip|input", "bam", config, w.group)
+_chip_input_indexes = lambda w: [f + ".bai" for f in correct_cs_files(ss, w.prefix, "chip|input", "bam", config, w.group)]
+
+
+rule csaw_count:
+    input:
+        chip_input = _chip_input,
+        indexes = _chip_input_indexes
+    output:
+        rdata = "{prefix}/data/peaks/csaw/count/{group}_count_table.rds",
+        table = "{prefix}/data/peaks/csaw/count/{group}_count_table.csv", # for logging purposes mostly
+    conda:
+        "../../envs/csaw.yaml"
+    script:
+        "../../scripts/csaw_count.R"
+
+
+rule csaw_normalization_factors:
+    input:
+        chip_input = _chip_input,
+        indexes = _chip_input_indexes
+    output:
+        "{prefix}/data/peaks/csaw/normfacs/{group}_normfacs.csv"
+    conda:
+        "../../envs/csaw.yaml"
+    script:
+        "../../scripts/csaw_count_normfacs.R"
+
+
+rule csaw_design_matrix:
+    output:
+        "{prefix}/data/peaks/csaw/{group}_design.csv"
+    params:
+        groups = lambda w: list(ss.ix[ss.loc[ss.Group==w.group].Name.drop_duplicates().index].ChIP)
+    script:
+        "../../scripts/csaw_design_matrix.R"
+
+
+rule csaw_prepare:
+    input:
+        data = "{prefix}/data/peaks/csaw/count/{group}_count_table.rds",
+        normfacs = "{prefix}/data/peaks/csaw/normfacs/{group}_normfacs.csv",
+        design = "{prefix}/data/peaks/csaw/{group}_design.csv"
+    output:
+        disp = "{prefix}/data/peaks/csaw/{group}_estimate_disp.RDS",
+        data = "{prefix}/data/peaks/csaw/count/{group}_count_table_subset.rds"
+    conda:
+        "../../envs/csaw.yaml"
+    script:
+        "../../scripts/csaw_estimate_disp.R"
+
+
+rule csaw_analyze:
+    input:
+        data = "{prefix}/data/peaks/csaw/count/{group}_count_table_subset.rds",
+        normfacs = "{prefix}/data/peaks/csaw/normfacs/{group}_normfacs.csv",
+        design = "{prefix}/data/peaks/csaw/{group}_design.csv",
+        estimate_disp = "{prefix}/data/peaks/csaw/{group}_estimate_disp.RDS"
+    output:
+        "{prefix}/data/peaks/csaw/{group}_{contrast}.raw"
+    conda:
+        "../../envs/csaw.yaml"
+    script:
+        "../../scripts/csaw_analyze.R"

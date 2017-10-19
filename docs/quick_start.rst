@@ -13,10 +13,12 @@ The data for this quick-start example can be found at zenodo_.
 
 .. _zenodo: https://zenodo.org/record/1008923#.Wd3cTxOCxlc
 
-Go to the subfolder examples/quick_start under bincs and download the dataset.
+Create the subfolder :file:`examples/quick_start/files` in the bincs folder and
+download the dataset.
 
 .. code-block:: bash
 
+   mkdir bincs/examples/quick_start/files
    cd bincs/examples/quick_start/files
    wget https://zenodo.org/record/1008923/files/subsample_example_data.tar
    tar -xvf subsample_example_data.tar

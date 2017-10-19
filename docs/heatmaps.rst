@@ -3,6 +3,12 @@ Heatmaps
 
 bincs can be used to create heatmaps of ChIP-Seq data for predefined regions.
 
+Caveat
+------
+
+Bincs creates one heatmap for each group in the sample sheet. By default the
+same sort order is used for all groups (and the
+
 Example Output
 --------------
 
@@ -25,12 +31,6 @@ There is also a target for creating a heatmap of group vs group called
 log2_ratio_group_vs_group_heatmap. It creates one graph per group comparison of
 input-normalized ChIP groups against each other. This target requires that you
 have more than one group in your sample sheet.
-
-..
-   .. code-block:: bash
-
-      snakemake log2_ratio_heatmaps # or chip_heatmaps or input_heatmaps or
-                                    # log2_ratio_group_vs_group_heatmap
 
 Options
 -------

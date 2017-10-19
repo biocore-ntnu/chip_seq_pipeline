@@ -5,8 +5,7 @@ rule design_matrix:
     input:
         config["sample_sheet"]
     output:
-        design = "{prefix}/data/limma/design_matrix.txt",
-        # contrasts = "{prefix}/data/limma/contrasts.txt"
+        design = "{prefix}/data/limma/design_matrix.txt"
     script:
         "../../scripts/create_design_matrix.R"
 

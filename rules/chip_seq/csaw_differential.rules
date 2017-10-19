@@ -12,62 +12,62 @@ _get_cs_files = lambda w: correct_cs_files(ss, w.prefix, "chip", "bam", config, 
 _get_cs_index_files = lambda w: [f + ".bai" for f in correct_cs_files(ss, w.prefix, "chip", "bam", config, None)]
 
 
-rule csaw_count:
+rule csaw_differential_count:
     input:
         chip_input =  _get_cs_files,
         indexes = _get_cs_index_files
     output:
-        rdata = "{prefix}/data/peaks/csaw/count/count_table.rds",
-        table = "{prefix}/data/peaks/csaw/count/count_table.csv", # for logging purposes mostly
+        rdata = "{prefix}/data/peaks/csaw_differential/count/count_table.rds",
+        table = "{prefix}/data/peaks/csaw_differential/count/count_table.csv", # for logging purposes mostly
     conda:
         "../../envs/csaw.yaml"
     script:
         "../../scripts/csaw_count.R"
 
 
-rule csaw_normalization_factors:
+rule csaw_differential_normalization_factors:
     input:
         chip_input =  _get_cs_files,
         indexes = _get_cs_index_files
     output:
-        "{prefix}/data/peaks/csaw/normfacs/normfacs.csv"
+        "{prefix}/data/peaks/csaw_differential/normfacs/normfacs.csv"
     conda:
         "../../envs/csaw.yaml"
     script:
         "../../scripts/csaw_count_normfacs.R"
 
 
-rule csaw_design_matrix:
+rule csaw_differential_design_matrix:
     output:
-        "{prefix}/data/peaks/csaw/design.csv"
+        "{prefix}/data/peaks/csaw_differential/design.csv"
     params:
         groups = list(ss.ix[ss.loc[ss.ChIP=="ChIP"].Name.drop_duplicates().index].Group)
     script:
         "../../scripts/csaw_design_matrix.R"
 
 
-rule csaw_prepare:
+rule csaw_differential_prepare:
     input:
-        data = "{prefix}/data/peaks/csaw/count/count_table.rds",
-        normfacs = "{prefix}/data/peaks/csaw/normfacs/normfacs.csv",
-        design = get_if_not_empty(config, "csaw_design_matrix", "{prefix}/data/peaks/csaw/design.csv")
+        data = "{prefix}/data/peaks/csaw_differential/count/count_table.rds",
+        normfacs = "{prefix}/data/peaks/csaw_differential/normfacs/normfacs.csv",
+        design = get_if_not_empty(config, "csaw_design_matrix", "{prefix}/data/peaks/csaw_differential/design.csv")
     output:
-        disp = "{prefix}/data/peaks/csaw/estimate_disp.RDS",
-        data = "{prefix}/data/peaks/csaw/count/count_table_subset.rds"
+        disp = "{prefix}/data/peaks/csaw_differential/estimate_disp.RDS",
+        data = "{prefix}/data/peaks/csaw_differential/count/count_table_subset.rds"
     conda:
         "../../envs/csaw.yaml"
     script:
         "../../scripts/csaw_estimate_disp.R"
 
 
-rule csaw_analyze:
+rule csaw_differential_analyze:
     input:
-        data = "{prefix}/data/peaks/csaw/count/count_table_subset.rds",
-        normfacs = "{prefix}/data/peaks/csaw/normfacs/normfacs.csv",
-        design = get_if_not_empty(config, "csaw_design_matrix", "{prefix}/data/peaks/csaw/design.csv"),
-        estimate_disp = "{prefix}/data/peaks/csaw/estimate_disp.RDS"
+        data = "{prefix}/data/peaks/csaw_differential/count/count_table_subset.rds",
+        normfacs = "{prefix}/data/peaks/csaw_differential/normfacs/normfacs.csv",
+        design = lambda w: config["csaw_design_matrix"] if config.get("csaw_design_matrix", "") else "{prefix}/data/peaks/csaw_differential/design.csv".format(prefix=w.prefix),
+        estimate_disp = "{prefix}/data/peaks/csaw_differential/estimate_disp.RDS"
     output:
-        "{prefix}/data/peaks/csaw/{contrast}.raw"
+        "{prefix}/data/peaks/csaw_differential/{contrast}.raw"
     conda:
         "../../envs/csaw.yaml"
     script:

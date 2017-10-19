@@ -93,9 +93,10 @@ to_include = ["download/annotation", "download/chromsizes",
               "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
               "compute_tss/compute_tss", "trim/atropos", "align/hisat2",
               "sort_index_bam/sort_index_bam", "bamtobed/bamtobed",
-              "chip_seq/epic", "chip_seq/macs2", "chip_seq/csaw_differential",
-              "epic/epic_merge", "epic/epic_blacklist", "epic/epic_cluster",
-              "epic/epic_count", "leave_one_out/compute_chip_over_input",
+              "chip_seq/epic", "chip_seq/macs2", "chip_seq/edd",
+              "chip_seq/csaw", "chip_seq/csaw_differential", "epic/epic_merge",
+              "epic/epic_blacklist", "epic/epic_cluster", "epic/epic_count",
+              "leave_one_out/compute_chip_over_input",
               "leave_one_out/violin_plots", "normalize/average_input",
               "normalize/divide_chip_input", "voom/voom", "limma/limma"] #, "voom/voom"]
 
@@ -133,7 +134,7 @@ wildcard_constraints:
     chip = "(chip|input|log2ratio|ChIP|Input)",
     region_type = "({})".format("|".join(regions + custom_regions)),
     caller = "({})".format("|".join(config["peak_callers"])),
-    contrast = "({})".format("|".join(contrasts))
+    contrast = "({})".format("|".join(contrasts + ["ChIP-Input"]))
 
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
