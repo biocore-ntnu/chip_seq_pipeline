@@ -62,8 +62,7 @@ j2_env.filters["default"] = default
 
 configuration_files = ["config.yaml", "tests/test_data/paired_end/config.yaml",
                        "tests/test_data/dna_repair/config.yaml",
-                       "tests/test_data/keep_the_tips/config.yaml",
-                       "example/config.yaml"]
+                       "tests/test_data/keep_the_tips/config.yaml"]
 
 base_config = ordered_load(open("utils/config_description.yaml"))
 for configuration_file in configuration_files:

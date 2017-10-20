@@ -1,19 +1,21 @@
-def group_bigwigs(w):
+def group_bigwigs(w, group=None):
+
+    group = group if group else w.group
 
     df = sample_sheet
 
     if w.chip == "log2ratio":
-        names = sorted(list(set(df.loc[(df.Group == w.group) & (df.ChIP == "ChIP")].Name)))
+        names = sorted(list(set(df.loc[(df.Group == group) & (df.ChIP == "ChIP")].Name)))
         return expand("{prefix}/data/bigwigcompare/sample_{sample}_vs_merged_input.bw", sample=names, prefix=w.prefix)
 
     elif w.chip == "input":
 
-        names = sorted(list(set(df.loc[(df.Group == w.group) & (df.ChIP == "Input")].Name)))
+        names = sorted(list(set(df.loc[(df.Group == group) & (df.ChIP == "Input")].Name)))
         return expand("{prefix}/data/bamcoverage/{sample}.bw", sample=names, prefix=w.prefix)
 
     elif w.chip == "chip":
 
-        names = sorted(list(set(df.loc[(df.Group == w.group) & (df.ChIP == "ChIP")].Name)))
+        names = sorted(list(set(df.loc[(df.Group == group) & (df.ChIP == "ChIP")].Name)))
         return expand("{prefix}/data/bamcoverage/{sample}.bw", sample=names, prefix=w.prefix)
 
 
@@ -61,85 +63,118 @@ def get_bed_regions(w):
 # samples alone or vs input #
 #############################
 
-computematrix_cmd = ("computeMatrix {params.subcommand} -p {threads}  "
-                     "{params.options} "
-                     "-R {input.bed} -S {input.bigwig} -out {output.matrix}")
 
-sort_order_matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/sort_order_matrix_{group}.mat.gz"
-rule compute_sort_order_matrix:
-    input:
-        bigwig = group_bigwigs,
-        bed = get_bed_regions
-    output:
-        matrix = sort_order_matrix
-    threads: 48
-    params:
-        subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
-        options = options
-    shell:
-        computematrix_cmd
+computematrix = ("computeMatrix {params.subcommand} -p {threads}  "
+                 "{params.options} "
+                 "-R {input.bed} -S {input.bigwig} -out {output.matrix}")
 
 
-rule compute_matrix:
-    input:
-        bigwig = group_bigwigs,
-        # the bed decides sort order
-        bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
-    output:
-        matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz"
-    threads: 48
-    params:
-        subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
-        options = options,
-        sort_order_matrix = sort_order_matrix
-    run:
-        # if the sort order matrix exists, avoid recomputation
-        # doing it this way to avoid 1) DAG hacks (ruleorder etc) 2) recomputation (expensive!)
-        if wildcards.group == first_group:
-            sort_order_matrix = params.sort_order_matrix.format(**wildcards)
-            shell("cp {sort_order_matrix} {output.matrix}")
-        else:
-            shell(computematrix_cmd)
+computematrix_sort_order = computematrix + " --outFileSortedRegions {output.bed}"
+
+computematrix_other_matrixes = computematrix + " --sortRegions no"
+
+if config["sort_order_group"]:
+
+    sort_order_group = config["sort_order_group"]
+
+    # Need this hack to compute the sort order first
+    ruleorder: compute_sort_order_matrix > compute_other_matrixes
+
+    rule compute_sort_order_matrix:
+        input:
+            bigwig = lambda w: group_bigwigs(w, sort_order_group),
+            bed = get_bed_regions
+        output:
+            matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/{group}.mat.gz".format(group=sort_order_group),
+            bed = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/{group}.bed".format(group=sort_order_group)
+        threads: 48
+        params:
+            subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
+            options = options,
+        shell:
+            computematrix_sort_order
+
+    rule compute_other_matrixes:
+        input:
+            bigwig = group_bigwigs,
+            bed = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/{group}.bed".format(group=sort_order_group)
+        output:
+            matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz"
+        threads: 48
+        params:
+            subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
+            options = options,
+        shell:
+            computematrix_other_matrixes
+
+else:
+
+    rule compute_matrix:
+        input:
+            bigwig = group_bigwigs,
+            bed = get_bed_regions
+        output:
+            matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz",
+        threads: 48
+        params:
+            subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
+            options = options,
+        shell:
+            computematrix
+
 
 
 #############################
 # input-norm group vs group #
 #############################
 
-if more_than_one_group:
 
-    sort_order_matrix_group_vs_group = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/sort_order_matrix_{group1}_vs_{group2}.mat.gz"
+if config["sort_order_group"] and more_than_one_group:
+
+    sort_order_group = group1[0]
+    second_sort_order_group = group2[0]
+
+    # Need this hack to compute the sort order first
+    ruleorder: compute_sort_order_matrix_group_vs_group > compute_other_matrixes_group_vs_group
+
     rule compute_sort_order_matrix_group_vs_group:
         input:
-            bigwig = "{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig",
+            bigwig = "{{prefix}}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig".format(group1=sort_order_group, group2=second_sort_order_group),
             bed = get_bed_regions
         output:
-            matrix = sort_order_matrix_group_vs_group
+            matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/group_vs_group/sort_order_matrix_{group1}_vs_{group2}.mat.gz".format(group1=sort_order_group, group2=second_sort_order_group),
+            bed = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/group_vs_group/{group1}_vs_{group2}.bed".format(group1=sort_order_group, group2=second_sort_order_group)
         threads: 48
         params:
             subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
-            options = options
+            options = options,
         shell:
-            computematrix_cmd
+            computematrix_sort_order
 
-
-    rule compute_matrix_group_vs_group:
+    rule compute_other_matrixes_group_vs_group:
         input:
             bigwig = "{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig",
-            # the bed decides sort order
-            bed = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=more_than_one_group)
+            bed = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/{{scaled}}/group_vs_group/{group1}_vs_{group2}.bed".format(group1=sort_order_group, group2=second_sort_order_group)
         output:
             matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/{group1}_vs_{group2}.mat.gz"
         threads: 48
         params:
             subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
             options = options,
-            sort_order_matrix = sort_order_matrix_group_vs_group
-        run:
-            # if the sort order matrix exists, avoid recomputation
-            # doing it this way to avoid 1) DAG hacks (ruleorder etc) 2) recomputation (expensive!)
-            if wildcards.group1 == first_group and wildcards.group2 == more_than_one_group:
-                sort_order_matrix = params.sort_order_matrix.format(**wildcards)
-                shell("cp {sort_order_matrix} {output.matrix}")
-            else:
-                shell(computematrix_cmd)
+        shell:
+            computematrix_other_matrixes
+
+elif not config["sort_order_group"] and more_than_one_group:
+
+    rule compute_matrix_group_vs_group:
+        input:
+            bigwig = "{prefix}/data/bigwigcompare/group_{group1}_vs_group_{group2}.bigwig",
+            bed = get_bed_regions
+        output:
+            matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/group_vs_group/{group1}_vs_{group2}.mat.gz",
+        threads: 48
+        params:
+            subcommand = lambda w: "scale-regions" if w.scaled == "scale_regions" else "reference-point",
+            options = options,
+        shell:
+            computematrix

@@ -38,25 +38,24 @@ def new_start_label(w):
 def new_end_label(w):
     return "TES" if "gene" in w.region_type else "3'"
 
-ruleorder: find_heatmap_sort_order > create_heatmap
 
 
-rule find_heatmap_sort_order:
-    input:
-        matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/sort_order_matrix_{group}.mat.gz".format(group=first_group),
-    output:
-        graph = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_{{region_type}}.png".format(group=first_group),
-        sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
-    resources:
-        instances = 1
-    priority: 100
-    shell:
-        "plotHeatmap -m {input[0]} --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
+# rule find_heatmap_sort_order:
+#     input:
+#         matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/sort_order_matrix_{group}.mat.gz".format(group=first_group),
+#     output:
+#         graph = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_{{region_type}}.png".format(group=first_group),
+#         sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/{group}_sort_order.bed".format(group=first_group)
+#     resources:
+#         instances = 1
+#     priority: 100
+#     shell:
+#         "plotHeatmap -m {input[0]} --sortUsing median --sortRegions descend -T '{first_group} (scale-regions)' -out {output.graph} --outFileSortedRegions {output.sort_order}"
 
 
 rule create_heatmap:
     input:
-        matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz",
+        matrix = "{prefix}/data/compute_matrix/{region_type}/{chip}/scale_regions/{group}.mat.gz"
     output:
         graph = "{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png"
     resources:
@@ -73,8 +72,6 @@ rule create_heatmap:
         shell("plotHeatmap -T '{params.header}' --samplesLabel {labels} --startLabel \"{params.start_label}\" --endLabel \"{params.end_label}\" -m {input.matrix} --sortRegions no -out {output.graph}")
 
 
-ruleorder: find_group_vs_group_heatmap_sort_order > create_group_vs_group_heatmap
-
 
 def new_group_vs_group_header(w):
 
@@ -82,19 +79,6 @@ def new_group_vs_group_header(w):
     header.append(region_type_info(w.region_type))
 
     return " ".join(header)
-
-
-rule find_group_vs_group_heatmap_sort_order:
-    input:
-        matrix = "{{prefix}}/data/compute_matrix/{{region_type}}/{{chip}}/scale_regions/group_vs_group/sort_order_matrix_{group1}_vs_{group2}.mat.gz".format(group1=first_group, group2=more_than_one_group)
-    output:
-        graph = temp("{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}.png".format(group1=first_group, group2=more_than_one_group)),
-        sort_order = "{{prefix}}/data/heatmap/{{region_type}}/{{chip}}/scale_regions/group_vs_group/{group1}_vs_{group2}_sort_order.bed".format(group1=first_group, group2=more_than_one_group)
-    resources:
-        instances = 1
-    priority: 100
-    shell:
-        "plotHeatmap -m {input[0]} --sortRegions descend  -out {output.graph} --outFileSortedRegions {output.sort_order}"
 
 
 rule create_group_vs_group_heatmap:

@@ -111,6 +111,15 @@ more_than_one_group = None
 if all_but_first_group:
     more_than_one_group = groups[1]
 
+
+# cartesian product without duplicates
+group1, group2 = [], []
+for g1, g2 in product(groups, groups):
+    if g1 != g2:
+        group1.append(g1)
+        group2.append(g2)
+
+
 if config.get("contrasts", ""):
     contrasts = config["contrasts"]
 else:
@@ -275,13 +284,6 @@ if not len(ss.Group.drop_duplicates()) == 1:
     rule log2_ratio_sample_vs_group_bigwig:
         input:
             expand("{prefix}/data/bigwigcompare/sample_{sample}_vs_group_{group}.bigwig", zip, sample=svsg.Sample, group=svsg.OtherGroup, prefix=prefix)
-
-    # cartesian product without duplicates
-    group1, group2 = [], []
-    for g1, g2 in product(groups, groups):
-        if g1 != g2:
-            group1.append(g1)
-            group2.append(g2)
 
 
     rule log2_ratio_group_vs_group_bigwig:

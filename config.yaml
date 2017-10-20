@@ -108,6 +108,19 @@ fastq_quality: 20
 # (Not required)
 annotation_gff3: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_27/gencode.v27.annotation.gff3.gz
 
+# If given, all heatmaps are sorted according to the sort order for this group.
+# This makes it easy to compare heatmaps between groups. If not given, each
+# heatmap is sorted individually.
+# (Not required)
+sort_order_group: 
+
+# Only applicable for group_vs_group heatmaps! If given, all group vs group
+# heatmaps are sorted according to the sorting for sort_order_group vs
+# second_sort_order_group. This makes it easy to compare heatmaps between
+# groups. If not given, each heatmap is sorted individually.
+# (Not required)
+second_sort_order_group: 
+
 # The distance to be shown upstream and downstream of any region with 'gene' in
 # the name in the heatmaps and profileplots.
 # (Not required)

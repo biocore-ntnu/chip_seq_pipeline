@@ -3,11 +3,12 @@ Heatmaps
 
 bincs can be used to create heatmaps of ChIP-Seq data for predefined regions.
 
-Caveat
-------
+..
+   Caveat
+   ------
 
-Bincs creates one heatmap for each group in the sample sheet. By default the
-same sort order is used for all groups (and the
+   Bincs creates one heatmap for each group in the sample sheet. By default the
+   same sort order is used for all groups (and the
 
 Example Output
 --------------
@@ -37,6 +38,8 @@ Options
 
 There are several settings that can be used to choose which regions should be
 included in the heatmaps and how much of each region to display.
+
+
 
 Predefined Regions
 ~~~~~~~~~~~~~~~~~~
@@ -123,3 +126,6 @@ To set the size of the regions before the TSS and after the TSS to graph, use th
 
 The setting tss_distance_gene will be used for all region names that contain "gene" in the name,
 otherwise the setting tss_distance_other will be used.
+
+Sort order of heatmaps
+~~~~~~~~~~~~~~~~~~~~~~

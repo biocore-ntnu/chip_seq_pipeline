@@ -127,6 +127,19 @@ This kind of high-quality annotation only exists for humans and mice. If your ge
       - private/epipp/gencode.v26.annotation.gff3.gz
       - ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gff3.gz
 
+  sort_order_group:
+    type: str
+    default: ""
+    description: "If given, all heatmaps are sorted according to the sort order for this group.
+This makes it easy to compare heatmaps between groups. If not given, each heatmap is sorted
+individually."
+
+  second_sort_order_group:
+    type: str
+    default: ""
+    description: "Only applicable for group_vs_group heatmaps! If given, all group vs group heatmaps are sorted according to the sorting for sort_order_group vs second_sort_order_group.
+This makes it easy to compare heatmaps between groups. If not given, each heatmap is sorted individually."
+
   tss_distance_gene:
     type: int
     default: 3000
