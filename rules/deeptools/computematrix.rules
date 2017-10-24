@@ -64,14 +64,15 @@ def get_bed_regions(w):
 #############################
 
 
-computematrix = ("computeMatrix {params.subcommand} -p {threads}  "
-                 "{params.options} "
-                 "-R {input.bed} -S {input.bigwig} -out {output.matrix}")
+computematrix_base = ("computeMatrix {params.subcommand} -p {threads}  "
+                      "{params.options} "
+                      "-R {input.bed} -S {input.bigwig} -out {output.matrix}")
 
+computematrix = computematrix_base + " --sortRegions descend"
 
-computematrix_sort_order = computematrix + " --outFileSortedRegions {output.bed}"
+computematrix_sort_order = computematrix_base + " --sortRegions descend --sortUsing median --outFileSortedRegions {output.bed}"
 
-computematrix_other_matrixes = computematrix + " --sortRegions no"
+computematrix_other_matrixes = computematrix_base + " --sortRegions keep"
 
 if config["sort_order_group"]:
 
@@ -123,13 +124,12 @@ else:
             computematrix
 
 
-
 #############################
 # input-norm group vs group #
 #############################
 
 
-if config["sort_order_group"] and more_than_one_group:
+if config["sort_order_group"] and config["second_sort_order_group"] and more_than_one_group:
 
     sort_order_group = group1[0]
     second_sort_order_group = group2[0]
@@ -164,7 +164,7 @@ if config["sort_order_group"] and more_than_one_group:
         shell:
             computematrix_other_matrixes
 
-elif not config["sort_order_group"] and more_than_one_group:
+elif not config["sort_order_group"] and not config["second_sort_order_group"] and more_than_one_group:
 
     rule compute_matrix_group_vs_group:
         input:

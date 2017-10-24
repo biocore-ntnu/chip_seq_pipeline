@@ -3,13 +3,6 @@ Heatmaps
 
 bincs can be used to create heatmaps of ChIP-Seq data for predefined regions.
 
-..
-   Caveat
-   ------
-
-   Bincs creates one heatmap for each group in the sample sheet. By default the
-   same sort order is used for all groups (and the
-
 Example Output
 --------------
 
@@ -129,3 +122,20 @@ otherwise the setting tss_distance_other will be used.
 
 Sort order of heatmaps
 ~~~~~~~~~~~~~~~~~~~~~~
+
+To set the same sort order for all the heatmaps, you need to select one group to
+set as the default. All the heatmaps will then be sorted according to the
+sorting of this group.
+
+.. code-block:: yaml
+
+   sort_order_group:
+
+If you want to have the group vs group heatmaps sorted (target log2_ratio_group_vs_group_heatmap) you need to provide a second sort order group:
+
+.. code-block:: yaml
+
+   second_sort_order_group:
+
+Of course, the names of these groups must be the same as those used in the
+sample sheets.

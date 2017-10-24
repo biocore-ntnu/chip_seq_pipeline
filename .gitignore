@@ -12,6 +12,8 @@ _build/
 
 deeptools.cfg
 
+*.gz
+*.fa
 *.bkup
 *.#*
 *.bai
