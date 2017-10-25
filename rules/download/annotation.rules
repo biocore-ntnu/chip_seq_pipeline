@@ -1,4 +1,4 @@
-
+import re
 
 rule download_gencode:
     output:
@@ -13,14 +13,14 @@ rule download_gencode:
             shell("zcat {annotation_gff3} > {output[0]}")
 
 
-rule download_exon:
+rule download_exon_ucsc:
     output:
         "{prefix}/data/annotation/refgene/exon.unparsed"
     shell:
-        "mysql -h genome-mysql.cse.ucsc.edu -u genome -D {config[genome]} -N -A -e 'select chrom, start, end, exonStarts, exonEnds, name, name2, strand from refGene' > {output[0]}"
+        "mysql -h genome-mysql.cse.ucsc.edu -u genome -D {config[genome]} -N -A -e 'select chrom, txStart, txEnd, exonStarts, exonEnds, name, name2, strand from refGene' > {output[0]}"
 
 
-rule parse_exons:
+rule parse_exons_ucsc:
     input:
         "{prefix}/data/annotation/refgene/exon.unparsed"
     output:
@@ -28,9 +28,11 @@ rule parse_exons:
     wildcard_constraints:
         exon_type = "exon|internal_exon"
     run:
-        idx = 1 if wildcards.exon_type == "internal_exon" else 0
+        start_idx = 1 if wildcards.exon_type == "internal_exon" else None
+        end_idx = -1 if wildcards.exon_type == "internal_exon" else None
+        start_exon = 2 if wildcards.exon_type == "internal_exon" else 1
 
-        found_tss = {}
+        found_tss = set()
         rowdicts = []
         for line in open(input[0]):
             chromosome, gene_start, gene_end, exon_starts, exon_ends, name, name2, strand = line.split()
@@ -40,34 +42,38 @@ rule parse_exons:
             if (chromosome, actual_gene_start) in found_tss:
                 continue
             else:
-                found_tss.add(chromosome, actual_gene_start)
+                found_tss.add((chromosome, actual_gene_start))
 
             # parse exons
+            exon_starts, exon_ends = re.sub(",$", "", exon_starts), re.sub(",$", "", exon_ends)
             starts, ends = exon_starts.split(","), exon_ends.split(",")
 
             assert len(starts) == len(ends), "Unequal number of exon starts and ends in line: " + line
 
-            for start, end in zip(starts[idx:-idx], ends[idx:-idx]):
-                rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": name, "Name2": name2, "Strand": strand}
+            for i, (start, end) in enumerate(zip(starts[start_idx:end_idx], ends[start_idx:end_idx]), start_exon):
+                rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": name + ":" + name2, "Type": "exon", "Strand": strand}
                 rowdicts.append(rowdict)
 
-        df = pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Name Name2 Strand".split()]
+        df = pd.DataFrame.from_dict(rowdicts)
+        df = df["Chromosome Start End Name Type Strand".split()]
+
+        df.to_csv(output[0], sep="\t", index=False)
 
 
-rule download_gene:
+rule download_gene_ucsc:
     output:
         "{prefix}/data/annotation/refgene/gene.unparsed"
     shell:
-        "mysql -h genome-mysql.cse.ucsc.edu -u genome -D {config[genome]} -N -A -e 'select chrom, start, end, name, name2, strand from refGene' > {output[0]}"
+        "mysql -h genome-mysql.cse.ucsc.edu -u genome -D {config[genome]} -N -A -e 'select chrom, txStart, txEnd, name, name2, strand from refGene' > {output[0]}"
 
 
-rule parse_genes:
+rule parse_genes_ucsc:
     input:
         "{prefix}/data/annotation/refgene/gene.unparsed"
     output:
         "{prefix}/data/annotation/refgene/gene.bed"
     run:
-        found_tss = {}
+        found_tss = set()
         rowdicts = []
         for line in open(input[0]):
             chromosome, gene_start, gene_end, name, name2, strand = line.split()
@@ -77,10 +83,12 @@ rule parse_genes:
             if (chromosome, actual_gene_start) in found_tss:
                 continue
             else:
-                found_tss.add(chromosome, actual_gene_start)
+                found_tss.add((chromosome, actual_gene_start))
 
-            rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": name, "Name2": name2, "Strand": strand}
+            rowdict = {"Chromosome": chromosome, "Start": gene_start, "End": gene_end, "Name": name + ":" + name2, "Type": "gene", "Strand": strand}
 
             rowdicts.append(rowdict)
 
-        df = pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Name Name2 Strand".split()]
+        df = pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Name Type Strand".split()]
+
+        df.to_csv(output[0], sep="\t", index=False)

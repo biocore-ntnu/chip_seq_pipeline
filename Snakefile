@@ -98,7 +98,8 @@ to_include = ["download/annotation", "download/chromsizes",
               "epic/epic_blacklist", "epic/epic_cluster", "epic/epic_count",
               "leave_one_out/compute_chip_over_input",
               "leave_one_out/violin_plots", "normalize/average_input",
-              "normalize/divide_chip_input", "voom/voom", "limma/limma"] #, "voom/voom"]
+              "normalize/divide_chip_input", "voom/voom", "limma/limma",
+              "gene_overlap_barchart/gene_overlap_barchart"] #, "voom/voom"]
 
 
 path_prefix = config["prefix"]

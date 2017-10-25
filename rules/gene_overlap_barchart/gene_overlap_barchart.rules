@@ -1,0 +1,58 @@
+
+
+rule merge_ucsc_genes_exons:
+    input:
+        "{prefix}/data/annotation/refgene/gene.bed",
+        "{prefix}/data/annotation/refgene/exon.bed"
+    output:
+        "{prefix}/data/gene_barcharts/refgene.bed"
+    shell:
+        "cat <(tail -n +2 {input[0]}) <(tail -n +2 {input[1]}) > {output[0]}"
+
+
+rule merge_gencode_genes_exons:
+    input:
+        gene = "{prefix}/data/compute_tss/gene/annotation_no_duplicate_tss.bed",
+        exon = "{prefix}/data/compute_tss/exon/annotation_no_duplicate_tss.bed"
+    output:
+        "{prefix}/data/gene_barcharts/gencode.bed"
+    run:
+        names = "Chromosome Start End Name Type Strand".split()
+        gene = pd.read_table(input.gene, sep="\t", header=None, names=names)
+        exon = pd.read_table(input.exon, sep="\t", header=None, names=names)
+        gene.Type = "gene"
+        exon.Type = "exon"
+
+        df = pd.concat([gene, exon])
+        df.to_csv(output[0], sep="\t", index=False, header=False)
+
+
+rule add_tss:
+    input:
+        "{prefix}/data/gene_barcharts/{type}.bed"
+    output:
+        "{prefix}/data/gene_barcharts/{type}_with_tss.bed"
+    run:
+        names = "Chromosome Start End Name Type Strand".split()
+        df = pd.read_table(input[0], sep="\t", header=None, names=names)
+
+        tss_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
+
+        tss_neg = df.loc[(df.Strand == "-") & (df.Type == "gene")]
+        tss_neg.loc[:, "Start"] = tss_neg.End
+
+        tss = pd.concat([tss_pos, tss_neg])
+        tss.loc[:, "End"] = tss.Start + 1
+        tss.loc[:, "Type"] = "tss"
+
+
+        tes_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
+        tes_pos.loc[:, "Start"] = tes_pos.End
+
+        tes_neg = df.loc[(df.Strand == "-") & (df.Type == "gene")]
+
+        tes = pd.concat([tes_pos, tes_neg])
+        tes.loc[:,"Type"] = "tes"
+        tes.loc[:, "End"] = tes.Start + 1
+
+        pd.concat([df, tss, tes]).to_csv(output[0], sep="\t", index=False)

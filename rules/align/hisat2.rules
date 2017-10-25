@@ -8,6 +8,20 @@ def fetch_fastqs(sample, paired_end, prefix=prefix):
     return expand(fs, sample=sample, prefix=prefix)
 
 
+def correct_input_flags(reads):
+    if isinstance(reads, str):
+        input_flags = "-U {0}".format(reads)
+    elif len(reads) == 1:
+        input_flags = "-U {0}".format(reads[0])
+    elif len(reads) == 2:
+        input_flags = "-1 {0} -2 {1}".format(*reads)
+    else:
+        raise RuntimeError(
+            "Reads parameter must contain at least 1 and at most 2"
+            " input files.")
+
+    return input_flags
+
 def keep_multi_aligning(keep):
 
     if keep:
@@ -15,17 +29,38 @@ def keep_multi_aligning(keep):
     else:
         return "grep -E '@|NH:i:1$' |"
 
-
 rule hisat2:
+    "Run hisat2 to align fastqs"
     input:
-        reads=lambda w: fetch_fastqs(w.sample, config["paired_end"], w.prefix),
+        reads = lambda w: fetch_fastqs(w.sample, config["paired_end"], w.prefix),
+        index = config["hisat2_index_prefix"] + ".1.ht2"
     output:
         "{prefix}/data/bam/{sample}.bam"
-    log:                                # optional
-        "{prefix}/data/bam/{sample}.log"
-    params:                             # idx is required, extra is optional
-        idx=config["hisat2_index_prefix"],
-        extra=config["hisat2_extra_flags"]
-    threads: 8                          # optional, defaults to 1
-    wrapper:
-        "0.17.4/bio/hisat2"
+    log:
+        "logs/bam/{sample}.log"
+    params:
+        idx = config["hisat2_index_prefix"],
+        extra = config["hisat2_extra_flags"],
+        input_flags = lambda w: correct_input_flags(fetch_fastqs(w.sample, config["paired_end"], w.prefix)),
+        remove_multi_aligning = keep_multi_aligning(config["keep_multi_aligning_reads"])
+    threads: 8
+    conda:
+        "../../envs/global.yaml"
+    shell:
+        "(hisat2 {params.extra} --threads {threads}"
+        " -x {params.idx} {params.input_flags} | "
+        "{params.remove_multi_aligning} "
+        "samtools view -h -o {output[0]}) > {log[0]} 2>&1"
+
+
+# rule hisat2:
+#     input:
+#         reads=lambda w: fetch_fastqs(w.sample, config["paired_end"], w.prefix),
+#     output:
+#         "{prefix}/data/bam/{sample}.bam"
+#     params:                             # idx is required, extra is optional
+#         idx=config["hisat2_index_prefix"],
+#         extra=config["hisat2_extra_flags"]
+#     threads: 8                          # optional, defaults to 1
+#     wrapper:
+#         "0.17.4/bio/hisat2"

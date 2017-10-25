@@ -11,7 +11,6 @@ prefix = "/mnt/scratch/endrebak/chip_seq_fasta"
 samples = [f.replace(".bed.gz", "") for f in glob("*.bed.gz")]
 
 
-
 rule all:
     input:
         expand("{prefix}/{sample}.fq.gz", sample=samples, prefix=prefix)
