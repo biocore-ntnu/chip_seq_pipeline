@@ -48,6 +48,18 @@ genome: hg38
 
 
 
+# ---------------------- 
+# Gene Overlap Barcharts 
+# ----------------------
+# Settings for the gene overlap barcharts.
+# Radius around TSS/TES that is considered a part of the TSS/TES. Eg. if 1000,
+# then then TSS/TES is considered to be any area within 1000 nucleotides of it
+# is considered to be the TSS.
+# (Not required)
+barchart_tss_length: 3000
+
+
+
 # --------- 
 # Alignment 
 # ---------

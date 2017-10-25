@@ -46,6 +46,16 @@ genomes_and_annotations:
     required: True
     default: hg38
 
+gene_overlap_barcharts:
+
+  description: "Settings for the gene overlap barcharts."
+
+  barchart_tss_length:
+    type: str
+    description: "Radius around TSS/TES that is considered a part of the TSS/TES. Eg. if 1000, then then TSS/TES is considered to be any area within 1000 nucleotides of it is considered to be the TSS."
+    required: False
+    default: 3000
+
 
 alignment:
   description: These flags and options are only of interest if your filetype is fastq.

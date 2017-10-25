@@ -42,7 +42,7 @@ rule add_tss:
         tss_neg.loc[:, "Start"] = tss_neg.End
 
         tss = pd.concat([tss_pos, tss_neg])
-        tss.loc[:, "End"] = tss.Start + 1
+        tss.loc[:, "End"] = tss.Start
         tss.loc[:, "Type"] = "tss"
 
 
@@ -53,6 +53,12 @@ rule add_tss:
 
         tes = pd.concat([tes_pos, tes_neg])
         tes.loc[:,"Type"] = "tes"
-        tes.loc[:, "End"] = tes.Start + 1
+        tes.loc[:, "End"] = tes.Start
+
+        tes.loc[:, "End"] = tes.Start + config["barchart_tss_length"]
+        tes.loc[:, "Start"] = tes.Start - config["barchart_tss_length"]
+
+        tss.loc[:, "End"] = tss.Start + config["barchart_tss_length"]
+        tss.loc[:, "Start"] = tss.Start - config["barchart_tss_length"]
 
         pd.concat([df, tss, tes]).to_csv(output[0], sep="\t", index=False)
