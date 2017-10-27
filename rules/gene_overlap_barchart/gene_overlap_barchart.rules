@@ -1,37 +1,40 @@
 
 
-rule merge_ucsc_genes_exons:
-    input:
-        "{prefix}/data/annotation/refgene/gene.bed",
-        "{prefix}/data/annotation/refgene/exon.bed"
-    output:
-        "{prefix}/data/gene_barcharts/refgene.bed"
-    shell:
-        "cat <(tail -n +2 {input[0]}) <(tail -n +2 {input[1]}) > {output[0]}"
 
+if config.get("annotation_gff3", ""):
 
-rule merge_gencode_genes_exons:
-    input:
-        gene = "{prefix}/data/compute_tss/gene/annotation_no_duplicate_tss.bed",
-        exon = "{prefix}/data/compute_tss/exon/annotation_no_duplicate_tss.bed"
-    output:
-        "{prefix}/data/gene_barcharts/gencode.bed"
-    run:
-        names = "Chromosome Start End Name Type Strand".split()
-        gene = pd.read_table(input.gene, sep="\t", header=None, names=names)
-        exon = pd.read_table(input.exon, sep="\t", header=None, names=names)
-        gene.Type = "gene"
-        exon.Type = "exon"
+    rule merge_gencode_genes_exons:
+        input:
+            gene = "{prefix}/data/compute_tss/gene/annotation_no_duplicate_tss.bed",
+            exon = "{prefix}/data/compute_tss/exon/annotation_no_duplicate_tss.bed"
+        output:
+            "{prefix}/data/gene_barcharts/merged.bed"
+        run:
+            names = "Chromosome Start End Name Type Strand".split()
+            gene = pd.read_table(input.gene, sep="\t", header=None, names=names)
+            exon = pd.read_table(input.exon, sep="\t", header=None, names=names)
+            gene.Type = "gene"
+            exon.Type = "exon"
 
-        df = pd.concat([gene, exon])
-        df.to_csv(output[0], sep="\t", index=False, header=False)
+            df = pd.concat([gene, exon])
+            df.to_csv(output[0], sep="\t", index=False, header=False)
+
+else:
+    rule merge_ucsc_genes_exons:
+        input:
+            "{prefix}/data/annotation/refgene/gene.bed",
+            "{prefix}/data/annotation/refgene/exon.bed"
+        output:
+            "{prefix}/data/gene_barcharts/merged.bed"
+        shell:
+            "cat <(tail -n +2 {input[0]}) <(tail -n +2 {input[1]}) > {output[0]}"
 
 
 rule add_tss:
     input:
-        "{prefix}/data/gene_barcharts/{type}.bed"
+        "{prefix}/data/gene_barcharts/merged.bed"
     output:
-        "{prefix}/data/gene_barcharts/{type}_with_tss.bed"
+        "{prefix}/data/gene_barcharts/merged_with_tss.bed"
     run:
         names = "Chromosome Start End Name Type Strand".split()
         df = pd.read_table(input[0], sep="\t", header=None, names=names)
@@ -62,3 +65,15 @@ rule add_tss:
         tss.loc[:, "Start"] = tss.Start - config["barchart_tss_length"]
 
         pd.concat([df, tss, tes]).to_csv(output[0], sep="\t", index=False)
+
+
+rule gene_overlap_barcharts:
+    input:
+        outfile = "{prefix}/data/peaks/{cs_caller}/{group}.csv"
+        genes = "{prefix}/data/gene_barcharts/merged_with_tss.bed"
+    output:
+        "{prefix}/data/gene_barcharts/{cs_caller}/{group}.bed"
+    params:
+        label = lambda w: w.group
+    script:
+        "scrips/find_peak_gene_overlaps.py"

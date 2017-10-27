@@ -52,25 +52,24 @@ def parse_overlap_dataframe(df):
     return outdf.sort_values("Region")
 
 
-def create_barchart_data(genes, peak_files_dict):
+def create_barchart_data(genes, peak_file, label):
 
     its = create_intervaltrees(genes)
 
-    peaks_dict = {s: pd.read_table(pf, sep="\s+") for s, pf in peak_files_dict.items()}
+    peaks = pd.read_table(peak_file, sep="\s+")
 
-    for sample, peaks in peaks_dict.items():
-        df = find_peak_gene_overlaps(its, peaks)
-        count_df = parse_overlap_dataframe(df)
-        count_df.insert(2, "Sample", sample)
+    df = find_peak_gene_overlaps(its, peaks)
+    count_df = parse_overlap_dataframe(df)
+    count_df.insert(2, "Label", label)
 
     return count_df
 
 
 if __name__ == "__main__":
 
-    peak_files_dict = snakemake.params.peak_files_dict
+    group = snakemake.params.label
     genes = snakemake.input.genes
 
-    count_df = create_barchart_data(genes, peak_files_dict)
+    count_df = create_barchart_data(genes, peak_files_dict, group)
 
     count_df.to_csv(snakemake.output[0], sep=" ")

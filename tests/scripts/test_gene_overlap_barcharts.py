@@ -103,17 +103,17 @@ def test_parse_overlap_dataframe(expected_result_find_overlaps, expected_result_
 
 
 @pytest.fixture
-def peak_dict(tmpdir, peaks_string):
+def peak_file(tmpdir, peaks_string):
 
     f = tmpdir.join("peaks.txt")
     f.write(peaks_string)
 
-    return {"Sample1": str(f)}
+    return str(f)
 
 @pytest.fixture
 def expected_result_create_barchart_data():
 
-    contents = u"""Region  Counts   Sample
+    contents = u"""Region  Counts   Label
 0  intergenic       1  Sample1
 1         tes       1  Sample1
 2         tss       1  Sample1"""
@@ -121,9 +121,9 @@ def expected_result_create_barchart_data():
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
 
 @pytest.mark.py27
-def test_create_barchart_data(genes, peak_dict, expected_result_create_barchart_data):
+def test_create_barchart_data(genes, peak_file, expected_result_create_barchart_data):
 
-    result = create_barchart_data(genes, peak_dict)
+    result = create_barchart_data(genes, peak_file, "Sample1")
     print(result)
     print(expected_result_create_barchart_data)
 
