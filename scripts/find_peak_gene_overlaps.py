@@ -1,14 +1,12 @@
 from itertools import groupby
+from collections import defaultdict
+
+import pandas as pd
 
 from bx.intervals.intersection import IntervalTree
 
-# genes = snakemake.input.genes
-# peaks = snakemake.input.peaks
 
-# distance = snakemake.params
-
-
-def create_intervaltree(genes):
+def create_intervaltrees(genes):
 
     genome = dict()
 
@@ -24,29 +22,55 @@ def create_intervaltree(genes):
     return genome
 
 
-def find_gene_peak_overlaps(intervaltrees, peaks):
+def find_peak_gene_overlaps(intervaltrees, peaks):
+
+    rowdicts = []
+    for i, (chromosome, start, end) in peaks.iterrows():
+        gene_regions = intervaltrees[chromosome].find(start, end)
+        for _, _, gene_region in gene_regions:
+            rowdict = {"Peak": i, "Chromosome": chromosome, "Start": start, "End":
+                    end, "Region": gene_region}
+            rowdicts.append(rowdict)
+
+    return pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Peak Region".split()]
 
 
+def parse_overlap_dataframe(df):
 
-    pass
+    df.loc[:, "Region"] = df.Region.str.replace("gene", "intergenic")
+    gene_regions_prioritized = "tss tes exon intergenic".split()
+    counts = defaultdict(int)
+    for g, gdf in df.groupby("Peak"):
+        for gene_region in gene_regions_prioritized:
+            if gene_region in list(gdf.Region):
+                counts[gene_region] += 1
+                break
+
+    outdf = pd.DataFrame.from_dict(counts, orient="index").reset_index()
+    outdf.columns = ["Region", "Counts"]
+
+    return outdf.sort_values("Region")
 
 
-        # # check whether read hits inside tss region
-        # quartile_counts = defaultdict(int)
-        # name_counts = defaultdict(int)
-        # for line in open(input.data):
+def create_barchart_data(genes, peak_files_dict):
 
-        #     chromosome, start, end, _, _, strand = line.split()
-        #     start, end = int(start), int(end)
+    its = create_intervaltrees(genes)
 
-        #     # extend the read by fragment length
-        #     if strand == "-":
-        #         read_midpoint = end - 75
-        #     else:
-        #         read_midpoint = start + 75
+    peaks_dict = {s: pd.read_table(pf, sep="\s+") for s, pf in peak_files_dict.items()}
 
-        #     for tss, name, quartile in genome[chromosome].find(read_midpoint, read_midpoint + 1):
-        #         tss_distance = tss - read_midpoint
-        #         tss_distance_bin = tss_distance - (tss_distance % 50)
-        #         quartile_counts[quartile, tss_distance_bin] += 1
-        #         name_counts[name, tss_distance_bin] += 1
+    for sample, peaks in peaks_dict.items():
+        df = find_peak_gene_overlaps(its, peaks)
+        count_df = parse_overlap_dataframe(df)
+        count_df.insert(2, "Sample", sample)
+
+    return count_df
+
+
+if __name__ == "__main__":
+
+    peak_files_dict = snakemake.params.peak_files_dict
+    genes = snakemake.input.genes
+
+    count_df = create_barchart_data(genes, peak_files_dict)
+
+    count_df.to_csv(snakemake.output[0], sep=" ")

@@ -164,7 +164,7 @@ if config["sort_order_group"] and config["second_sort_order_group"] and more_tha
         shell:
             computematrix_other_matrixes
 
-elif not config["sort_order_group"] and not config["second_sort_order_group"] and more_than_one_group:
+elif not config["second_sort_order_group"] and more_than_one_group:
 
     rule compute_matrix_group_vs_group:
         input:

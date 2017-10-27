@@ -5,48 +5,126 @@ from io import StringIO
 
 import pandas as pd
 
-if sys.version_info[0] > 3:
-    from scripts.find_peak_gene_overlaps import create_intervaltree
+if sys.version_info[0] < 3:
+    from scripts.find_peak_gene_overlaps import (create_intervaltrees,
+                                                 find_peak_gene_overlaps,
+                                                 parse_overlap_dataframe,
+                                                 create_barchart_data)
 
 
 @pytest.fixture
 def genes(tmpdir):
-    contents = """chr1    11868   12000   exon:ENST00000456328.2:1        exon    +
-chr1    12009   12057   exon:ENST00000450305.2:1        exon    +
-chr1    12178   12227   exon:ENST00000450305.2:2        exon    +
-chr1    11868   14409   ENSG00000223972.5       gene    +
-chr1    29553   31109   ENSG00000243485.5       gene    +
-chr1    8868    14868   ENSG00000223972.5       tss     +
-chr1    26553   32553   ENSG00000243485.5       tss     +
-chr1    11409   17409   ENSG00000223972.5       tes     +
-chr1    28109   34109   ENSG00000243485.5       tes     +"""
+    contents = """chr1    20   40   exon:ENST00000456328.2:1        exon    +
+chr1    220   240   exon:ENST00000450305.2:1        exon    +
+chr1    260   280   exon:ENST00000450305.2:2        exon    +
+chr1    0   100   ENSG00000223972.5       gene    +
+chr1    200   300   ENSG00000243485.5       gene    +
+chr1    0    10   ENSG00000223972.5       tss     +
+chr1    200   210   ENSG00000243485.5       tss     +
+chr1    90   100   ENSG00000223972.5       tes     +
+chr1    290   300   ENSG00000243485.5       tes     +"""
 
     f = tmpdir.join("genes.txt")
     f.write(contents)
 
     return str(f)
 
+@pytest.fixture
+def peaks_string():
+
+    contents = u"""chr1    3   5
+chr1    12   14
+chr1    200   300
+chr1    240   297"""
+
+    return contents
+
 
 @pytest.fixture
-def peaks():
+def peaks(peaks_string):
 
-    contents = u"""chr1    12009   12057
-chr1    12178   12227
-chr1    11868   14409"""
-
-    return pd.read_table(StringIO(contents), header=None, sep="\s+")
+    return pd.read_table(StringIO(peaks_string), header=None, sep="\s+")
 
 
 @pytest.fixture
-def intervaltree(genes):
+def intervaltrees(genes):
 
-    genome = create_intervaltree(genes)
+    genome = create_intervaltrees(genes)
 
     return genome
 
+@pytest.fixture
+def expected_result_find_overlaps():
+
+    contents = u"""Chromosome  Start  End  Peak Region
+0        chr1      3    5     0   gene
+1        chr1      3    5     0    tss
+2        chr1     12   14     1   gene
+3        chr1    200  300     2   gene
+4        chr1    200  300     2    tss
+5        chr1    200  300     2   exon
+6        chr1    200  300     2   exon
+7        chr1    200  300     2    tes
+8        chr1    240  297     3   gene
+9        chr1    240  297     3   exon
+10       chr1    240  297     3    tes"""
+
+    return pd.read_table(StringIO(contents), header=0, sep="\s+")
+
+
 @pytest.mark.py27
-def test_gene_overlap_barcharts(intervaltree, peaks):
+def test_find_peak_gene_overlaps(intervaltrees, peaks, expected_result_find_overlaps):
 
-    find_gene_peak_overlaps()
+    result = find_peak_gene_overlaps(intervaltrees, peaks)
 
-    assert 0
+    assert result.equals(expected_result_find_overlaps)
+
+
+@pytest.fixture
+def expected_result_parse_overlap_dataframe():
+
+    contents = u"""Region Counts
+intergenic  1
+tes         1
+tss         2"""
+
+    return pd.read_table(StringIO(contents), header=0, sep="\s+")
+
+
+@pytest.mark.py27
+def test_parse_overlap_dataframe(expected_result_find_overlaps, expected_result_parse_overlap_dataframe):
+
+    counts = parse_overlap_dataframe(expected_result_find_overlaps)
+
+    print(counts)
+    print(expected_result_parse_overlap_dataframe)
+
+    assert counts.equals(expected_result_parse_overlap_dataframe)
+
+
+@pytest.fixture
+def peak_dict(tmpdir, peaks_string):
+
+    f = tmpdir.join("peaks.txt")
+    f.write(peaks_string)
+
+    return {"Sample1": str(f)}
+
+@pytest.fixture
+def expected_result_create_barchart_data():
+
+    contents = u"""Region  Counts   Sample
+0  intergenic       1  Sample1
+1         tes       1  Sample1
+2         tss       1  Sample1"""
+
+    return pd.read_table(StringIO(contents), header=0, sep="\s+")
+
+@pytest.mark.py27
+def test_create_barchart_data(genes, peak_dict, expected_result_create_barchart_data):
+
+    result = create_barchart_data(genes, peak_dict)
+    print(result)
+    print(expected_result_create_barchart_data)
+
+    assert result.equals(expected_result_create_barchart_data)
