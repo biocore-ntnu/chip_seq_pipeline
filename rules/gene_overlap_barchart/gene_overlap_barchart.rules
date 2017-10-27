@@ -1,4 +1,4 @@
-
+from natsort import natsorted
 
 
 if config.get("annotation_gff3", ""):
@@ -67,13 +67,33 @@ rule add_tss:
         pd.concat([df, tss, tes]).to_csv(output[0], sep="\t", index=False)
 
 
-rule gene_overlap_barcharts:
+rule gene_overlap_barcharts_data:
     input:
         outfile = "{prefix}/data/peaks/{cs_caller}/{group}.csv"
         genes = "{prefix}/data/gene_barcharts/merged_with_tss.bed"
     output:
-        "{prefix}/data/gene_barcharts/{cs_caller}/{group}.bed"
+        "{prefix}/data/gene_barcharts/{cs_caller}/{group}.csv"
     params:
         label = lambda w: w.group
     script:
-        "scrips/find_peak_gene_overlaps.py"
+        "../../scrips/find_peak_gene_overlaps.py"
+
+
+rule collect_gene_overlap_data:
+    input:
+        expand("{{prefix}}/data/gene_barcharts/{{cs_caller}}/{group}.csv", group=natsorted(ss.Group.drop_duplicates()))
+    output:
+        "{prefix}/data/gene_barcharts/{cs_caller}/merged_group.csv"
+    run:
+        dfs = [pd.read_table(f, sep=" ", header=0, index_col=None) for f in input]
+        df = pd.concat(dfs)
+        df.to_csv(output[0], sep=" ")
+
+
+rule gene_overlap_barcharts:
+    input:
+        "{prefix}/data/gene_barcharts/{cs_caller}/merged_group.csv"
+    output:
+        "{prefix}/data/gene_barcharts/{cs_caller}_gene_overlap_barchart.png"
+    script:
+        "../../scripts/barchart.R"

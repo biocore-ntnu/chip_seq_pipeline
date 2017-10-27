@@ -72,4 +72,4 @@ if __name__ == "__main__":
 
     count_df = create_barchart_data(genes, peak_files_dict, group)
 
-    count_df.to_csv(snakemake.output[0], sep=" ")
+    count_df.to_csv(snakemake.output[0], sep=" ", index=False, header=True)
