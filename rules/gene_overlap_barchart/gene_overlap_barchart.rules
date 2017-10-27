@@ -69,7 +69,7 @@ rule add_tss:
 
 rule gene_overlap_barcharts_data:
     input:
-        outfile = "{prefix}/data/peaks/{cs_caller}/{group}.csv"
+        outfile = "{prefix}/data/peaks/{cs_caller}/{group}.csv",
         genes = "{prefix}/data/gene_barcharts/merged_with_tss.bed"
     output:
         "{prefix}/data/gene_barcharts/{cs_caller}/{group}.csv"
