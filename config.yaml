@@ -3,8 +3,8 @@
 # ======================== #
 
 
-# -------
-# General
+# ------- 
+# General 
 # -------
 # Settings common to all the targets.
 # Path to store the intermediate and final results. Will be created if it does
@@ -19,8 +19,8 @@ tmux: True
 
 
 
-# -------------
-# Sample Sheets
+# ------------- 
+# Sample Sheets 
 # -------------
 # The sample sheet describes the sequence files to use, their type (ChIP/Input)
 # and which experimental condition they belong to.
@@ -37,8 +37,8 @@ external_control_sample_sheet: sample_sheet_controls.txt
 
 
 
-# -----------------------
-# Genomes And Annotations
+# ----------------------- 
+# Genomes And Annotations 
 # -----------------------
 # Which genomes and annotations to use
 # Which genome to use. Must be the UCSC name. Mostly used to automatically fetch
@@ -48,8 +48,8 @@ genome: hg38
 
 
 
-# ----------------------
-# Gene Overlap Barcharts
+# ---------------------- 
+# Gene Overlap Barcharts 
 # ----------------------
 # Settings for the gene overlap barcharts.
 # Radius around TSS/TES that is considered a part of the TSS/TES. Eg. if 1000,
@@ -60,8 +60,8 @@ barchart_tss_length: 3000
 
 
 
-# ---------
-# Alignment
+# --------- 
+# Alignment 
 # ---------
 # These flags and options are only of interest if your filetype is fastq.
 # The prefix of the hisat2 genome index. Premade indexes can be found at
@@ -81,7 +81,7 @@ keep_multi_aligning_reads: True
 
 # A list of adapters to remove from your fastqs.
 # (Not required)
-adapters:
+adapters: 
 
 # The minimum length of your reads after adapter removal.
 # (Not required)
@@ -89,13 +89,13 @@ min_read_length: 14
 
 
 
-# ----------
-# Sequencing
+# ---------- 
+# Sequencing 
 # ----------
 # heyo
 # Whether or not the reads are paired end.
 # (Required)
-paired_end:
+paired_end: 
 
 # Estimated size of the sequenced fragments.
 # (Required)
@@ -107,8 +107,8 @@ fastq_quality: 20
 
 
 
-# -------------------------
-# Heatmaps And Profileplots
+# ------------------------- 
+# Heatmaps And Profileplots 
 # -------------------------
 # Settings for heatmaps and profileplots.
 # The gzipped gencode annotation file to use. It is used to find the regions to
@@ -124,14 +124,14 @@ annotation_gff3: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_27/gen
 # This makes it easy to compare heatmaps between groups. If not given, each
 # heatmap is sorted individually.
 # (Not required)
-sort_order_group:
+sort_order_group: 
 
 # Only applicable for group_vs_group heatmaps! If given, all group vs group
 # heatmaps are sorted according to the sorting for sort_order_group vs
 # second_sort_order_group. This makes it easy to compare heatmaps between
 # groups. If not given, each heatmap is sorted individually.
 # (Not required)
-second_sort_order_group:
+second_sort_order_group: 
 
 # The distance to be shown upstream and downstream of any region with 'gene' in
 # the name in the heatmaps and profileplots.
@@ -158,12 +158,12 @@ regions: ['exon', 'gene', 'internal_exon']
 # adding a seventh column called deepTools_group to the file. If used, the file
 # must be sorted on the column deepTools_group.
 # (Not required)
-custom_regions:
+custom_regions: 
 
 
 
-# -----------------------
-# Differential Enrichment
+# ----------------------- 
+# Differential Enrichment 
 # -----------------------
 # limma and stuff
 # Contrasts to test for differential enrichment between groups. The names used
@@ -172,16 +172,16 @@ custom_regions:
 # design matrix with an intercept where each group in the sample sheet is a
 # column in the design matrix. Command used is model.matrix(~0 + groups).
 # (Not required)
-contrasts:
+contrasts: 
 
 # The file used to describe the experimental setup.
 # (Not required)
-design_matrix:
+design_matrix: 
 
 
 
-# ------------
-# Peak Calling
+# ------------ 
+# Peak Calling 
 # ------------
 # peak calling settings
 # The peak callers used to find peaks. Valid values are epic and macs2.
@@ -198,11 +198,11 @@ epic_window_size: 200
 
 # The macs2 --broad parameter.
 # (Not required)
-macs2_broad:
+macs2_broad: 
 
 # Any other flags you wish to pass to macs2
 # (Not required)
-macs2_extra_flags:
+macs2_extra_flags: 
 
 # The window size csaw should use.
 # (Not required)
@@ -212,3 +212,4 @@ csaw_window_size: 200
 # the analysis.
 # (Not required)
 csaw_filter: 1
+

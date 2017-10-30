@@ -267,6 +267,10 @@ rule coverage_plot:
         expand("{prefix}/data/plot_coverage/{group}_coverage.pdf",
                prefix=prefix, group=groups)
 
+rule gene_overlap_barcharts:
+    input:
+        expand("{prefix}/data/gene_barcharts/{cs_caller}_gene_overlap_barchart.png", prefix=prefix,
+               cs_caller=config["peak_callers"])
 
 loo_file = "{prefix}/data/loo/chip_over_input/{logfc}_{group}_{caller}_{contrast}_lo_info.ratios"
 

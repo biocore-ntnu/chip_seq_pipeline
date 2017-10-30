@@ -90,7 +90,7 @@ rule collect_gene_overlap_data:
         df.to_csv(output[0], sep=" ")
 
 
-rule gene_overlap_barcharts:
+rule graph_gene_overlap_barcharts:
     input:
         "{prefix}/data/gene_barcharts/{cs_caller}/merged_group.csv"
     output:
