@@ -1,25 +1,17 @@
-# data = readRDS("projects/barbara/data/peaks/csaw/count/count_table.rds")
-# design = read.table("projects/barbara/data/peaks/csaw/design.csv")
-# normfacs = unlist(read.table("projects/barbara/data/peaks/csaw/normfacs/normfacs.csv"))
-
-data = readRDS(snakemake@input[["data"]])
+data = readRDS(snakemake@input[["data"]]) # the counts from csaw-count
 design = read.table(snakemake@input[["design"]])
-normfacs = unlist(read.table(snakemake@input[["normfacs"]]))
+normfacs = unlist(read.table(snakemake@input[["normfacs"]])) # the normalization factors from csaw normfacs
 
 library(csaw)
 library(edgeR)
 library(IRanges)
 
-# filter out uninteresting regions
-
-print("filtering")
+write("Filtering out uninteresting regions", stderr())
 
 keep <- aveLogCPM(asDGEList(data)) >= -1
 data <- data[keep,]
 
-# identify db windows
-
-print("identify db windows")
+write("Identify differentially bound windows", stderr())
 
 y <- asDGEList(data, norm.factors=normfacs)
 y <- estimateDisp(y, design)

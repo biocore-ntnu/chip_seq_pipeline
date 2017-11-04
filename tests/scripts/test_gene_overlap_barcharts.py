@@ -5,11 +5,10 @@ from io import StringIO
 
 import pandas as pd
 
-if sys.version_info[0] < 3:
-    from scripts.find_peak_gene_overlaps import (create_intervaltrees,
-                                                 find_peak_gene_overlaps,
-                                                 parse_overlap_dataframe,
-                                                 create_barchart_data)
+from scripts.find_peak_gene_overlaps import (create_intervaltrees,
+                                             find_peak_gene_overlaps,
+                                             parse_overlap_dataframe,
+                                             create_barchart_data)
 
 
 @pytest.fixture
@@ -60,13 +59,13 @@ def expected_result_find_overlaps():
 0        chr1      3    5     0   gene
 1        chr1      3    5     0    tss
 2        chr1     12   14     1   gene
-3        chr1    200  300     2   gene
-4        chr1    200  300     2    tss
-5        chr1    200  300     2   exon
-6        chr1    200  300     2   exon
-7        chr1    200  300     2    tes
-8        chr1    240  297     3   gene
-9        chr1    240  297     3   exon
+3        chr1    200  300     2   exon
+4        chr1    200  300     2   exon
+5        chr1    200  300     2   gene
+6        chr1    200  300     2    tes
+7        chr1    200  300     2    tss
+8        chr1    240  297     3   exon
+9        chr1    240  297     3   gene
 10       chr1    240  297     3    tes"""
 
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
@@ -76,6 +75,11 @@ def expected_result_find_overlaps():
 def test_find_peak_gene_overlaps(intervaltrees, peaks, expected_result_find_overlaps):
 
     result = find_peak_gene_overlaps(intervaltrees, peaks)
+    print(result)
+    print(expected_result_find_overlaps)
+
+    print(result.index)
+    print(expected_result_find_overlaps.index)
 
     assert result.equals(expected_result_find_overlaps)
 

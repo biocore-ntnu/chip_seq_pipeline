@@ -2,8 +2,9 @@ from itertools import groupby
 from collections import defaultdict
 
 import pandas as pd
+from numpy import int64
 
-from bx.intervals.intersection import IntervalTree
+from intervaltree import IntervalTree
 
 
 def create_intervaltrees(genes):
@@ -15,7 +16,7 @@ def create_intervaltrees(genes):
         for line in lines:
             start, end, name, region_type = line.split()[1:5]
             start, end = int(start), int(end)
-            chromosome_intervaltree.add(start, end, (start, name, region_type))
+            chromosome_intervaltree[start:end] = (start, name, region_type)
 
         genome[chromosome] = chromosome_intervaltree
 
@@ -26,13 +27,16 @@ def find_peak_gene_overlaps(intervaltrees, peaks):
 
     rowdicts = []
     for i, (chromosome, start, end) in peaks.iterrows():
-        gene_regions = intervaltrees[chromosome].find(start, end)
+        gene_regions = [i[2] for i in intervaltrees[chromosome][start:end]]
         for _, _, gene_region in gene_regions:
             rowdict = {"Peak": i, "Chromosome": chromosome, "Start": start, "End":
                     end, "Region": gene_region}
             rowdicts.append(rowdict)
 
-    return pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Peak Region".split()]
+    df = pd.DataFrame.from_dict(rowdicts)["Chromosome Start End Peak Region".split()]
+    df.index = df.index.astype(int64)
+
+    return df.sort_values("Peak Region".split()).reset_index(drop=True)
 
 
 def parse_overlap_dataframe(df):
@@ -49,7 +53,7 @@ def parse_overlap_dataframe(df):
     outdf = pd.DataFrame.from_dict(counts, orient="index").reset_index()
     outdf.columns = ["Region", "Counts"]
 
-    return outdf.sort_values("Region")
+    return outdf.sort_values("Region").reset_index(drop=True)
 
 
 def create_barchart_data(genes, peak_file, label):
@@ -62,8 +66,7 @@ def create_barchart_data(genes, peak_file, label):
     count_df = parse_overlap_dataframe(df)
     count_df.insert(2, "Label", label)
 
-    return count_df
-
+    return count_df.reset_index(drop=True)
 
 if __name__ == "__main__":
 

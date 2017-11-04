@@ -1,6 +1,7 @@
 channels:
   - bioconda
   - r
+  - conda-forge
 
 dependencies:
  - atropos
@@ -12,3 +13,4 @@ dependencies:
  - r-stringr
  - r-ggplot2
  - bedops
+ - intervaltree
