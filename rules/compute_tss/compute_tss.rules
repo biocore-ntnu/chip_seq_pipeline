@@ -1,17 +1,13 @@
+
 rule gff_to_bed:
     input:
         "{prefix}/data/annotation/annotation.gff3"
     output:
         "{prefix}/data/annotation/{region_type}/annotation.bed"
-    run:
-        if wildcards.region_type != "internal_exon":
-            shell(r"gff2bed < {input[0]} | grep -E '\b{wildcards.region_type}\b' "
-                  "| cut -f 1-6 > {output[0]}")
-        else:
-            shell(r"gff2bed < {input[0]} | grep -E '\bexon\b' "
-                  "| cut -f 1-6 > {output[0]}.tmp")
-            shell("python scripts/compute_internal_exons.py {output[0]}.tmp > {output[0]}")
-            shell("rm {output[0]}.tmp")
+    conda:
+        "../../envs/global.yaml"
+    script:
+        "../../scripts/gff2bed.py"
 
 
 
@@ -23,10 +19,10 @@ rule remove_duplicate_tss:
     run:
         import pandas as pd
 
-        colnames = "Chromosome Start End Name Score Strand".split()
+        colnames = "Chromosome Start End Name Score Strand Gene".split()
 
         df = pd.read_table(input[0], header=None,
-                           names="Chromosome Start End Name Score Strand".split())
+                           names="Chromosome Start End Name Score Strand Gene".split())
 
         indexes_to_keep = []
         for _, cdf in df.groupby("Chromosome"):

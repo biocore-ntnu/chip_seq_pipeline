@@ -10,16 +10,33 @@ if config.get("annotation_gff3", ""):
         output:
             "{prefix}/data/gene_barcharts/merged.bed"
         run:
-            names = "Chromosome Start End Name Type Strand".split()
-            gene = pd.read_table(input.gene, sep="\t", header=None, names=names)
-            exon = pd.read_table(input.exon, sep="\t", header=None, names=names)
-            gene.Type = "gene"
+            gene = pd.read_table(input.gene, sep="\t", header=None)
+            exon = pd.read_table(input.exon, sep="\t", header=None)
+
+            print(gene.head())
+            gene = gene.drop(4, axis=1)
+            exon = exon.drop(4, axis=1)
+
+            print(gene.head())
+
+            names = "Chromosome Start End Name Strand Gene Type".split()
+
+            gene.insert(6, "Type", "gene")
+            exon.insert(6, "Type", "exon")
             exon.Type = "exon"
 
+            gene.columns = names
+            exon.columns = names
+
+            print(gene.head())
+
             df = pd.concat([gene, exon])
-            df.to_csv(output[0], sep="\t", index=False, header=False)
+
+            names_order = "Chromosome Start End Type Strand Gene Name".split()
+            df[names_order].to_csv(output[0], sep="\t", index=False, header=False)
 
 else:
+
     rule merge_ucsc_genes_exons:
         input:
             "{prefix}/data/annotation/refgene/gene.bed",
@@ -36,7 +53,8 @@ rule add_tss:
     output:
         "{prefix}/data/gene_barcharts/merged_with_tss.bed"
     run:
-        names = "Chromosome Start End Name Type Strand".split()
+
+        names = "Chromosome Start End Type Strand Gene Name".split()
         df = pd.read_table(input[0], sep="\t", header=None, names=names)
 
         tss_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
@@ -47,7 +65,6 @@ rule add_tss:
         tss = pd.concat([tss_pos, tss_neg])
         tss.loc[:, "End"] = tss.Start
         tss.loc[:, "Type"] = "tss"
-
 
         tes_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
         tes_pos.loc[:, "Start"] = tes_pos.End
@@ -64,19 +81,30 @@ rule add_tss:
         tss.loc[:, "End"] = tss.Start + config["barchart_tss_length"]
         tss.loc[:, "Start"] = tss.Start - config["barchart_tss_length"]
 
-        pd.concat([df, tss, tes]).to_csv(output[0], sep="\t", index=False)
+        outdf = pd.concat([df, tss, tes])
+        outdf = outdf.sort_values("Chromosome")
+        outdf.to_csv(output[0], sep="\t", index=False)
+
+
+rule create_intervaltrees:
+    input:
+        "{prefix}/data/gene_barcharts/merged_with_tss.bed"
+    output:
+        "{prefix}/data/gene_barcharts/intervals.pickle"
+    script:
+        "../../scripts/create_intervaltrees.py"
 
 
 rule gene_overlap_barcharts_data:
     input:
-        outfile = "{prefix}/data/peaks/{cs_caller}/{group}.csv",
-        genes = "{prefix}/data/gene_barcharts/merged_with_tss.bed"
+        intervals = "{prefix}/data/gene_barcharts/intervals.pickle",
+        peaks = "{prefix}/data/peaks/{caller}/{group}.csv"
     output:
-        "{prefix}/data/gene_barcharts/{cs_caller}/{group}.csv"
+        "{prefix}/data/gene_barcharts/{caller}/{group}.csv"
     params:
         label = lambda w: w.group
     script:
-        "../../scrips/find_peak_gene_overlaps.py"
+        "../../scripts/find_peak_gene_overlaps.py"
 
 
 rule collect_gene_overlap_data:

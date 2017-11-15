@@ -5,7 +5,7 @@ import pandas as pd
 def compute_internal_exons(exons):
     """Avoid first and last exon for each transcript."""
 
-    colnames = "Chromosome Start End Name Score Strand".split()
+    colnames = "Chromosome Start End Name Score Strand Gene".split()
 
     info = exons.Name.str.split(":|\.", expand=True).iloc[:,[1, 2, 3]]
     info.columns = "name transcript exon".split()
@@ -21,7 +21,7 @@ def compute_internal_exons(exons):
 
 if __name__ == "__main__":
     exons = pd.read_table(sys.argv[1], header=None,
-                          names="Chromosome Start End Name Score Strand".split(), index_col=False)
+                          names="Chromosome Start End Name Score Strand Gene".split(), index_col=False)
 
     outdf = compute_internal_exons(exons)
 
