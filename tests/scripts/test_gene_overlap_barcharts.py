@@ -77,6 +77,7 @@ def expected_result_find_overlaps():
 @pytest.mark.py27
 def test_find_peak_gene_overlaps(intervaltrees, peaks, expected_result_find_overlaps):
 
+    print(intervaltrees)
     result = find_peak_gene_overlaps(intervaltrees, peaks)
     print(result)
     print(expected_result_find_overlaps)
@@ -130,9 +131,9 @@ def expected_result_create_barchart_data():
 
 
 @pytest.mark.py27
-def test_create_barchart_data(genes, peak_file, expected_result_create_barchart_data):
+def test_create_barchart_data(intervaltrees, peak_file, expected_result_create_barchart_data):
 
-    result = create_barchart_data(genes, peak_file, "Sample1")
+    result = create_barchart_data(intervaltrees, peak_file, "Sample1")
     print(result)
     print(expected_result_create_barchart_data)
 
@@ -169,9 +170,9 @@ def expected_result_create_barchart_data2():
 
 
 @pytest.mark.py27
-def test_create_barchart_data2(genes, peak_file2, expected_result_create_barchart_data2):
+def test_create_barchart_data2(intervaltrees, peak_file2, expected_result_create_barchart_data2):
 
-    result = create_barchart_data(genes, peak_file2, "Sample1")
+    result = create_barchart_data(intervaltrees, peak_file2, "Sample1")
     print(result)
     print(expected_result_create_barchart_data2)
 

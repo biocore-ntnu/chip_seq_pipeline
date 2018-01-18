@@ -3,8 +3,6 @@ from utils.file_getters import correct_cs_files
 
 macs2_cmd = "macs2 callpeak {params.macs2_broad} {params.paired_end} {params.macs2_extra_flags} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
-print("Must add --effective genome size to macs2\n" * 10)
-
 
 rule run_macs:
     input:

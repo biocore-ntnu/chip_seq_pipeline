@@ -15,6 +15,8 @@ def compute_internal_exons(exons):
 
     exons = exons.groupby(["name", "transcript"]).apply(lambda r: r.iloc[1:-1])
 
+    print(exons.to_csv(sep=" "))
+
     return exons[colnames].reset_index(drop=True)
 
 

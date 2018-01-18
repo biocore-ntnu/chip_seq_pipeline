@@ -1,0 +1,7 @@
+File Name Group ChIP Mate
+tests/test_data/integration/ChIP_1_keratinocyte.bed.gz ChIP_1_keratinocyte keratinocyte ChIP 1
+tests/test_data/integration/ChIP_2_keratinocyte.bed.gz ChIP_2_keratinocyte keratinocyte ChIP 1
+tests/test_data/integration/Input_1_keratinocyte.bed.gz Input_1_keratinocyte keratinocyte Input 1
+tests/test_data/integration/Input_2_keratinocyte.bed.gz Input_2_keratinocyte keratinocyte Input 1
+tests/test_data/integration/ChIP_1_melanocyte.bed.gz ChIP_1_melanocyte melanocyte ChIP 1
+tests/test_data/integration/Input_1_melanocyte.bed.gz Input_1_melanocyte melanocyte Input 1

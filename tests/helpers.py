@@ -17,7 +17,7 @@ def create_sample_sheet_files(sample_sheet):
         run(cmd)
 
 
-def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras=""):
+def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="", dryrun=True):
 
     # abs_configfile = abspath(configfile)
     # abs_sample_sheet = abspath(sample_sheet)
@@ -26,8 +26,12 @@ def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="")
     # print(abs_sample_sheet)
 
     # with TemporaryDirectory() as tempdir:
+    if dryrun:
+        dryrun = "n"
+    else:
+        dryrun = ""
 
     cmd = ("snakemake -s {snakefile} --configfile {configfile}"
-            " -np {targets} -F {extras} --config sample_sheet={sample_sheet}").format(**locals())
+            " -{dryrun}p {targets} -F {extras} --config sample_sheet={sample_sheet}").format(**locals())
     print(cmd)
     return run(cmd, shell=True).returncode
