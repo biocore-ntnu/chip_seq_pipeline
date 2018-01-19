@@ -42,7 +42,11 @@ def find_filetype(ss):
     filetypes = list(filetypes.drop_duplicates())
     assert len(filetypes) == 1, "More than one filetype in sample sheet: " + ", ".join(filetypes)
 
-    return filetypes[0]
+    filetype = filetypes[0]
+
+    assert filetype in ["bed", "bam", "fastq", "fq"]
+
+    return filetype
 
 
 def find_merge_lanes(ss, filetype):

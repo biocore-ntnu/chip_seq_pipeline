@@ -25,13 +25,14 @@ chr1	14403	14501	exon:ENST00000488147.1:11	.	-"""
 
 @pytest.fixture
 def expected_result():
-    result_df = """chr1	12178	12227	exon:ENST00000450305.2:2	.	+
-chr1	12612	12697	exon:ENST00000450305.2:3	.	+
-chr1	12974	13052	exon:ENST00000450305.2:4	.	+
-chr1	13220	13374	exon:ENST00000450305.2:5	.	+
-chr1	12612	12721	exon:ENST00000456328.2:2	.	+"""
+    result_df = """Chromosome	Start	End	Name	Score	Strand	Gene	Transcript
+chr1	12178	12227	exon:ENST00000450305.2:2	.	+	ENST00000450305	2
+chr1	12612	12697	exon:ENST00000450305.2:3	.	+	ENST00000450305	2
+chr1	12974	13052	exon:ENST00000450305.2:4	.	+	ENST00000450305	2
+chr1	13220	13374	exon:ENST00000450305.2:5	.	+	ENST00000450305	2
+chr1	12612	12721	exon:ENST00000456328.2:2	.	+	ENST00000456328	2"""
 
-    df = pd.read_table(StringIO(result_df), header=None, names="Chromosome Start End Name Score Strand".split())
+    df = pd.read_table(StringIO(result_df))
 
     return df
 
@@ -40,7 +41,17 @@ chr1	12612	12721	exon:ENST00000456328.2:2	.	+"""
 def test_internal_exons(exons, expected_result):
     result = compute_internal_exons(exons)
 
-    print("result", result)
-    print("expected_result", expected_result)
+    print("result", result.to_csv(sep="\t"))
+    print("expected_result", expected_result.to_csv(sep="\t"))
+
+    print("result", result.index)
+    print("expected_result", expected_result.index)
+
+    print("result", result.columns)
+    print("expected_result", expected_result.columns)
+
+
+    print("result", result.dtypes)
+    print("expected_result", expected_result.dtypes)
 
     assert result.equals(expected_result)

@@ -17,21 +17,22 @@ def create_sample_sheet_files(sample_sheet):
         run(cmd)
 
 
-def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="", dryrun=True):
+def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="", dryrun=True, ncores=1, forceall=True, configs=""):
 
-    # abs_configfile = abspath(configfile)
-    # abs_sample_sheet = abspath(sample_sheet)
+    force = "-F" if forceall else ""
 
-    # print(abs_configfile)
-    # print(abs_sample_sheet)
+    if (dryrun == False) and ncores != 1:
+        cores = "-j {ncores}".format(ncores=ncores)
+    else:
+        cores = ""
 
     # with TemporaryDirectory() as tempdir:
     if dryrun:
-        dryrun = "n"
+        dry = "n"
     else:
-        dryrun = ""
+        dry = ""
 
-    cmd = ("snakemake -s {snakefile} --configfile {configfile}"
-            " -{dryrun}p {targets} -F {extras} --config sample_sheet={sample_sheet}").format(**locals())
+    cmd = ("snakemake -s {snakefile} {cores} --configfile {configfile}"
+            " -{dry}p {targets} {force} {extras} --config sample_sheet={sample_sheet} {configs}").format(**locals())
     print(cmd)
     return run(cmd, shell=True).returncode

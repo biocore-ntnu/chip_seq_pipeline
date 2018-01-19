@@ -4,15 +4,15 @@ import pytest
 from utils.helpers import fetch_main_targets, multi_group_targets
 from .helpers import run_dag
 
-
 targets = fetch_main_targets()
 
+@pytest.mark.integration
+@pytest.mark.parametrize("targets", targets + multi_group_targets)
+def test_integration_dag(targets, integration_cpu, configs, cli_target, forceall):
 
-@pytest.mark.dryrun
-@pytest.mark.parametrize("target", targets + multi_group_targets)
-def test_integration_dag(target):
+    targets = cli_target if cli_target else targets
 
-    exit_status = run_dag(target, "tests/test_data/integration/config.yaml", "tests/test_data/integration/sample_sheet.txt", dryrun=False)
+    exit_status = run_dag(targets, "tests/test_data/integration/config.yaml", "tests/test_data/integration/sample_sheet.txt", dryrun=False, ncores=integration_cpu, forceall=forceall)
 
     assert exit_status == 0
 

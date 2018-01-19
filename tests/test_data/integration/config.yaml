@@ -118,7 +118,7 @@ fastq_quality: [20]
 # genome is any other, the appropriate regions will be downloaded from UCSC
 # refGene for your genome.
 # (Not required)
-annotation_gff3: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_27/gencode.v27.annotation.gff3.gz
+annotation_gff3: tests/test_data/integration/gencode.gff3.gz
 
 # If given, all heatmaps are sorted according to the sort order for this group.
 # This makes it easy to compare heatmaps between groups. If not given, each

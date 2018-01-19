@@ -74,7 +74,6 @@ def expected_result_find_overlaps():
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
 
 
-@pytest.mark.py27
 def test_find_peak_gene_overlaps(intervaltrees, peaks, expected_result_find_overlaps):
 
     print(intervaltrees)
@@ -99,7 +98,6 @@ tss         2"""
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
 
 
-@pytest.mark.py27
 def test_parse_overlap_dataframe(expected_result_find_overlaps, expected_result_parse_overlap_dataframe):
 
     counts = parse_overlap_dataframe(expected_result_find_overlaps)
@@ -130,7 +128,6 @@ def expected_result_create_barchart_data():
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
 
 
-@pytest.mark.py27
 def test_create_barchart_data(intervaltrees, peak_file, expected_result_create_barchart_data):
 
     result = create_barchart_data(intervaltrees, peak_file, "Sample1")
@@ -169,7 +166,6 @@ def expected_result_create_barchart_data2():
     return pd.read_table(StringIO(contents), header=0, sep="\s+")
 
 
-@pytest.mark.py27
 def test_create_barchart_data2(intervaltrees, peak_file2, expected_result_create_barchart_data2):
 
     result = create_barchart_data(intervaltrees, peak_file2, "Sample1")

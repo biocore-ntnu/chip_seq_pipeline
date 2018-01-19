@@ -35,4 +35,8 @@ rule remove_duplicate_tss:
 
         ix = pd.concat(indexes_to_keep).index
 
-        df.ix[ix].to_csv(output[0], sep="\t", index=False, header=False)
+        se = "Start End".split()
+        df = df.ix[ix]
+        df[se] = df[se].astype(int)
+
+        df.to_csv(output[0], sep="\t", index=False, header=False)

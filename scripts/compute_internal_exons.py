@@ -5,7 +5,7 @@ import pandas as pd
 def compute_internal_exons(exons):
     """Avoid first and last exon for each transcript."""
 
-    colnames = "Chromosome Start End Name Score Strand Gene".split()
+    colnames = "Chromosome Start End Name Score Strand Gene Transcript".split()
 
     info = exons.Name.str.split(":|\.", expand=True).iloc[:,[1, 2, 3]]
     info.columns = "name transcript exon".split()
@@ -15,7 +15,9 @@ def compute_internal_exons(exons):
 
     exons = exons.groupby(["name", "transcript"]).apply(lambda r: r.iloc[1:-1])
 
-    print(exons.to_csv(sep=" "))
+    exons = exons.rename(index=str, columns={"name": "Gene", "transcript": "Transcript"})
+
+    exons.loc[:, "Transcript"] = exons.Transcript.astype(int)
 
     return exons[colnames].reset_index(drop=True)
 
