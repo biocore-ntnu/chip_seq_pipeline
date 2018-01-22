@@ -12,7 +12,7 @@ def test_integration_dag(targets, integration_cpu, configs, cli_target, forceall
 
     targets = cli_target if cli_target else targets
 
-    exit_status = run_dag(targets, "tests/test_data/integration/config.yaml", "tests/test_data/integration/sample_sheet.txt", dryrun=False, ncores=integration_cpu, forceall=forceall)
+    exit_status = run_dag(targets, "tests/test_data/downsampled/config.yaml", "tests/test_data/downsampled/sample_sheet.txt", dryrun=False, ncores=integration_cpu, forceall=forceall)
 
     assert exit_status == 0
 

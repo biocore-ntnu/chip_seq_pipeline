@@ -1,0 +1,15 @@
+
+files_to_use = "ChIP_1_keratinocyte.bed.gz  ChIP_2_keratinocyte.bed.gz   Input_1_melanocyte.bed.gz ChIP_1_melanocyte.bed.gz    Input_1_keratinocyte.bed.gz  Input_2_keratinocyte.bed.gz".split()
+
+rule all:
+    input:
+        expand("tests/test_data/downsampled/{file}", file=files_to_use)
+
+
+rule extract_chromosome_Y_21:
+    input:
+        "examples/thorough/{file}"
+    output:
+        "tests/test_data/downsampled/{file}"
+    shell:
+        "zcat {input[0]} | grep -P '(chr21|chrY)' | shuf -n 55000 | sort -k1,1 -k2,2n | gzip -9 > {output[0]}"
