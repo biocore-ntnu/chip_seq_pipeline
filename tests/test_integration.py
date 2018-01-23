@@ -8,11 +8,13 @@ targets = fetch_main_targets()
 
 @pytest.mark.integration
 @pytest.mark.parametrize("targets", targets + multi_group_targets)
-def test_integration_dag(targets, integration_cpu, configs, cli_target, forceall):
+def test_integration_dag(targets, integration_cpu, configs, forceall): # cli_target,
 
-    targets = cli_target if cli_target else targets
+    # targets = cli_target if cli_target else targets
 
-    exit_status = run_dag(targets, "tests/test_data/downsampled/config.yaml", "tests/test_data/downsampled/sample_sheet.txt", dryrun=False, ncores=integration_cpu, forceall=forceall)
+    exit_status = run_dag(targets, "tests/test_data/downsampled/config.yaml",
+                          "tests/test_data/downsampled/sample_sheet.txt", dryrun=False,
+                          ncores=integration_cpu, forceall=forceall, configs=configs)
 
     assert exit_status == 0
 

@@ -33,6 +33,7 @@ rule remove_duplicate_tss:
             df_ix = new_cdf.drop_duplicates()
             indexes_to_keep.append(df_ix)
 
+
         ix = pd.concat(indexes_to_keep).index
 
         se = "Start End".split()

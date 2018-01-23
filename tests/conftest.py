@@ -21,9 +21,9 @@ def pytest_generate_tests(metafunc):
         configs = metafunc.config.getoption('configs') or ""
         metafunc.parametrize("configs", [configs])
 
-    if 'targets' in metafunc.fixturenames:
-        target = metafunc.config.getoption('targets')
-        metafunc.parametrize("cli_target", target)
+    # if 'targets' in metafunc.fixturenames:
+    #     target = metafunc.config.getoption('targets')
+    #     metafunc.parametrize("cli_target", target)
 
     if 'forceall' in metafunc.fixturenames:
         forceall = metafunc.config.getoption('forceall') or False

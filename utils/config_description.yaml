@@ -259,3 +259,14 @@ peak_calling:
     description: "The minimum required count sum across libraries for a bin to be included in the analysis."
     required: False
     default: 1
+
+
+# testing:
+
+#   description: "Settings mostly used in a test setting to speed up things."
+
+#   bigwig_bin_size:
+#     type: int
+#     description: Size of bins for anything bigwig-related.
+#     required: False
+#     default: 50
