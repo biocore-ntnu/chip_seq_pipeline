@@ -21,8 +21,12 @@ def group_bigwigs(w, group=None):
 
 def options(w):
     opts = []
+    region_labels = ""
     if w.scaled == "scale_regions":
         opts.append("--regionBodyLength 5000")
+        region_labels = (r"--startLabel 3\'"
+                         " "
+                         r"--endLabel 5\'")
     elif w.scaled.lower() == "tss":
         opts.append("--referencePoint TSS")
     else:
@@ -30,8 +34,6 @@ def options(w):
 
     region_starts = ("--beforeRegionStartLength {dist} "
                      "--afterRegionStartLength {dist}")
-    region_labels = (r"--startLabel 3\' "
-                     r"--endLabel 5\'")
 
     if "gene" in w.region_type:
         dist = config["tss_distance_gene"]

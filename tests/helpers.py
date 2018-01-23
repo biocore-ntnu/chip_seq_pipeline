@@ -26,7 +26,6 @@ def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="",
     else:
         cores = ""
 
-    # with TemporaryDirectory() as tempdir:
     if dryrun:
         dry = "n"
     else:
