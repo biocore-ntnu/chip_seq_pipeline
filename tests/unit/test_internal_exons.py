@@ -41,7 +41,7 @@ def expected_result():
 7 chr21 9966321 9966380 exon:ENST00000400754.3:2 . - ENSG00000188681.7"""
 
 
-    df = pd.read_table(StringIO(result_df))
+    df = pd.read_table(StringIO(result_df), sep=" ")
 
     return df
 
