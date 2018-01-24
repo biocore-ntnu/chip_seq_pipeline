@@ -122,6 +122,8 @@ rule graph_gene_overlap_barcharts:
     input:
         "{prefix}/data/gene_barcharts/{cs_caller}/merged_group.csv"
     output:
-        "{prefix}/data/gene_barcharts/{cs_caller}_gene_overlap_barchart.png"
+        "{prefix}/data/gene_barcharts/{cs_caller}_gene_overlap_barchart.pdf"
+    conda:
+        "../../envs/gene_overlap_barcharts.yaml"
     script:
         "../../scripts/barchart.R"

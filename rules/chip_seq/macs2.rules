@@ -15,7 +15,7 @@ rule run_macs:
         outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak" if not config["macs2_broad"] else "{prefix}/data/peaks/macs2/{group}_peaks.broadPeak",
         paired_end = "--format BEDPE" if config["paired_end"] else "",
         macs2_broad = "--broad" if config["macs2_broad"] else "",
-        macs2_extra_flags = config["macs2_broad"] if config["macs2_broad"] else ""
+        macs2_extra_flags = config["macs2_extra_flags"] if config["macs2_extra_flags"] else ""
     conda:
         "../../envs/macs2.yaml"
     threads: 1
@@ -43,7 +43,7 @@ rule run_macs_loo:
         outfile="{prefix}/data/peaks/macs2/loo/{group}_peaks.narrowPeak" if not config["macs2_broad"] else "{prefix}/data/peaks/macs2/loo/{group}_peaks.broadPeak",
         paired_end = "--format BEDPE" if config["paired_end"] else "",
         macs2_broad = "--broad" if config["macs2_broad"] else "",
-        macs2_extra_flags = config["macs2_broad"] if config["macs2_broad"] else ""
+        macs2_extra_flags = config["macs2_extra_flags"] if config["macs2_extra_flags"] else ""
     conda:
         "../../envs/macs2.yaml"
     threads: 1
