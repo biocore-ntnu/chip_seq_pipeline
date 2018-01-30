@@ -91,6 +91,8 @@ rule create_intervaltrees:
         "{prefix}/data/gene_barcharts/merged_with_tss.bed"
     output:
         "{prefix}/data/gene_barcharts/intervals.pickle"
+    conda:
+        "../../envs/intervaltrees.yaml"
     script:
         "../../scripts/create_intervaltrees.py"
 

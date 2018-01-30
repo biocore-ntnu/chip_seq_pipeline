@@ -1,43 +1,81 @@
 
-rule gff_to_bed:
+rule gencode_to_unparsed_bed:
     input:
         "{prefix}/data/annotation/annotation.gff3"
     output:
-        "{prefix}/data/annotation/{region_type}/annotation.bed"
+        "{prefix}/data/annotation/gencode.unparsed_bed"
     conda:
         "../../envs/global.yaml"
-    script:
-        "../../scripts/gff2bed.py"
+    shell:
+        "gff2bed < {input} > {output}"
 
 
-
-rule remove_duplicate_tss:
+rule parse_gencode:
     input:
-        "{prefix}/data/annotation/{region_type}/annotation.bed"
+        "{prefix}/data/annotation/gencode.unparsed_bed"
     output:
-        "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed"
+        "{prefix}/data/annotation/gencode.bed"
     run:
-        import pandas as pd
+        rowdicts = []
+        for line in open(input[0]):
+            split_line = line.split()
 
-        colnames = "Chromosome Start End Name Score Strand Gene".split()
+            chromosome, start, end, name = split_line[:4]
+            strand = split_line[5]
+            gene_type = split_line[7]
 
-        df = pd.read_table(input[0], header=None,
-                           names="Chromosome Start End Name Score Strand Gene".split())
+            if gene_type == "exon":
+                transcript, exon_number = name.split(":")[1:3]
+            elif gene_type == "transcript":
+                transcript, exon_number = name, -1
+            else:
+                continue
 
-        indexes_to_keep = []
-        for _, cdf in df.groupby("Chromosome"):
-            forward = cdf.loc[cdf.Strand == "+"]
-            reverse = cdf.loc[cdf.Strand == "-"]
+            gene_id = split_line[9].split("gene_id=")[1].split(";")[0]
 
-            new_cdf = pd.concat([forward.Start, reverse.End])
-            df_ix = new_cdf.drop_duplicates()
-            indexes_to_keep.append(df_ix)
+            rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": gene_id,  "Type": gene_type, "Strand": strand, "Transcript": transcript, "ExonNumber": exon_number}
+
+            rowdicts.append(rowdict)
+
+        df = pd.DataFrame.from_dict(rowdicts)
+        df = df["Chromosome Start End Name Type Strand Transcript ExonNumber".split()]
+
+        df.to_csv(output[0], sep="\t", index=False)
 
 
-        ix = pd.concat(indexes_to_keep).index
 
-        se = "Start End".split()
-        df = df.ix[ix]
-        df[se] = df[se].astype(int)
 
-        df.to_csv(output[0], sep="\t", index=False, header=False)
+
+
+
+
+# rule remove_duplicate_tss:
+#     input:
+#         "{prefix}/data/annotation/{region_type}/annotation.bed"
+#     output:
+#         "{prefix}/data/compute_tss/{region_type}/annotation_no_duplicate_tss.bed"
+#     run:
+#         import pandas as pd
+
+#         colnames = "Chromosome Start End Name Score Strand Gene".split()
+
+#         df = pd.read_table(input[0], header=None,
+#                            names="Chromosome Start End Name Score Strand Gene".split())
+
+#         indexes_to_keep = []
+#         for _, cdf in df.groupby("Chromosome"):
+#             forward = cdf.loc[cdf.Strand == "+"]
+#             reverse = cdf.loc[cdf.Strand == "-"]
+
+#             new_cdf = pd.concat([forward.Start, reverse.End])
+#             df_ix = new_cdf.drop_duplicates()
+#             indexes_to_keep.append(df_ix)
+
+
+#         ix = pd.concat(indexes_to_keep).index
+
+#         se = "Start End".split()
+#         df = df.ix[ix]
+#         df[se] = df[se].astype(int)
+
+#         df.to_csv(output[0], sep="\t", index=False, header=False)
