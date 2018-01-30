@@ -5,7 +5,9 @@ from io import StringIO
 
 import pandas as pd
 
+from scripts.remove_all_but_one_transcript_per_gene import remove_all_but_one_transcript_per_gene
 
+@pytest.mark.unit
 def test_remove_all_but_one_transcript_per_gene_ucsc(ucsc_df, ucsc_result):
 
     df = ucsc_df
@@ -61,21 +63,6 @@ chrX 38220695 38220924 SRPX exon - NM_001170750 9"""
 
     return pd.read_table(StringIO(c), sep="\s+")
 
-
-def remove_all_but_one_transcript_per_gene(df):
-
-    transcripts_with_most_exons = []
-
-    for gene, gdf in df.groupby("Name"):
-
-        max_exon = gdf.ExonNumber.max()
-        max_transcript = gdf.loc[gdf.ExonNumber == max_exon].Transcript.iloc[0]
-
-        max_rows = gdf.loc[gdf.Transcript == max_transcript]
-
-        transcripts_with_most_exons.append(max_rows)
-
-    return pd.concat(transcripts_with_most_exons).reset_index(drop=True)
 
 @pytest.fixture
 def gencode_df():
