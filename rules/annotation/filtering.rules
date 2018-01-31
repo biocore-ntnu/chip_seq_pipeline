@@ -1,0 +1,38 @@
+
+rule remove_all_but_one_transcript_per_gene:
+    input:
+        "{prefix}/data/annotation/annotation.bed"
+    output:
+        "{prefix}/data/annotation/one_transcript_per_gene.bed"
+    script:
+        "scripts/remove_all_but/one_transcript_per_gene.py"
+
+
+
+rule remove_duplicate_tss_genes:
+    input:
+        "{prefix}/data/annotation/one_transcript_per_gene.bed"
+    output:
+        "{prefix}/data/annotation/no_duplicate_tss.bed"
+    script:
+        "scripts/remove_all_but/remove_duplicate_tss.py"
+
+
+rule extract_correct_gene_type:
+    input:
+        "{prefix}/data/annotation/no_duplicate_tss.bed"
+    output:
+        "{prefix}/data/annotation/{gene_type}.bed"
+    wildcard_constraints:
+        gene_type = "(gene|exon)"
+    script:
+        "scripts/remove_all_but/remove_duplicate_tss.py"
+
+
+rule compute_internal_exons:
+    input:
+        "{prefix}/data/annotation/exon.bed"
+    output:
+        "{prefix}/data/annotation/internal_exon.bed"
+    script:
+        "scripts/compute_internal_exons.py"

@@ -1,6 +1,7 @@
 
 import pandas as pd
 
+
 def remove_all_but_one_transcript_per_gene(df):
 
     transcripts_with_most_exons = []
@@ -15,6 +16,7 @@ def remove_all_but_one_transcript_per_gene(df):
         transcripts_with_most_exons.append(max_rows)
 
     return pd.concat(transcripts_with_most_exons).reset_index(drop=True)
+
 
 if __name__ == "__main__":
 
