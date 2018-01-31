@@ -24,7 +24,7 @@ if config.get("annotation_gff3"):
 
                 gene_id = split_line[9].split("gene_id=")[1].split(";")[0]
 
-                rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": gene_id,  "Type": gene_type, "Strand": strand, "Transcript": "gene", "ExonNumber": exon_number}
+                rowdict = {"Chromosome": chromosome, "Start": start, "End": end, "Name": gene_id,  "Type": "gene", "Strand": strand, "Transcript": transcript, "ExonNumber": exon_number}
 
                 rowdicts.append(rowdict)
 

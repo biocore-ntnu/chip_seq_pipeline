@@ -5,38 +5,8 @@ rule add_tss:
         "{prefix}/data/annotation/no_duplicate_tss.bed"
     output:
         "{prefix}/data/gene_barcharts/merged_with_tss.bed"
-    run:
-
-        names = "Chromosome Start End Type Strand Gene Name".split()
-        df = pd.read_table(input[0], sep="\t", header=None, names=names)
-
-        tss_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
-
-        tss_neg = df.loc[(df.Strand == "-") & (df.Type == "gene")]
-        tss_neg.loc[:, "Start"] = tss_neg.End
-
-        tss = pd.concat([tss_pos, tss_neg])
-        tss.loc[:, "End"] = tss.Start
-        tss.loc[:, "Type"] = "tss"
-
-        tes_pos = df.loc[(df.Strand == "+") & (df.Type == "gene")]
-        tes_pos.loc[:, "Start"] = tes_pos.End
-
-        tes_neg = df.loc[(df.Strand == "-") & (df.Type == "gene")]
-
-        tes = pd.concat([tes_pos, tes_neg])
-        tes.loc[:,"Type"] = "tes"
-        tes.loc[:, "End"] = tes.Start
-
-        tes.loc[:, "End"] = tes.Start + config["barchart_tss_length"]
-        tes.loc[:, "Start"] = tes.Start - config["barchart_tss_length"]
-
-        tss.loc[:, "End"] = tss.Start + config["barchart_tss_length"]
-        tss.loc[:, "Start"] = tss.Start - config["barchart_tss_length"]
-
-        outdf = pd.concat([df, tss, tes])
-        outdf = outdf.sort_values("Chromosome")
-        outdf.to_csv(output[0], sep="\t", index=False)
+    script:
+        "../../scripts/add_tss.py"
 
 
 rule create_intervaltrees:

@@ -28,4 +28,4 @@ if __name__ == "__main__":
 
     df = pd.read_table(snakemake.input[0], header=0)
 
-    df.to_csv(snakemake.output[0], sep="\t", index=False, header=False)
+    df.to_csv(snakemake.output[0], sep="\t", index=False, header=True)
