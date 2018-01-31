@@ -17,7 +17,7 @@ if config.get("annotation_gff3"):
 
                 if gene_type == "exon":
                     transcript, exon_number = name.split(":")[1:3]
-                elif gene_type == "transcript":
+                elif gene_type == "gene":
                     transcript, exon_number = name, -1
                 else:
                     continue
