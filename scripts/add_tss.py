@@ -37,10 +37,10 @@ def add_tss(df, barchart_tss_length):
 
 if __name__ == "__main__":
 
-    df = pd.read_table(input[0], sep="\t", header=None)
+    df = pd.read_table(snakemake.input[0], sep="\t", header=None)
 
     barchart_tss_length = snakemake.config["barchart_tss_length"]
 
     outdf = add_tss(df, barchart_tss_length)
 
-    outdf.to_csv(output[0], sep="\t", index=False)
+    outdf.to_csv(snakemake.output[0], sep="\t", index=False)
