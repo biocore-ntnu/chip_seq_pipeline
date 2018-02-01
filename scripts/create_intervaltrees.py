@@ -13,9 +13,9 @@ def create_intervaltrees(genes):
     for chromosome, lines in groupby(file_handle, lambda l: l.split()[0]):
         chromosome_intervaltree = IntervalTree()
         for line in lines:
-            start, end, region_type, _, name = line.split()[1:6]
+            start, end, gene, region_type, transcript = line.split()[1:6]
             start, end = int(start), int(end)
-            chromosome_intervaltree[start:end] = (start, name, region_type)
+            chromosome_intervaltree[start:end] = (start, transcript, region_type)
 
         genome[chromosome] = chromosome_intervaltree
 

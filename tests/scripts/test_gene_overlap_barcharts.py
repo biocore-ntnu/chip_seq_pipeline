@@ -5,10 +5,11 @@ from io import StringIO
 
 import pandas as pd
 
-from scripts.find_peak_gene_overlaps import (create_intervaltrees,
-                                             find_peak_gene_overlaps,
+from scripts.find_peak_gene_overlaps import (find_peak_gene_overlaps,
                                              parse_overlap_dataframe,
                                              create_barchart_data)
+
+from scripts.create_intervaltrees import create_intervaltrees
 
 
 @pytest.fixture

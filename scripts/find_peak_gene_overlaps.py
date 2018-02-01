@@ -7,27 +7,26 @@ from numpy import int64
 from intervaltree import IntervalTree
 from itertools import groupby
 
-def create_intervaltrees(genes):
+# def create_intervaltrees(genes):
 
-    print("genes", genes)
-    genome = dict()
+#     genome = dict()
 
-    for chromosome, lines in groupby(open(genes), lambda l: l.split()[0]):
-        chromosome_intervaltree = IntervalTree()
-        for line in lines:
-            start, end, name, region_type = line.split()[1:5]
-            start, end = int(start), int(end)
-            chromosome_intervaltree[start:end] = (start, name, region_type)
+#     for chromosome, lines in groupby(open(genes), lambda l: l.split()[0]):
+#         chromosome_intervaltree = IntervalTree()
+#         for line in lines:
+#             print(line)
+#             start, end, name, region_type = line.split()[1:5]
+#             start, end = int(start), int(end)
+#             chromosome_intervaltree[start:end] = (start, name, region_type)
+#             raise
 
-        genome[chromosome] = chromosome_intervaltree
+#         genome[chromosome] = chromosome_intervaltree
 
-    print("genome", genome)
-    return genome
+#     return genome
 
 
 def find_peak_gene_overlaps(intervaltrees, peaks):
 
-    print("intervaltrees", intervaltrees)
 
     rowdicts = []
     for i, (chromosome, start, end, *_) in peaks.iterrows():

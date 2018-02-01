@@ -37,7 +37,7 @@ def add_tss(df, barchart_tss_length):
 
 if __name__ == "__main__":
 
-    df = pd.read_table(snakemake.input[0], sep="\t", header=None)
+    df = pd.read_table(snakemake.input[0], sep="\t", header=0)
 
     barchart_tss_length = snakemake.config["barchart_tss_length"]
 
