@@ -50,5 +50,7 @@ rule graph_gene_overlap_barcharts:
         "{prefix}/data/gene_barcharts/{cs_caller}_gene_overlap_barchart.pdf"
     conda:
         "../../envs/gene_overlap_barcharts.yaml"
+    params:
+        sort_order = list(ss.Group.drop_duplicates())
     script:
         "../../scripts/barchart.R"

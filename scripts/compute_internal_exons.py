@@ -20,8 +20,9 @@ def compute_internal_exons(df):
 
 
 if __name__ == "__main__":
-    exons = pd.read_table(sys.argv[1], header=0, index_col=False)
+
+    exons = pd.read_table(snakemake.input[0], header=0, index_col=False)
 
     outdf = compute_internal_exons(exons)
 
-    outdf.to_csv(sys.stdout, sep="\t", header=0, index=False)
+    outdf.to_csv(snakemake.output[0], sep="\t", header=0, index=False)

@@ -1,3 +1,4 @@
+import pandas as pd
 
 def extract_correct_gene_type(df, gene_type):
 
