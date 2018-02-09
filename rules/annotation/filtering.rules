@@ -36,3 +36,12 @@ rule compute_internal_exons:
         "{prefix}/data/annotation/internal_exon.bed"
     script:
         "../../scripts/compute_internal_exons.py"
+
+
+rule bed_for_compute_matrix:
+    input:
+        "{prefix}/data/annotation/{region_type}.bed"
+    output:
+        "{prefix}/data/annotation/{region_type}_computematrix.bed"
+    shell:
+        r"tail -n +2 {input[0]} | sed 's/\b{wildcards.region_type}\b/0/' > {output[0]}"

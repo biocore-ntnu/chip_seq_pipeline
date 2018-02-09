@@ -51,7 +51,7 @@ def get_bed_regions(w):
     custom_regions = config["custom_regions"] or []
 
     if w.region_type not in custom_regions:
-        return "{prefix}/data/annotation/{region_type}.bed".format(region_type=w.region_type, prefix=w.prefix)
+        return "{prefix}/data/annotation/{region_type}_computematrix.bed".format(region_type=w.region_type, prefix=w.prefix)
     else:
         custom_regions = config["custom_regions"][w.region_type]
         return custom_regions
