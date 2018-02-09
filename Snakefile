@@ -35,8 +35,6 @@ prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
-print(list(ss.Group.drop_duplicates()))
-
 def find_filetype(ss):
 
     filetypes = ss.File.str.replace(".gz$", "").str.split(".", expand=True).iloc[:, -1]
