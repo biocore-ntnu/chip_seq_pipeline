@@ -1,5 +1,5 @@
-sort_cmd = "samtools sort {input[0]} > {output[0]}"
-index_cmd = "samtools index {input[0]}"
+sort_cmd = "samtools sort -@ {threads} {input[0]} > {output[0]}"
+index_cmd = "samtools index -@ {threads} {input[0]}"
 
 if filetype in ["bam", "bed"]:
 
@@ -11,6 +11,8 @@ if filetype in ["bam", "bed"]:
             "{path}.bam.sorted"
         conda:
             "../../envs/global.yaml"
+        threads:
+            8
         shell:
             sort_cmd
 
@@ -22,8 +24,10 @@ if filetype in ["bam", "bed"]:
             "{path}.bam.sorted.bai"
         conda:
             "../../envs/global.yaml"
+        threads:
+            8
         shell:
-            "samtools index {input[0]}"
+            sort_cmd
 
 
 else:
@@ -39,6 +43,8 @@ else:
             "{prefix}/data/bam/{sample}.bam.sorted"
         conda:
             "../../envs/global.yaml"
+        threads:
+            8
         shell:
             sort_cmd
 
@@ -50,8 +56,10 @@ else:
             "{prefix}/data/bam/{sample}.bam.sorted.bai"
         conda:
             "../../envs/global.yaml"
+        threads:
+            8
         shell:
-            "samtools index {input[0]}"
+            sort_cmd
 
 
     rule sort_group_bams:
@@ -59,6 +67,8 @@ else:
             "{prefix}/data/bamcompare/{group}_{chip}.bam"
         output:
             "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted"
+        threads:
+            8
         shell:
             sort_cmd
 
@@ -70,5 +80,7 @@ else:
             "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
         conda:
             "../../envs/global.yaml"
+        threads:
+            8
         shell:
             index_cmd
