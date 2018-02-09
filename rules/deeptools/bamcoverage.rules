@@ -1,4 +1,4 @@
-bamcoverage_cmd = "bamCoverage --normalizeUsingRPKM -b {input.bam} -o {output[0]}"
+bamcoverage_cmd = "bamCoverage -p {threads} --normalizeUsingRPKM -b {input.bam} -o {output[0]}"
 
 
 rule bamcoverage:
@@ -7,6 +7,8 @@ rule bamcoverage:
         index = "{prefix}/data/bam/{sample}.bam.sorted.bai"
     output:
         "{prefix}/data/bamcoverage/{sample}.bw"
+    threads:
+        48
     shell:
         bamcoverage_cmd
 
@@ -17,5 +19,7 @@ rule bamcoverage_merged_group:
         index = "{prefix}/data/bamcompare/{group}_{chip}.bam.sorted.bai"
     output:
         "{prefix}/data/bamcoverage/merged_{group}_{chip}.bw"
+    threads:
+        48
     shell:
         bamcoverage_cmd
