@@ -12,7 +12,7 @@ rule download:
 rule compute_gc_bias:
     input:
         genome = "{prefix}/data/genome/genome.2bit",
-        bam = "{prefix}/data/bam/{sample}.bam.sorted"
+        bam = "{prefix}/data/bam/{sample}.sorted.bam"
     output:
         plot = "{prefix}/data/gcbias/{sample}_gc_bias.pdf",
         gc_bias_frequencies = "{prefix}/data/gcbias/{sample}_gc_bias.freq"

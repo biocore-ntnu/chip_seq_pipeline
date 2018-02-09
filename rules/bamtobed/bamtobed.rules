@@ -2,7 +2,7 @@
 
 rule bamtobed:
     input:
-        "{path}.bam.sorted"
+        "{path}.sorted.bam"
     output:
         "{path}.bed"
     conda:
@@ -12,7 +12,7 @@ rule bamtobed:
 
 rule bamtobed_pe:
     input:
-        "{path}.bam.sorted"
+        "{path}.sorted.bam"
     output:
         "{path}.bedpe"
     conda:

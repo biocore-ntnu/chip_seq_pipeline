@@ -56,7 +56,7 @@ def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
     samples = _get_samples(sample_sheet, chip, group)
 
     if extension == "bam" :
-        fs = "{prefix}/data/bam/{sample}.bam.sorted"
+        fs = "{prefix}/data/bam/{sample}.sorted.bam"
     elif config["paired_end"]:
         fs = "{prefix}/data/bam/{sample}.bedpe"
     else:

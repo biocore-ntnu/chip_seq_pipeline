@@ -1,8 +1,8 @@
 
 rule plot_coverage_individual:
     input:
-        bam = expand("{prefix}/data/bam/{sample}.bam.sorted", prefix=prefix, sample=ss.Name.drop_duplicates()),
-        idx = expand("{prefix}/data/bam/{sample}.bam.sorted.bai", prefix=prefix, sample=ss.Name.drop_duplicates())
+        bam = expand("{prefix}/data/bam/{sample}.sorted.bam", prefix=prefix, sample=ss.Name.drop_duplicates()),
+        idx = expand("{prefix}/data/bam/{sample}.sorted.bam.bai", prefix=prefix, sample=ss.Name.drop_duplicates())
     output:
         "{prefix}/data/plot_coverage/coverage.pdf"
     threads:
@@ -14,9 +14,9 @@ rule plot_coverage_individual:
 
 rule plot_coverage_individual_per_group:
     input:
-        bam = lambda w: expand("{prefix}/data/bam/{sample}.bam.sorted", prefix=prefix,
+        bam = lambda w: expand("{prefix}/data/bam/{sample}.sorted.bam", prefix=prefix,
                                 sample=ss.loc[ss.Group == w.group].Name.drop_duplicates()),
-        idx = lambda w: expand("{prefix}/data/bam/{sample}.bam.sorted.bai", prefix=prefix,
+        idx = lambda w: expand("{prefix}/data/bam/{sample}.sorted.bam.bai", prefix=prefix,
                                 sample=ss.loc[ss.Group == w.group].Name.drop_duplicates())
     output:
         "{prefix}/data/plot_coverage/{group}_coverage.pdf"
