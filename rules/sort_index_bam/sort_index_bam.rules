@@ -27,7 +27,7 @@ if filetype in ["bam", "bed"]:
         threads:
             8
         shell:
-            sort_cmd
+            index_cmd
 
 
 else:
@@ -59,7 +59,7 @@ else:
         threads:
             8
         shell:
-            sort_cmd
+            index_cmd
 
 
     rule sort_group_bams:
