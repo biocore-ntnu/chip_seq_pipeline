@@ -8,7 +8,7 @@ targets = fetch_main_targets()
 
 @pytest.mark.integration
 @pytest.mark.parametrize("targets", targets + multi_group_targets)
-def test_integration_dag(targets, integration_cpu, configs, forceall): # cli_target,
+def test_integration_dag(targets, integration_cpu, configs, forceall, rerun): # cli_target,
 
     # targets = cli_target if cli_target else targets
 

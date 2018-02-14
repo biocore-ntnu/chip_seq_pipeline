@@ -12,6 +12,9 @@ def pytest_addoption(parser):
     parser.addoption("--forceall", action="store_true",
         help="Run Snakefile from very first job")
 
+    parser.addoption("--rerun", action="store_true",
+        help="Run with --rerun-incomplete flag")
+
 def pytest_generate_tests(metafunc):
     if 'integration_cpu' in metafunc.fixturenames:
         cores = metafunc.config.getoption('cpu') or 1
@@ -21,9 +24,9 @@ def pytest_generate_tests(metafunc):
         configs = metafunc.config.getoption('configs') or ""
         metafunc.parametrize("configs", [configs])
 
-    # if 'targets' in metafunc.fixturenames:
-    #     target = metafunc.config.getoption('targets')
-    #     metafunc.parametrize("cli_target", target)
+    if 'rerun' in metafunc.fixturenames:
+        rerun = metafunc.config.getoption('rerun')
+        metafunc.parametrize("rerun", [rerun])
 
     if 'forceall' in metafunc.fixturenames:
         forceall = metafunc.config.getoption('forceall') or False

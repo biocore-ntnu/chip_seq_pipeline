@@ -17,7 +17,9 @@ def create_sample_sheet_files(sample_sheet):
         run(cmd)
 
 
-def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="", dryrun=True, ncores=1, forceall=True, configs=""):
+def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile",
+            extras="", dryrun=True, ncores=1, forceall=True, configs="",
+            rerun=False):
 
     force = "-F" if forceall else ""
 
@@ -32,6 +34,6 @@ def run_dag(targets, configfile, sample_sheet, snakefile="Snakefile", extras="",
         dry = ""
 
     cmd = ("snakemake -s {snakefile} {cores} --configfile {configfile}"
-            " -{dry}p {targets} {force} {extras} --config sample_sheet={sample_sheet} {configs}").format(**locals())
+            " -{dry}p {targets} {force} {extras} --config sample_sheet={sample_sheet} {configs} --rerun-incomplete").format(**locals())
     print(cmd)
     return run(cmd, shell=True).returncode
