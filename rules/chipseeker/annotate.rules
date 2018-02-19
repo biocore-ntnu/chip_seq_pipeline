@@ -1,0 +1,26 @@
+
+def txdb(wildcards, genome):
+
+    w, g = wildcards, genome
+
+    df = txdb_df
+
+    try:
+        library_name = df.loc[(df.Genome == g) & (df.GeneType == w.genetype)].LibraryName
+    except:
+        raise(ValueError("No entry for genome {} and genetype {} in R txdb libraries."))
+
+    return library_name
+
+
+rule annotate_peaks:
+    input:
+        "{prefix}/data/peaks/{caller}/{group}.bed"
+    output:
+        "{prefix}/data/peak_annotation/{caller}/{group}/{genetype}.RDS"
+    singularity:
+        "shub://endrebak/singularity_recipes:chipseeker_1_14_0"
+    params:
+        txdb = lambda w: txdb(w, config["genome"])
+    script:
+        "../../scripts/chipseeker/annotate.R"
