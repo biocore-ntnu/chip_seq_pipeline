@@ -177,7 +177,7 @@ rule upsetplot:
 
 rule annobar:
     input:
-        expand("{prefix}/data/annobar/{caller}_{genetype}.pdf",
+        expand("{prefix}/data/annobar/anno_bar_{caller}_{genetype}.pdf",
                prefix=prefix,
                genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
                caller=config["peak_callers"])

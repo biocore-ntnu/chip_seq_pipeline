@@ -16,7 +16,7 @@ rule annobar_chipseeker:
     input:
         lambda w: get_annotated_groups_chipseeker(ss, w).values()
     output:
-        "{prefix}/data/annobar/{caller}_{genetype}.pdf"
+        "{prefix}/data/annobar/anno_bar_{caller}_{genetype}.pdf"
     singularity:
         "shub://endrebak/singularity_recipes:chipseeker_1_14_0"
     params:
