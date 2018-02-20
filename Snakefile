@@ -157,16 +157,6 @@ for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
 
 
-# rule all:
-#     input:
-#         expand("{prefix}/data/peaks/csaw/{contrast}.raw", prefix=prefix, contrast=contrasts)
-
-rule chipseeker:
-    input:
-        expand("{prefix}/data/peak_annotation/{caller}/{group}/{genetype}.RDS",
-               group=groups, region_type=all_regions, prefix=prefix,
-               genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
-               caller=config["peak_callers"])
 
 rule upsetplot:
     input:
