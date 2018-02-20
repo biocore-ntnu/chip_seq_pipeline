@@ -1,6 +1,0 @@
-
-require(ChIPseeker)
-
-pdf(snakemake@output[[1]])
-upsetplot(peakAnno, vennpie=TRUE)
-dev.off()

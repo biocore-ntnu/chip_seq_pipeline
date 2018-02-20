@@ -15,7 +15,7 @@ def txdb(wildcards, genome):
 
 rule annotate_peaks:
     input:
-        "{prefix}/data/peaks/{caller}/{group}.bed"
+        "{prefix}/data/peaks/{caller}/{group}.csv"
     output:
         "{prefix}/data/peak_annotation/{caller}/{group}/{genetype}.RDS"
     singularity:

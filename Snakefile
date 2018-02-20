@@ -96,7 +96,7 @@ to_include = ["download/annotation", "download/chromsizes",
               "deeptools/bigwig", "deeptools/multi_bigwig_summary",
               "deeptools/plot_coverage", "pca/pca",
               "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
-              "chipseeker/annotate",
+              "chipseeker/annotate", "chipseeker/upsetplot",
               "annotation/parse_annotation", "annotation/filtering",
               "trim/atropos", "align/hisat2", "sort_index_bam/sort_index_bam",
               "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
@@ -167,6 +167,12 @@ rule chipseeker:
                genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
                caller=config["peak_callers"])
 
+rule upsetplot:
+    input:
+        expand("{prefix}/data/upsetplot/{caller}_{group}_{genetype}.pdf",
+               group=groups, region_type=all_regions, prefix=prefix,
+               genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
+               caller=config["peak_callers"])
 
 rule log2_ratio_heatmaps:
     input:
