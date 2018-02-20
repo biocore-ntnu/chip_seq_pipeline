@@ -1,0 +1,15 @@
+
+
+
+rule dist_to_tss_chipseeker:
+    input:
+        lambda w: get_annotated_groups_chipseeker(ss, w).values()
+    output:
+        "{prefix}/data/disttotss/dist_to_tss_{caller}_{genetype}.pdf"
+    singularity:
+        "shub://endrebak/singularity_recipes:chipseeker_1_14_0"
+    params:
+        files = lambda w: get_annotated_groups_chipseeker(ss, w),
+        sort_order = lambda w: list(get_annotated_groups_chipseeker(ss, w).keys())
+    script:
+        "../../scripts/chipseeker/disttotss.R"
