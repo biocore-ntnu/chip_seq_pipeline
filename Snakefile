@@ -160,7 +160,7 @@ for rule in to_include:
 
 rule upsetplot:
     input:
-        expand("{prefix}/data/upsetplot/{caller}_{group}_{genetype}.pdf",
+        expand("{prefix}/data/upsetplot/upsetplot_{caller}_{group}_{genetype}.pdf",
                group=groups, prefix=prefix,
                genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
                caller=config["peak_callers"])

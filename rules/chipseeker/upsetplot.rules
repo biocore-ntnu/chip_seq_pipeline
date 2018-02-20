@@ -2,7 +2,7 @@ rule upsetplot_chipseeker:
     input:
         "{prefix}/data/peak_annotation/{caller}/{group}/{genetype}.RDS"
     output:
-        "{prefix}/data/upsetplot/{caller}_{group}_{genetype}.pdf"
+        "{prefix}/data/upsetplot/upsetplot_{caller}_{group}_{genetype}.pdf"
     singularity:
         "shub://endrebak/singularity_recipes:chipseeker_1_14_0"
     script:
