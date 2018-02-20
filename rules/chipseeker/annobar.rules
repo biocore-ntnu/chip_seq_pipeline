@@ -1,0 +1,26 @@
+from collections import OrderedDict
+
+
+def get_annotated_groups_chipseeker(ss, w):
+
+    od = OrderedDict()
+
+    for group in ss.Group.drop_duplicates():
+        od[group] = "{prefix}/data/peak_annotation/{caller}/{group}/{genetype}.RDS".format(
+            group=group, genetype=w.genetype, prefix=w.prefix, caller=w.caller)
+
+    return od
+
+
+rule annobar_chipseeker:
+    input:
+        lambda w: get_annotated_groups_chipseeker(ss, w).values()
+    output:
+        "{prefix}/data/annobar/{caller}_{genetype}.pdf"
+    singularity:
+        "shub://endrebak/singularity_recipes:chipseeker_1_14_0"
+    params:
+        files = lambda w: get_annotated_groups_chipseeker(ss, w),
+        sort_order = lambda w: list(get_annotated_groups_chipseeker(ss, w).keys())
+    script:
+        "../../scripts/chipseeker/annobar.R"

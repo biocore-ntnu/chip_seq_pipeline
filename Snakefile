@@ -97,6 +97,7 @@ to_include = ["download/annotation", "download/chromsizes",
               "deeptools/plot_coverage", "pca/pca",
               "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
               "chipseeker/annotate", "chipseeker/upsetplot",
+              "chipseeker/annobar",
               "annotation/parse_annotation", "annotation/filtering",
               "trim/atropos", "align/hisat2", "sort_index_bam/sort_index_bam",
               "bamtobed/bamtobed", "chip_seq/epic", "chip_seq/macs2",
@@ -170,7 +171,14 @@ rule chipseeker:
 rule upsetplot:
     input:
         expand("{prefix}/data/upsetplot/{caller}_{group}_{genetype}.pdf",
-               group=groups, region_type=all_regions, prefix=prefix,
+               group=groups, prefix=prefix,
+               genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
+               caller=config["peak_callers"])
+
+rule annobar:
+    input:
+        expand("{prefix}/data/annobar/{caller}_{genetype}.pdf",
+               prefix=prefix,
                genetype=txdb_df.loc[txdb_df.Genome==config["genome"]].GeneType,
                caller=config["peak_callers"])
 
