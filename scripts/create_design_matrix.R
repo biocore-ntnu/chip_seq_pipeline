@@ -1,5 +1,3 @@
-library(limma)
-
 sample.sheet = read.table(snakemake@input[[1]], header=TRUE)
 ss = sample.sheet
 

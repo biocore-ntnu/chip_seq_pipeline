@@ -6,6 +6,8 @@ rule design_matrix:
         config["sample_sheet"]
     output:
         design = "{prefix}/data/limma/design_matrix.txt"
+    singularity:
+        "shub://jekriske/r-base:3.4.3"
     script:
         "../../scripts/create_design_matrix.R"
 
@@ -34,6 +36,8 @@ rule run_limma:
     output:
         all_regions = "{prefix}/data/limma/{caller}_{contrast}.toptable",
         cutoff = "{prefix}/data/limma/{caller}_{contrast}_cutoff.toptable"
+    singularity:
+        "shub://endrebak/singularity_recipes:limma_3_6"
     script:
         "../../scripts/differential_analysis.R" # config["differential_analysis"] if config["differential_analysis"] else
 

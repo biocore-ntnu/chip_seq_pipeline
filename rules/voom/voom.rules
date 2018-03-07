@@ -7,6 +7,8 @@ rule voom:
         plot = "{prefix}/logs/voom/{caller}.pdf"
     params:
         voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
+    singularity:
+        "shub://endrebak/singularity_recipes:limma_3_6"
     script:
         "../../scripts/voom.R"
 
@@ -21,6 +23,8 @@ rule revoom:
         plot = "{prefix}/logs/revoom/{caller}.pdf"
     params:
         voom_normalization_dge = config.get("voom_normalization_dge", "TMM")
+    singularity:
+        "shub://endrebak/singularity_recipes:limma_3_6"
     script:
         "../../scripts/revoom.R"
 
