@@ -3,7 +3,7 @@ from utils.rlibs import txdb_df
 import os
 
 from leave_one_out.create_sample_sheets import create_sample_sheet
-from utils.file_getters import read_sample_sheet, sample_vs_group
+from utils.file_getters import read_sample_sheet, sample_vs_group, find_filetype
 from utils.helpers import expand_zip
 from snakemake.shell import shell
 
@@ -37,17 +37,6 @@ prefix = config["prefix"]
 sample_sheet = read_sample_sheet(config["sample_sheet"])
 ss = sample_sheet
 
-def find_filetype(ss):
-
-    filetypes = ss.File.str.replace(".gz$", "").str.split(".", expand=True).iloc[:, -1]
-    filetypes = list(filetypes.drop_duplicates())
-    assert len(filetypes) == 1, "More than one filetype in sample sheet: " + ", ".join(filetypes)
-
-    filetype = filetypes[0]
-
-    assert filetype in ["bed", "bam", "fastq", "fq"]
-
-    return filetype
 
 
 def find_merge_lanes(ss, filetype):

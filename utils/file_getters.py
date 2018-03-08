@@ -49,11 +49,28 @@ def _get_samples(sample_sheet, chip, group=None):
     return list(samples)
 
 
+def find_filetype(ss):
+
+    filetypes = ss.File.str.replace(".gz$", "").str.split(".", expand=True).iloc[:, -1]
+    filetypes = list(filetypes.drop_duplicates())
+    assert len(filetypes) == 1, "More than one filetype in sample sheet: " + ", ".join(filetypes)
+
+    filetype = filetypes[0]
+
+    assert filetype in ["bed", "bam", "fastq", "fq"]
+
+    return filetype
+
 
 def correct_cs_files(sample_sheet, prefix, chip, extension, config, group):
     "Gets the chip seq files. By default gets all files."
 
     samples = _get_samples(sample_sheet, chip, group)
+
+    filetype = find_filetype(sample_sheet)
+
+    if filetype == extension:
+        return list(sample_sheet.loc[sample_sheet.Name.isin(samples)].File)
 
     if extension == "bam" :
         fs = "{prefix}/data/bam/{sample}.sorted.bam"
