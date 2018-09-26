@@ -1,21 +1,27 @@
 
-rule remove_all_but_one_transcript_per_gene:
-    input:
-        "{prefix}/data/annotation/annotation.bed"
-    output:
-        "{prefix}/data/annotation/one_transcript_per_gene.bed"
-    script:
-        "../../scripts/remove_all_but_one_transcript_per_gene.py"
+import pyranges as pr
+
+# rule remove_all_but_one_transcript_per_gene:
+#     input:
+#         "{prefix}/data/annotation/annotation.bed"
+#     output:
+#         "{prefix}/data/annotation/one_transcript_per_gene.bed"
+#     script:
+#         "../../scripts/remove_all_but_one_transcript_per_gene.py"
 
 
 
-rule remove_duplicate_tss_genes:
-    input:
-        "{prefix}/data/annotation/one_transcript_per_gene.bed"
-    output:
-        "{prefix}/data/annotation/no_duplicate_tss.bed"
-    script:
-        "../../scripts/remove_duplicate_tss.py"
+# rule remove_duplicate_tss_genes:
+#     input:
+#         "{prefix}/data/annotation/one_transcript_per_gene.bed"
+#     output:
+#         "{prefix}/data/annotation/no_duplicate_tss.bed"
+#     script:
+#         "../../scripts/remove_duplicate_tss.py"
+
+
+
+
 
 
 rule extract_correct_gene_type:
@@ -27,6 +33,36 @@ rule extract_correct_gene_type:
         gene_type = "(gene|exon)"
     script:
         "../../scripts/extract_correct_gene_type.py"
+
+
+rule create_tss:
+    input:
+        config["annotation_gff3"]
+    output:
+        "{prefix}/data/annotation/TSS.bed"
+    run:
+        print("read gtf")
+        gr = pr.read_gtf(input[0], nrows=None)
+
+        print("filter")
+        gr = gr.ft.filter_transcripts(keep="most_exons")
+        print("compute tss")
+        tss = gr.ft.tss(slack=1000)
+
+        tss.df.insert(3, "Name", tss.GeneID)
+        tss.df.insert(4, "Score", 0)
+        print(tss)
+        tss.df = tss.df.drop(["TranscriptID", "GeneID", "Feature"], 1)
+        print(tss)
+
+        tss.df.to_csv(output[0], sep="\t", header=False, index=False)
+
+
+
+
+
+
+
 
 
 rule compute_internal_exons:

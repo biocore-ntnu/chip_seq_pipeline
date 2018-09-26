@@ -22,12 +22,14 @@ def correct_input_flags(reads):
 
     return input_flags
 
+
 def keep_multi_aligning(keep):
 
     if keep:
         return ""
     else:
         return "grep -E '@|NH:i:1$' |"
+
 
 rule hisat2:
     "Run hisat2 to align fastqs"
@@ -37,7 +39,7 @@ rule hisat2:
     output:
         "{prefix}/data/bam/{sample}.bam"
     log:
-        "logs/bam/{sample}.log"
+        "{prefix}/logs/bam/{sample}.log"
     params:
         idx = config["hisat2_index_prefix"],
         extra = config["hisat2_extra_flags"],

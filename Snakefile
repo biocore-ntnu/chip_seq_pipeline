@@ -124,12 +124,18 @@ else:
 
 regions = ["CDS", "exon", "five_prime_UTR", "gene", "start_codon",
            "stop_codon", "stop_codon_redefined_as_selenocysteine", "three_prime_UTR",
-           "transcript", "internal_exon"]
+           "transcript", "internal_exon", "TSS"]
 
 regular_regions = config["regions"] if config["regions"] else []
 
 custom_regions = list(config["custom_regions"]) if config["custom_regions"] else []
 all_regions = regular_regions + custom_regions
+
+if not config.get("fragment_size"):
+    frag_sizes = pd.read_table(config.get("fragment_lengths"), sep="\s+", squeeze=True, index_col=0, header=None)
+
+# print("filetype:", filetype)
+# print(custom_regions)
 
 
 wildcard_constraints:
@@ -142,9 +148,9 @@ wildcard_constraints:
     caller = "({})".format("|".join(config["peak_callers"])),
     contrast = "({})".format("|".join(contrasts + ["ChIP-Input"]))
 
+
 for rule in to_include:
     include: "rules/{rule}.rules".format(rule=rule)
-
 
 
 rule upsetplot:

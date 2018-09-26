@@ -9,6 +9,8 @@
 
 if config["expression_matrix"]:
 
+    # #chrom  start   end     name    score   strand	deepTools_group
+
     rule gnxp_to_quartiles:
         input:
             config["expression_matrix"]

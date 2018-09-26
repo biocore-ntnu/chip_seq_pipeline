@@ -1,4 +1,4 @@
-bamcoverage_cmd = "bamCoverage -p {threads} --normalizeUsingRPKM -b {input.bam} -o {output[0]}"
+bamcoverage_cmd = "bamCoverage --extendReads {params.fragment_size} --centerReads -p {threads} --normalizeUsing RPKM -b {input.bam} -o {output[0]}"
 
 
 rule bamcoverage:
@@ -7,11 +7,12 @@ rule bamcoverage:
         index = "{prefix}/data/bam/{sample}.sorted.bam.bai"
     output:
         "{prefix}/data/bamcoverage/{sample}.bw"
+    params:
+        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[ss[ss.Name == w.sample].Group.iloc[0]]
     threads:
         48
     shell:
         bamcoverage_cmd
-
 
 rule bamcoverage_merged_group:
     input:
@@ -19,6 +20,8 @@ rule bamcoverage_merged_group:
         index = "{prefix}/data/bamcompare/{group}_{chip}.sorted.bam.bai"
     output:
         "{prefix}/data/bamcoverage/merged_{group}_{chip}.bw"
+    params:
+        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[w.group]
     threads:
         48
     shell:

@@ -40,7 +40,7 @@ if filetype == "fastq":
             reads = lambda w: correct_flag(w, config["paired_end"], sample_sheet, ec_ss),
             adapters = "-b " + config["adapters"] if config["adapters"] else ""
         log:
-            "logs/trim/atropos_{sample}.log"
+            "{prefix}/logs/trim/atropos_{sample}.log"
         conda:
             "../../envs/global.yaml"
         threads: 48

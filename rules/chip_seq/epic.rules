@@ -11,14 +11,15 @@ rule run_epic:
         matrix = "{prefix}/data/epic/{group}.matrix.gz",
         bigwig_folder = "{prefix}/data/epic/{group}_bigwigs/"
     params:
-        paired_end = "--paired-end" if config["paired_end"] else ""
+        paired_end = "--paired-end" if config["paired_end"] else "",
+        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[w.group]
     threads: 48
     resources:
         instances = 1
     shell:
         "epic -cpu {threads} -g {config[epic_gap]} -w "
         "{config[epic_window_size]} -gn {config[genome]} "
-        "{params.paired_end} "
+        "{params.paired_end} --fragment-size {params.fragment_size} "
         "-b {output.bed} -t {input.chip} -c {input.input} "
         "-sm {output.matrix} -bw {output.bigwig_folder} "
         "> {output.outfile}"

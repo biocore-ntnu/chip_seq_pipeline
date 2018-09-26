@@ -1,7 +1,8 @@
 from utils.file_getters import correct_cs_files
 
+macs2_path = "/mnt/work/endrebak/software/anaconda/envs/py27/bin/macs2" # "macs2"
 
-macs2_cmd = "macs2 callpeak {params.macs2_broad} {params.paired_end} {params.macs2_extra_flags} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
+macs2_cmd = "{macs2_path} callpeak --nomodel --extsize {params.fragment_size} --slocal {params.slocal} {params.macs2_broad} {params.paired_end} {params.macs2_extra_flags} -t {input.chip} -c {input.input} -n {params.prefix} && mv {params.outfile} {output[0]}"
 
 
 rule run_macs:
@@ -15,7 +16,9 @@ rule run_macs:
         outfile="{prefix}/data/peaks/macs2/{group}_peaks.narrowPeak" if not config["macs2_broad"] else "{prefix}/data/peaks/macs2/{group}_peaks.broadPeak",
         paired_end = "--format BEDPE" if config["paired_end"] else "",
         macs2_broad = "--broad" if config["macs2_broad"] else "",
-        macs2_extra_flags = config["macs2_extra_flags"] if config["macs2_extra_flags"] else ""
+        macs2_extra_flags = config["macs2_extra_flags"] if config["macs2_extra_flags"] else "",
+        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[w.group],
+        slocal = lambda w: config["fragment_length"] if config["fragment_length"] else max(frag_sizes[w.group], 1000)
     conda:
         "../../envs/macs2.yaml"
     threads: 1

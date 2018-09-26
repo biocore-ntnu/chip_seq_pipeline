@@ -1,7 +1,7 @@
 sort_cmd = "samtools sort -@ {threads} {input[0]} > {output[0]}"
 index_cmd = "samtools index -@ {threads} {input[0]}"
 
-if filetype in ["bam", "bed"]:
+if filetype not in ["bam", "bed"]:
 
 
     rule sort_bam:
@@ -31,6 +31,7 @@ if filetype in ["bam", "bed"]:
 
 
 else:
+
 
     def bams(w):
         ss = sample_sheet

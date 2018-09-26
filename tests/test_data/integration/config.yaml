@@ -15,7 +15,7 @@ prefix: tests/test_data/integration
 # If set, ensures that Snakemake won't start unless you use the tmux session
 # manager.
 # (Not required)
-tmux: 
+tmux: False
 
 
 
@@ -33,7 +33,7 @@ sample_sheet: example/sample_sheet.txt
 # files to the genome used and seeing which bins get a lot of reads. These are
 # candidates for blacklisting and tested according to a Poisson model.
 # (Not required)
-external_control_sample_sheet: 
+external_control_sample_sheet: None
 
 
 
@@ -95,11 +95,16 @@ min_read_length: [14]
 # heyo
 # Whether or not the reads are paired end.
 # (Required)
-paired_end: 
+paired_end: False
 
 # Estimated size of the sequenced fragments.
 # (Required)
 fragment_length: 150
+
+# A two-column headerless file of estimated sizes of the sequenced fragments per
+# group. Col1 is the group names, col2 the frag sizes.
+# (Required)
+fragment_lengths: 
 
 # Minimum required fastq quality.
 # (Not required)
@@ -119,6 +124,13 @@ fastq_quality: [20]
 # refGene for your genome.
 # (Not required)
 annotation_gff3: tests/test_data/integration/gencode.gff3.gz
+
+# What way to sort the heatmaps. Only applicable if sort_order_group is not
+# used. Options: keep, no, descend, ascend. Keep will keep the sort order of the
+# regions and make all the groups have the same sort order. descend/ascend will
+# sort each group according to the signal.
+# (Not required)
+sort_order: keep
 
 # If given, all heatmaps are sorted according to the sort order for this group.
 # This makes it easy to compare heatmaps between groups. If not given, each
@@ -158,7 +170,7 @@ regions: ['exon', 'gene', 'internal_exon']
 # adding a seventh column called deepTools_group to the file. If used, the file
 # must be sorted on the column deepTools_group.
 # (Not required)
-custom_regions: 
+custom_regions: None
 
 
 
@@ -172,11 +184,11 @@ custom_regions:
 # design matrix with an intercept where each group in the sample sheet is a
 # column in the design matrix. Command used is model.matrix(~0 + groups).
 # (Not required)
-contrasts: 
+contrasts: None
 
 # The file used to describe the experimental setup.
 # (Not required)
-design_matrix: 
+design_matrix: None
 
 
 
