@@ -81,7 +81,7 @@ else:
 to_include = ["download/annotation", "download/chromsizes",
               "deeptools/bamcompare","deeptools/bigwig_compare",
               "deeptools/heatmap", "deeptools/profileplot",
-              "deeptools/computematrix", "deeptools/bamcoverage",
+              "deeptools/computematrix", "deeptools/convert_matrix", "deeptools/bamcoverage",
               "deeptools/bigwig", "deeptools/multi_bigwig_summary",
               "deeptools/plot_coverage", "pca/pca",
               "deeptools/plot_fingerprint", "merge_lanes/merge_lanes",
@@ -95,7 +95,12 @@ to_include = ["download/annotation", "download/chromsizes",
               "epic/epic_count", "leave_one_out/compute_chip_over_input",
               "leave_one_out/violin_plots", "normalize/average_input",
               "normalize/divide_chip_input", "voom/voom", "limma/limma",
-              "gene_overlap_barchart/gene_overlap_barchart"] #, "voom/voom"]
+              "gene_overlap_barchart/gene_overlap_barchart"]
+
+to_include_custom = ["area_counts/area_counts", "area_counts/area_distance",
+                     "area_counts/normalize_area_counts"] #, "voom/voom"]
+
+to_include.extend(to_include_custom)
 
 
 path_prefix = config["prefix"]
@@ -132,12 +137,13 @@ custom_regions = list(config["custom_regions"]) if config["custom_regions"] else
 all_regions = regular_regions + custom_regions
 
 if not config.get("fragment_size"):
-    frag_sizes = pd.read_table(config.get("fragment_lengths"), sep="\s+", squeeze=True, index_col=0, header=None)
+    frag_sizes = pd.read_table(config.get("fragment_lengths"), sep="\s+", squeeze=True, header=0)
 
 # print("filetype:", filetype)
 # print(custom_regions)
 
 
+# print("groups", groups)
 wildcard_constraints:
     sample = "({})".format("|".join(chip_samples + input_samples + ec_samples)),
     group = "({})".format("|".join(groups + loo_groups + ec_groups)),
@@ -179,6 +185,12 @@ rule log2_ratio_heatmaps:
         expand("{prefix}/data/heatmap/{region_type}/{chip}/scale_regions/{chip}_{group}_{region_type}.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix),
 
+rule region_matrix:
+    input:
+        expand("{prefix}/data/region_bin/{region_type}/{chip}/scale_regions/{group}.mat",
+               group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix),
+
+
 
 rule input_heatmaps:
     input:
@@ -207,6 +219,7 @@ rule log2_ratio_profileplots:
     input:
         expand("{prefix}/data/profileplot/{region_type}_{chip}_scale_regions_{group}_profile_plot.png",
                 group=groups, region_type=all_regions, chip="log2ratio", prefix=prefix)
+
 
 
 rule chip_profileplots:
@@ -321,6 +334,8 @@ if not len(ss.Group.drop_duplicates()) == 1:
                           zip_dict={"group1": group1, "group2": group2},
                           regular_dict={"region_type": all_regions, "chip": "log2ratio",
                                         "prefix": prefix})
+
+
 
 
 

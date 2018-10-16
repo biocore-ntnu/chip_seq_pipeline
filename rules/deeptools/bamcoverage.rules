@@ -1,4 +1,9 @@
-bamcoverage_cmd = "bamCoverage --extendReads {params.fragment_size} --centerReads -p {threads} --normalizeUsing RPKM -b {input.bam} -o {output[0]}"
+bamcoverage_cmd = "bamCoverage --extendReads {params.shift} --centerReads -p {threads} --normalizeUsing RPKM -b {input.bam} -o {output[0]}"
+
+def get_fragsize(w):
+
+    sample, time, mod = w.sample.split("_")
+    return int(frag_sizes[(frag_sizes.Sample == sample) & (frag_sizes.Time == time)].Size.iloc[0] / 4)
 
 
 rule bamcoverage:
@@ -8,11 +13,24 @@ rule bamcoverage:
     output:
         "{prefix}/data/bamcoverage/{sample}.bw"
     params:
-        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[ss[ss.Name == w.sample].Group.iloc[0]]
+        shift = get_fragsize # lambda w: int(frag_sizes[(frag_sizes.Sample == w.sample) & (frag_sizes.Time == w.time)].Size.iloc[0] / 2)
+        # fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else int(frag_sizes[ss[ss.Sample == w.sample].Group.iloc[0]] / 2)
     threads:
         48
     shell:
         bamcoverage_cmd
+
+
+def get_fragsize(w):
+
+    # print(w.group)
+    mod, time = w.group.split("_")
+    # print(frag_sizes)
+    res = frag_sizes[(frag_sizes.Time == time)].Size
+
+    return int(sum(res)/(2 * 4))
+
+
 
 rule bamcoverage_merged_group:
     input:
@@ -21,7 +39,7 @@ rule bamcoverage_merged_group:
     output:
         "{prefix}/data/bamcoverage/merged_{group}_{chip}.bw"
     params:
-        fragment_size = lambda w: config["fragment_length"] if config["fragment_length"] else frag_sizes[w.group]
+        shift = get_fragsize
     threads:
         48
     shell:

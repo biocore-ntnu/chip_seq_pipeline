@@ -47,7 +47,7 @@ rule create_tss:
         print("filter")
         gr = gr.ft.filter_transcripts(keep="most_exons")
         print("compute tss")
-        tss = gr.ft.tss(slack=1000)
+        tss = gr.ft.tss(slack=5000)
 
         tss.df.insert(3, "Name", tss.GeneID)
         tss.df.insert(4, "Score", 0)

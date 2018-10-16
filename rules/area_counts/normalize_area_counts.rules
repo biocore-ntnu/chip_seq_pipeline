@@ -13,6 +13,8 @@ __author__ = "Endre Bakken Stovner https://github.com/endrebak/"
 __license__ = "MIT"
 
 
+expression_matrix = "private/epipp/MatureMatrix.csv"
+
 def get_correct_samples(samples, group, chip):
 
     sample_rows = samples.Group == group
@@ -21,13 +23,13 @@ def get_correct_samples(samples, group, chip):
     return list(samples.loc[sample_rows & input_rows].Name)
 
 
-def input_files(samples, group, tss_or_tes, chip, using_gnxp):
+def input_files(samples, group, prefix, tss_or_tes, chip, using_gnxp):
 
     correct_samples = get_correct_samples(samples, group, chip)
     folder = "transcript_expression" if using_gnxp else "area_counts"
 
     template = "{prefix}/data/{folder}/{tss_or_tes}_{{sample}}.area_distance".format(
-        tss_or_tes=tss_or_tes, folder=folder)
+        tss_or_tes=tss_or_tes, folder=folder, prefix=prefix)
     files = expand(template, sample=correct_samples)
     if not files:
         print(correct_samples)
@@ -39,7 +41,7 @@ def input_files(samples, group, tss_or_tes, chip, using_gnxp):
 
 rule merge_chip:
     input:
-        lambda w: input_files(sample_sheet, w.group, w.tss_or_tes, "chip", config["expression_matrix"])
+        lambda w: input_files(sample_sheet, w.group, w.prefix, w.tss_or_tes, "chip", expression_matrix)
     output:
         "{prefix}/data/area_counts/{tss_or_tes}_{group}.merged_chip"
     shell:
@@ -48,7 +50,7 @@ rule merge_chip:
 
 rule average_input:
     input:
-        lambda w: input_files(sample_sheet, w.group, w.tss_or_tes, "input", config["expression_matrix"])
+        lambda w: input_files(sample_sheet, w.group, w.prefix, w.tss_or_tes, "input", expression_matrix)
     output:
         "{prefix}/data/area_counts/{tss_or_tes}_{group}.merged_input"
     run:
@@ -91,7 +93,7 @@ rule normalize_counts:
         df.to_csv(output[0], sep=" ", index=None)
 
 
-rule divide_chip_input:
+rule divide_chip_and_bg:
     input:
         chip = "{prefix}/data/area_counts/{tss_or_tes}_{group}_chip.normalized_counts",
         input = "{prefix}/data/area_counts/{tss_or_tes}_{group}_input.normalized_counts"

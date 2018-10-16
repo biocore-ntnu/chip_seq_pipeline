@@ -1,0 +1,72 @@
+import pandas as pd
+from json import loads
+
+rule matrix_to_bins_noname:
+    input:
+        "{prefix}/data/compute_matrix/{region_type}/{chip}/{scaled}/{group}.mat.gz"
+    output:
+        "{prefix}/data/region_bin/{region_type}/{chip}/{scaled}/{group}.mat"
+    run:
+        f = input[0]
+        header = gzip.open(f).readline().decode().strip()[1:]
+
+        d = loads(header)
+
+        print(d)
+        bin_size = d["bin size"][0]
+
+        upstream = int(d["upstream"][0])
+        body = int(d["body"][0])
+        downstream = int(d["downstream"][0])
+
+        df = pd.read_table(f, nrows=None, skiprows=1, header=None, index_col=list(range(6)))
+
+        bs = d["group_boundaries"]
+        group_lengths = [b2 - b1 for b1, b2 in zip(bs, bs[1:])]
+
+        groups = d["group_labels"]
+        group_vector = sum(([int(group)] * group_length for group, group_length in zip(groups, group_lengths)), [])
+
+        group_vector = pd.Series(group_vector, index=df.index)
+
+        df.insert(0, "Group", group_vector)
+        df = df.set_index("Group", append=True)
+
+        group_bins = []
+        for g, gdf in df.groupby("Group"):
+            gdf = gdf.sum().to_frame()
+            gdf.columns = ["Score"]
+            gdf.insert(0, "Group", g)
+            group_bins.append(gdf)
+
+        odf = pd.concat(group_bins)
+        odf = odf.set_index("Group")
+
+        sample_labels = d["sample_labels"]
+
+        end = int(body/2) + downstream
+
+        start = -int(body/2) - upstream
+
+        positions = list(range(start, end, bin_size))
+
+        labels = []
+        for label in sample_labels:
+            labels.append([label] * len(positions))
+
+        labels = sum(labels, [])
+        positions = positions * len(sample_labels)
+
+        gdfs = []
+        for g, gdf in odf.groupby("Group"):
+            gdf.insert(0, "Sample", labels)
+            gdf.insert(1, "Bin", positions)
+
+            print(gdf)
+
+            gdf = gdf.set_index("Bin", append=True)
+            gdfs.append(gdf)
+
+        odf2 = pd.concat(gdfs)
+
+        odf2.to_csv(output[0], sep=" ")

@@ -5,7 +5,7 @@ from gzip import GzipFile as gz_open
 
 rule make_tss_bed:
     input:
-        config["local_annotation_gff3"] if config["local_annotation_gff3"] else "{prefix}/data/annotation/annotation.gff3"
+        config["annotation_gff3"] if config["annotation_gff3"] else "{prefix}/data/annotation/annotation.gff3"
     output:
         "{prefix}/data/area_counts/{tss_or_tes}.bed"
     run:
